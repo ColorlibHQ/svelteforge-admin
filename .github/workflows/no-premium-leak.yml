@@ -1,0 +1,26 @@
+name: Guard against premium leak
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-premium-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject reserved premium paths
+        run: |
+          # Premium-only paths must never appear in the free repo.
+          # Reserved patterns:
+          #   any directory named "premium"        e.g. src/lib/premium/, src/lib/server/premium/
+          #   any route group starting "(premium"  e.g. src/routes/(premium)/, (premium-app)/
+          matches=$(git ls-files | grep -E '(^|/)premium/|(^|/)\(premium' || true)
+          if [ -n "$matches" ]; then
+            echo "::error::Reserved premium paths detected in the free repo. These belong in the private premium repo only."
+            echo "$matches" | while read -r f; do echo "::error file=$f::premium-only path"; done
+            exit 1
+          fi
+          echo "OK — no premium paths found."

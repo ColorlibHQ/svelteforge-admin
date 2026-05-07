@@ -110,3 +110,14 @@ After modifying `schema.ts`, also update the `SCHEMA_SQL` in `test-utils.ts` and
 - `App.Locals` typed in `src/app.d.ts` — `user: SessionUser | null`, `session: Session | null`
 - `seed.ts` runs outside SvelteKit context — use relative imports (not `$lib/`) and `generateId()` from `$lib/server/id.js`
 - LayerChart and `svelte-ux` must stay in `ssr.noExternal` in `vite.config.ts` — without it, SSR breaks on chart pages
+
+### Free vs Premium split
+
+This is the **free** repo (public, MIT). A separate private repo holds the **premium** tier as a superset (clones this repo, adds premium-only modules). Sync direction is one-way: free → premium, never the other way.
+
+**Reserved paths in this repo** — never commit files matching these patterns; CI (`.github/workflows/no-premium-leak.yml`) will reject the push:
+
+- Any directory named `premium/` (e.g. `src/lib/premium/`, `src/lib/server/premium/`)
+- Any route group starting with `(premium` (e.g. `src/routes/(premium)/`, `(premium-app)/`)
+
+If a feature request sounds premium-tier (multi-tenancy, billing, 2FA, passkeys, AI/RAG, audit log, impersonation, advanced apps like Mail/Chat/Kanban/Calendar/File-Manager/Invoice/eCommerce/CRM), say so and stop — it belongs in the premium repo, not here.
