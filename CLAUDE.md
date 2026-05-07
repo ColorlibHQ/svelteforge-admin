@@ -35,6 +35,7 @@ pnpm format:check     # Prettier (check only)
 ## Architecture
 
 ### Tech Stack
+
 - **Svelte 5** with runes API (`$props`, `$state`, `$derived`, `{@render}`)
 - **Tailwind CSS v4** — native CSS with `@theme` directive in `src/app.css`, no JS config file. OKLCH color system
 - **shadcn-svelte** — UI components in `$lib/components/ui/`, added via `npx shadcn-svelte@latest add <component>`
@@ -46,6 +47,7 @@ pnpm format:check     # Prettier (check only)
 ### Routing & Auth
 
 Routes use SvelteKit route groups for layout separation:
+
 - `(app)/` — Protected routes. Auth guard in `(app)/+layout.server.ts` redirects unauthenticated users to `/login`
 - `(auth)/` — Public auth routes (login, register, OAuth callbacks at `login/google/`, `login/github/`)
 - `(public)/` — Public pages (pricing)
@@ -54,6 +56,12 @@ Routes use SvelteKit route groups for layout separation:
 - `sitemap.xml/` — Auto-generated sitemap
 
 Session validation runs on every request via `hooks.server.ts`, populating `event.locals.user` and `event.locals.session`. OAuth providers are environment-driven — see `.env.example` for configuration.
+
+`event.locals.user` is `SessionUser` (a subset of `User` — no `passwordHash`, no timestamps). Use the full `User` type only when querying the DB directly.
+
+Sessions live 30 days and auto-extend whenever a request arrives with <15 days remaining (logic in `validateSession`). The cookie holds the raw token; the DB stores its SHA-256 hash as the session ID — a leaked DB cannot be used to forge sessions.
+
+The `(app)/+layout.server.ts` guard also enforces **maintenance mode**: when `appSettings.maintenanceMode === "true"`, non-admin users get a 503. Admins bypass it.
 
 ### Key Directories
 
@@ -73,6 +81,8 @@ Session validation runs on every request via `hooks.server.ts`, populating `even
 
 SQLite database file: `svelteforge.db` (project root, gitignored). Roles enum: `admin | editor | viewer`. First registered user gets `admin` role.
 
+**Notifications with `userId = NULL` are global** — every user sees them. Per-user notifications set `userId` to the recipient. The `(app)/+layout.server.ts` filter (`eq(userId, X) OR isNull(userId)`) is the canonical pattern for any notification query.
+
 ### Testing
 
 Tests co-locate with their route: e.g., `src/routes/(app)/users/users.test.ts` tests the `users/+page.server.ts` load and actions.
@@ -81,12 +91,16 @@ Tests co-locate with their route: e.g., `src/routes/(app)/users/users.test.ts` t
 
 ```ts
 vi.mock("$lib/server/db/index.js", () => ({
-  get db() { return testDb; },
+	get db() {
+		return testDb;
+	},
 }));
 const { load, actions } = await import("./+page.server.js");
 ```
 
 After modifying `schema.ts`, also update the `SCHEMA_SQL` in `test-utils.ts` and run `pnpm db:push`.
+
+`test-utils.ts` also exports `createTestUser(db, overrides)`, `createMockLocals(userId, role)`, `createFormData(entries)`, and `createMockRequest(formData)` — use these instead of hand-rolling fixtures in each test. `createTestUser` hashes `"password123"` with the same Argon2id parameters used in production.
 
 ### Patterns
 
@@ -95,3 +109,4 @@ After modifying `schema.ts`, also update the `SCHEMA_SQL` in `test-utils.ts` and
 - App shell layout: sidebar (`app-sidebar.svelte`) + topbar with breadcrumbs (generated from URL pathname)
 - `App.Locals` typed in `src/app.d.ts` — `user: SessionUser | null`, `session: Session | null`
 - `seed.ts` runs outside SvelteKit context — use relative imports (not `$lib/`) and `generateId()` from `$lib/server/id.js`
+- LayerChart and `svelte-ux` must stay in `ssr.noExternal` in `vite.config.ts` — without it, SSR breaks on chart pages

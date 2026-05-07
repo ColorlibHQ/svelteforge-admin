@@ -9,10 +9,10 @@
 <h1>Routing &amp; Navigation</h1>
 
 <p>
-	SvelteForge Admin is built on <strong>SvelteKit's</strong> file-based routing system.
-	Every file inside <code>src/routes/</code> automatically becomes a route in your application —
-	no router configuration needed. <strong>SvelteKit</strong> handles server-side rendering,
-	client-side navigation, data loading, and form handling out of the box for every route your
+	SvelteForge Admin is built on <strong>SvelteKit's</strong> file-based routing system. Every file
+	inside <code>src/routes/</code> automatically becomes a route in your application — no router
+	configuration needed. <strong>SvelteKit</strong> handles server-side rendering, client-side
+	navigation, data loading, and form handling out of the box for every route your
 	<strong>Svelte 5</strong> components define.
 </p>
 
@@ -20,8 +20,8 @@
 
 <p>
 	In <strong>SvelteKit</strong>, the filesystem <em>is</em> the router. Each directory inside
-	<code>src/routes/</code> maps to a URL path, and special files within each directory define what
-	happens at that route:
+	<code>src/routes/</code> maps to a URL path, and special files within each directory define what happens
+	at that route:
 </p>
 
 <table>
@@ -38,7 +38,8 @@
 		</tr>
 		<tr>
 			<td><code>+page.server.ts</code></td>
-			<td>Server-side data loading (<code>load</code>) and form mutations (<code>actions</code>)</td>
+			<td>Server-side data loading (<code>load</code>) and form mutations (<code>actions</code>)</td
+			>
 		</tr>
 		<tr>
 			<td><code>+layout.svelte</code></td>
@@ -62,26 +63,28 @@
 <h2>Route Groups in SvelteForge</h2>
 
 <p>
-	<strong>SvelteKit</strong> supports <strong>route groups</strong> — directories wrapped in
-	parentheses that organize routes with shared layouts without affecting the URL. SvelteForge Admin
-	uses route groups extensively to separate concerns:
+	<strong>SvelteKit</strong> supports <strong>route groups</strong> — directories wrapped in parentheses
+	that organize routes with shared layouts without affecting the URL. SvelteForge Admin uses route groups
+	extensively to separate concerns:
 </p>
 
-<pre><code>src/routes/
+<pre><code
+		>src/routes/
   (app)/              &larr; Protected routes (dashboard, users, content...)
   (auth)/             &larr; Public auth routes (login, register...)
   (public)/           &larr; Public marketing pages (pricing)
   docs/               &larr; Documentation (standalone layout)
   api/                &larr; API endpoints
   logout/             &larr; Standalone logout action
-  sitemap.xml/        &larr; Auto-generated sitemap</code></pre>
+  sitemap.xml/        &larr; Auto-generated sitemap</code
+	></pre>
 
 <p>
-	The parentheses in <code>(app)</code>, <code>(auth)</code>, and <code>(public)</code> are
-	stripped from the URL. So <code>src/routes/(app)/users/+page.svelte</code> renders at
+	The parentheses in <code>(app)</code>, <code>(auth)</code>, and <code>(public)</code> are stripped
+	from the URL. So <code>src/routes/(app)/users/+page.svelte</code> renders at
 	<code>/users</code>, not <code>/(app)/users</code>. This is a core
-	<strong>SvelteKit</strong> feature that lets you apply different layouts to different route groups
-	while keeping clean URLs.
+	<strong>SvelteKit</strong> feature that lets you apply different layouts to different route groups while
+	keeping clean URLs.
 </p>
 
 <h3>(app) — Protected Routes</h3>
@@ -269,7 +272,8 @@
 	protects every route in the <code>(app)</code> group.
 </p>
 
-<pre><code class="language-typescript">// src/routes/(app)/+layout.server.ts
+<pre><code class="language-typescript"
+		>// src/routes/(app)/+layout.server.ts
 import &#123; redirect, error &#125; from "@sveltejs/kit";
 import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; notifications, appSettings &#125; from "$lib/server/db/schema.js";
@@ -319,20 +323,20 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
     unreadNotificationCount: countResult?.count ?? 0,
     recentNotifications,
   &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>This layout server load does three things:</p>
 
 <ol>
 	<li>
-		<strong>Authentication check</strong> — If <code>locals.user</code> is null (no valid
-		session), <strong>SvelteKit's</strong> <code>redirect()</code> sends a 302 to
+		<strong>Authentication check</strong> — If <code>locals.user</code> is null (no valid session),
+		<strong>SvelteKit's</strong> <code>redirect()</code> sends a 302 to
 		<code>/login</code>. No child route ever renders.
 	</li>
 	<li>
-		<strong>Maintenance mode</strong> — If the <code>maintenanceMode</code> app setting is
-		"true", non-admin users see a 503 error. Admins can still access the dashboard to manage the
-		app.
+		<strong>Maintenance mode</strong> — If the <code>maintenanceMode</code> app setting is "true", non-admin
+		users see a 503 error. Admins can still access the dashboard to manage the app.
 	</li>
 	<li>
 		<strong>Sidebar data</strong> — Loads unread notification count and the 5 most recent unread
@@ -349,7 +353,8 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	<code>event.locals</code>:
 </p>
 
-<pre><code class="language-typescript">// src/hooks.server.ts
+<pre><code class="language-typescript"
+		>// src/hooks.server.ts
 import &#123;
   validateSession,
   setSessionCookie,
@@ -379,7 +384,8 @@ export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
   event.locals.user = user;
   event.locals.session = session;
   return resolve(event);
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
 	After the hook runs, every <strong>SvelteKit</strong> server route (load functions, actions, API
@@ -387,7 +393,8 @@ export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
 	types are defined in <code>src/app.d.ts</code>:
 </p>
 
-<pre><code class="language-typescript">// src/app.d.ts
+<pre><code class="language-typescript"
+		>// src/app.d.ts
 declare global &#123;
   namespace App &#123;
     interface Locals &#123;
@@ -395,13 +402,14 @@ declare global &#123;
       session: Session | null;
     &#125;
   &#125;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <h2>Layout Hierarchy</h2>
 
 <p>
-	<strong>SvelteKit</strong> nests layouts automatically. Each route group has its own layout that
-	wraps all pages within it. SvelteForge Admin has four distinct layout trees:
+	<strong>SvelteKit</strong> nests layouts automatically. Each route group has its own layout that wraps
+	all pages within it. SvelteForge Admin has four distinct layout trees:
 </p>
 
 <h3>Root Layout</h3>
@@ -414,8 +422,7 @@ declare global &#123;
 <h3>App Layout — <code>(app)/+layout.svelte</code></h3>
 
 <p>
-	The main application shell for authenticated users. This <strong>Svelte 5</strong> component
-	renders:
+	The main application shell for authenticated users. This <strong>Svelte 5</strong> component renders:
 </p>
 
 <ul>
@@ -441,16 +448,16 @@ declare global &#123;
 <h3>Auth Layout — <code>(auth)/+layout.svelte</code></h3>
 
 <p>
-	A centered card layout for login, register, and password reset pages. No sidebar or top bar —
-	just a clean, focused form in the center of the screen.
+	A centered card layout for login, register, and password reset pages. No sidebar or top bar — just
+	a clean, focused form in the center of the screen.
 </p>
 
 <h3>Docs Layout — <code>docs/+layout.svelte</code></h3>
 
 <p>
 	This documentation layout provides its own sidebar navigation with section groupings (Getting
-	Started, Core Concepts, Features, Advanced) and prose styling for article content. It is
-	separate from the <code>(app)</code> layout and does not require authentication.
+	Started, Core Concepts, Features, Advanced) and prose styling for article content. It is separate
+	from the <code>(app)</code> layout and does not require authentication.
 </p>
 
 <h2>Breadcrumb Navigation</h2>
@@ -460,7 +467,8 @@ declare global &#123;
 	directly in the <strong>Svelte 5</strong> component using <code>$derived</code>:
 </p>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; page &#125; from "$app/state";
 
   let segments = $derived(
@@ -472,24 +480,23 @@ declare global &#123;
         href: "/" + s,
       &#125;))
   );
-&lt;/script&gt;</code></pre>
+&lt;/script&gt;</code
+	></pre>
 
 <ul>
 	<li>The path is split into segments and each segment is capitalized.</li>
 	<li>
 		The root path (<code>/</code>) shows "Dashboard" as the breadcrumb.
 	</li>
-	<li>
-		Each breadcrumb links to its URL segment for quick navigation.
-	</li>
+	<li>Each breadcrumb links to its URL segment for quick navigation.</li>
 </ul>
 
 <h2>Adding New Routes</h2>
 
 <p>
 	Adding a new protected page to SvelteForge Admin takes four steps. Because
-	<strong>SvelteKit's</strong> file-based routing and the <code>(app)</code> layout guard work
-	together, your new route is automatically authenticated and styled.
+	<strong>SvelteKit's</strong> file-based routing and the <code>(app)</code> layout guard work together,
+	your new route is automatically authenticated and styled.
 </p>
 
 <h3>Step 1: Create the Route Directory</h3>
@@ -498,7 +505,8 @@ declare global &#123;
 
 <h3>Step 2: Add the Server Load Function</h3>
 
-<pre><code class="language-typescript">// src/routes/(app)/reports/+page.server.ts
+<pre><code class="language-typescript"
+		>// src/routes/(app)/reports/+page.server.ts
 import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; pages &#125; from "$lib/server/db/schema.js";
 import &#123; sql &#125; from "drizzle-orm";
@@ -514,11 +522,13 @@ export const load: PageServerLoad = async () =&gt; &#123;
     .groupBy(pages.status);
 
   return &#123; stats &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <h3>Step 3: Add the Svelte 5 Page Component</h3>
 
-<pre><code class="language-svelte">&lt;!-- src/routes/(app)/reports/+page.svelte --&gt;
+<pre><code class="language-svelte"
+		>&lt;!-- src/routes/(app)/reports/+page.svelte --&gt;
 &lt;script lang="ts"&gt;
   let &#123; data &#125; = $props();
 &lt;/script&gt;
@@ -534,27 +544,29 @@ export const load: PageServerLoad = async () =&gt; &#123;
       &lt;/div&gt;
     &#123;/each&#125;
   &lt;/div&gt;
-&lt;/div&gt;</code></pre>
+&lt;/div&gt;</code
+	></pre>
 
 <h3>Step 4: Add Sidebar Link</h3>
 
 <p>
 	Add a navigation entry in <code>src/lib/components/app-sidebar.svelte</code>. The auth guard in
-	<code>(app)/+layout.server.ts</code> automatically protects the new route — no additional
-	configuration needed.
+	<code>(app)/+layout.server.ts</code> automatically protects the new route — no additional configuration
+	needed.
 </p>
 
 <h2>Form Actions</h2>
 
 <p>
-	<strong>SvelteKit</strong> form actions handle server-side mutations (create, update, delete)
-	with built-in progressive enhancement. SvelteForge Admin uses them throughout — here is a
-	pattern from the user management page:
+	<strong>SvelteKit</strong> form actions handle server-side mutations (create, update, delete) with built-in
+	progressive enhancement. SvelteForge Admin uses them throughout — here is a pattern from the user management
+	page:
 </p>
 
 <h3>Server-Side Action</h3>
 
-<pre><code class="language-typescript">// src/routes/(app)/users/+page.server.ts
+<pre><code class="language-typescript"
+		>// src/routes/(app)/users/+page.server.ts
 import &#123; fail &#125; from "@sveltejs/kit";
 import type &#123; Actions &#125; from "./$types.js";
 
@@ -587,11 +599,13 @@ export const actions: Actions = &#123;
 
     return &#123; success: true &#125;;
   &#125;,
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <h3>Svelte 5 Form Component</h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; enhance &#125; from "$app/forms";
 
   let &#123; form &#125; = $props();
@@ -612,24 +626,24 @@ export const actions: Actions = &#123;
   &#123;#if form?.message&#125;
     &lt;p class="text-destructive"&gt;&#123;form.message&#125;&lt;/p&gt;
   &#123;/if&#125;
-&lt;/form&gt;</code></pre>
+&lt;/form&gt;</code
+	></pre>
 
 <p>Key points about <strong>SvelteKit</strong> form actions:</p>
 
 <ul>
 	<li>
-		<strong>Progressive enhancement</strong> — The <code>use:enhance</code> directive makes
-		forms submit via fetch with no page reload, but they still work without JavaScript enabled.
+		<strong>Progressive enhancement</strong> — The <code>use:enhance</code> directive makes forms submit
+		via fetch with no page reload, but they still work without JavaScript enabled.
 	</li>
 	<li>
 		<strong>Server-side validation</strong> — Always validate on the server. The
-		<code>fail()</code> function returns error data to the <strong>Svelte 5</strong> component
-		via the <code>form</code> prop.
+		<code>fail()</code> function returns error data to the <strong>Svelte 5</strong> component via
+		the <code>form</code> prop.
 	</li>
 	<li>
-		<strong>Named actions</strong> — The <code>action="?/create"</code> attribute targets a
-		specific named action. A single <code>+page.server.ts</code> can export multiple actions
-		(create, update, delete).
+		<strong>Named actions</strong> — The <code>action="?/create"</code> attribute targets a specific
+		named action. A single <code>+page.server.ts</code> can export multiple actions (create, update, delete).
 	</li>
 	<li>
 		<strong>Automatic revalidation</strong> — After a successful action,
@@ -641,18 +655,19 @@ export const actions: Actions = &#123;
 <h2>API Routes</h2>
 
 <p>
-	<strong>SvelteKit</strong> API routes are defined in <code>+server.ts</code> files and export
-	HTTP method handlers.
+	<strong>SvelteKit</strong> API routes are defined in <code>+server.ts</code> files and export HTTP method
+	handlers.
 </p>
 
 <h3>/api/search — Command Palette Search</h3>
 
 <p>
-	The search endpoint powers the command palette (<code>Ctrl+K</code>). It queries users, pages,
-	and notifications in parallel using <code>Promise.all</code>:
+	The search endpoint powers the command palette (<code>Ctrl+K</code>). It queries users, pages, and
+	notifications in parallel using <code>Promise.all</code>:
 </p>
 
-<pre><code class="language-typescript">// src/routes/api/search/+server.ts
+<pre><code class="language-typescript"
+		>// src/routes/api/search/+server.ts
 import &#123; json, error &#125; from "@sveltejs/kit";
 import type &#123; RequestHandler &#125; from "./$types.js";
 
@@ -680,25 +695,27 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
     ]);
 
   return json(results);
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <h3>/sitemap.xml — Auto-Generated Sitemap</h3>
 
 <p>
 	The sitemap endpoint generates XML dynamically from the application's routes. It is served at
-	<code>/sitemap.xml</code> — <strong>SvelteKit</strong> treats directories named with file
-	extensions as valid routes.
+	<code>/sitemap.xml</code> — <strong>SvelteKit</strong> treats directories named with file extensions
+	as valid routes.
 </p>
 
 <h2>Page Transitions</h2>
 
 <p>
-	SvelteForge Admin uses the <strong>View Transitions API</strong> for smooth cross-fade
-	animations when navigating between pages. <strong>SvelteKit</strong> has built-in support for
-	view transitions — you can enable them by adding the <code>onNavigate</code> lifecycle hook:
+	SvelteForge Admin uses the <strong>View Transitions API</strong> for smooth cross-fade animations
+	when navigating between pages. <strong>SvelteKit</strong> has built-in support for view
+	transitions — you can enable them by adding the <code>onNavigate</code> lifecycle hook:
 </p>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; onNavigate &#125; from "$app/navigation";
 
   onNavigate((navigation) =&gt; &#123;
@@ -710,18 +727,18 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
       &#125;);
     &#125;);
   &#125;);
-&lt;/script&gt;</code></pre>
+&lt;/script&gt;</code
+	></pre>
 
 <p>
-	This provides a smooth cross-fade between pages in browsers that support the View Transitions
-	API, while falling back gracefully to instant navigation in older browsers.
+	This provides a smooth cross-fade between pages in browsers that support the View Transitions API,
+	while falling back gracefully to instant navigation in older browsers.
 </p>
 
 <h2>Summary</h2>
 
 <p>
-	<strong>SvelteKit's</strong> routing system gives SvelteForge Admin a clean, convention-based
-	architecture:
+	<strong>SvelteKit's</strong> routing system gives SvelteForge Admin a clean, convention-based architecture:
 </p>
 
 <ul>
@@ -734,18 +751,18 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 		<strong>Svelte 5</strong> components.
 	</li>
 	<li>
-		<strong>Server hooks</strong> validate sessions on every request before any route handler
-		runs.
+		<strong>Server hooks</strong> validate sessions on every request before any route handler runs.
 	</li>
 	<li>
-		<strong>Form actions</strong> handle mutations with progressive enhancement and server-side
-		validation.
+		<strong>Form actions</strong> handle mutations with progressive enhancement and server-side validation.
 	</li>
 	<li>
 		<strong>API routes</strong> power features like the command palette search.
 	</li>
 	<li>
-		Adding a new page is as simple as creating files in the right directory — <strong>SvelteKit</strong>
+		Adding a new page is as simple as creating files in the right directory — <strong
+			>SvelteKit</strong
+		>
 		handles the rest.
 	</li>
 </ul>
@@ -753,32 +770,29 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				SvelteForge Admin demonstrates <strong>SvelteKit's</strong> routing capabilities
-				with a handful of well-crafted pages. DashboardPack premium templates take it
-				further with 50+ pages, nested route hierarchies, multi-step wizards,
-				tabbed interfaces, and advanced <strong>Svelte 5</strong> component patterns — all
-				built on <strong>SvelteKit</strong>.
+				SvelteForge Admin demonstrates <strong>SvelteKit's</strong> routing capabilities with a
+				handful of well-crafted pages. DashboardPack premium templates take it further with 50+
+				pages, nested route hierarchies, multi-step wizards, tabbed interfaces, and advanced
+				<strong>Svelte 5</strong>
+				component patterns — all built on <strong>SvelteKit</strong>.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — 50+ pages with 5 unique dashboards, CRUD modules, and
-					nested routing patterns
+					<strong>Apex</strong> — 50+ pages with 5 unique dashboards, CRUD modules, and nested routing
+					patterns
 				</li>
 				<li>
-					<strong>Zenith</strong> — Advanced analytics with dynamic route parameters and
-					drill-down views
+					<strong>Zenith</strong> — Advanced analytics with dynamic route parameters and drill-down views
 				</li>
 				<li>
-					<strong>Signal</strong> — Real-time monitoring with streaming data via
-					SvelteKit server-sent events
+					<strong>Signal</strong> — Real-time monitoring with streaming data via SvelteKit server-sent
+					events
 				</li>
 			</ul>
 		</div>

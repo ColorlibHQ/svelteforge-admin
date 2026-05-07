@@ -1,6 +1,6 @@
 <script>
 	const premiumUrl =
-		'https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium';
+		"https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium";
 </script>
 
 <svelte:head>
@@ -17,8 +17,8 @@
 	<p class="lead">
 		SvelteForge Admin includes a built-in CMS for creating and managing pages, powered by
 		<strong>SvelteKit</strong> form actions and <strong>Drizzle ORM</strong>. Content is stored in
-		SQLite with full status workflow support, template selection, and automatic author tracking — all
-		driven by <strong>Svelte 5</strong> reactivity.
+		SQLite with full status workflow support, template selection, and automatic author tracking —
+		all driven by <strong>Svelte 5</strong> reactivity.
 	</p>
 
 	<hr />
@@ -38,8 +38,8 @@
 			the slug.
 		</li>
 		<li>
-			<strong>Slug</strong> — Auto-generated from the title on creation. The slug is editable before
-			saving and must be unique across all pages.
+			<strong>Slug</strong> — Auto-generated from the title on creation. The slug is editable before saving
+			and must be unique across all pages.
 		</li>
 		<li>
 			<strong>Content</strong> — A textarea for the page body. Accepts plain text or HTML content.
@@ -106,7 +106,10 @@
 		</li>
 	</ul>
 
-	<p>Status transitions are unrestricted — you can move a page directly from Draft to Archived or revert a Published page back to Draft.</p>
+	<p>
+		Status transitions are unrestricted — you can move a page directly from Draft to Archived or
+		revert a Published page back to Draft.
+	</p>
 
 	<hr />
 
@@ -114,8 +117,8 @@
 
 	<p>
 		The content table lists all pages with relevant metadata. Data is loaded server-side via a
-		Drizzle query that performs a <strong>left join</strong> with the users table to resolve the
-		author name.
+		Drizzle query that performs a <strong>left join</strong> with the users table to resolve the author
+		name.
 	</p>
 
 	<h3>Displayed Columns</h3>
@@ -132,9 +135,17 @@
 	<h3>Table Features</h3>
 
 	<ul>
-		<li><strong>Sortable columns</strong> — Click headers to sort by title, status, author, or date</li>
-		<li><strong>Status filtering</strong> — Filter the table to show only Draft, Published, or Archived pages</li>
-		<li><strong>Pagination</strong> — Uses the <code>data-table-pagination</code> component with configurable page sizes</li>
+		<li>
+			<strong>Sortable columns</strong> — Click headers to sort by title, status, author, or date
+		</li>
+		<li>
+			<strong>Status filtering</strong> — Filter the table to show only Draft, Published, or Archived
+			pages
+		</li>
+		<li>
+			<strong>Pagination</strong> — Uses the <code>data-table-pagination</code> component with configurable
+			page sizes
+		</li>
 		<li><strong>Checkbox selection</strong> — Select individual or all rows for bulk operations</li>
 	</ul>
 
@@ -168,8 +179,8 @@ export const load: PageServerLoad = async () => {
 
 	<p>
 		New pages are created through a form that submits to the <code>create</code> form action in
-		<code>content/+page.server.ts</code>. The form uses SvelteKit's <code>use:enhance</code> for
-		progressive enhancement.
+		<code>content/+page.server.ts</code>. The form uses SvelteKit's <code>use:enhance</code> for progressive
+		enhancement.
 	</p>
 
 	<h3>Server-Side Processing</h3>
@@ -177,12 +188,10 @@ export const load: PageServerLoad = async () => {
 	<ul>
 		<li>All fields are validated on the server (title required, slug format and uniqueness)</li>
 		<li>
-			The <code>authorId</code> is set from the current user session — it cannot be spoofed from the
-			client
+			The <code>authorId</code> is set from the current user session — it cannot be spoofed from the client
 		</li>
 		<li>
-			If the status is set to "published" on creation, <code>publishedAt</code> is populated
-			automatically
+			If the status is set to "published" on creation, <code>publishedAt</code> is populated automatically
 		</li>
 		<li>
 			The page ID is generated using <code>generateId()</code> from <code>$lib/server/id.ts</code>
@@ -216,16 +225,15 @@ export const load: PageServerLoad = async () => {
 	<h3>Single Delete</h3>
 
 	<p>
-		Deleting a page requires confirmation through a dialog. The <code>delete</code> form action
-		removes the page and its associated data from the database.
+		Deleting a page requires confirmation through a dialog. The <code>delete</code> form action removes
+		the page and its associated data from the database.
 	</p>
 
 	<h3>Bulk Delete</h3>
 
 	<p>
 		Select multiple pages via checkboxes and delete them in one operation. The
-		<code>bulkDelete</code> form action processes all selected page IDs in a single database
-		transaction.
+		<code>bulkDelete</code> form action processes all selected page IDs in a single database transaction.
 	</p>
 
 	<pre><code
@@ -275,8 +283,7 @@ bulkDelete: async ({ request }) => {
 	<h2>Database Schema Reference</h2>
 
 	<p>
-		The <code>pages</code> table in <code>src/lib/server/db/schema.ts</code> defines the following
-		columns:
+		The <code>pages</code> table in <code>src/lib/server/db/schema.ts</code> defines the following columns:
 	</p>
 
 	<table>
@@ -393,8 +400,8 @@ let allSelected = $derived(
 		<p class="mb-4 text-blue-800 dark:text-blue-200">
 			<strong>DashboardPack</strong> premium admin templates include a complete CMS with
 			<strong>rich text editor</strong>, <strong>file manager</strong>,
-			<strong>media library</strong>, and <strong>SEO tools</strong> — all built with Svelte 5 and
-			SvelteKit, production-ready out of the box.
+			<strong>media library</strong>, and <strong>SEO tools</strong> — all built with Svelte 5 and SvelteKit,
+			production-ready out of the box.
 		</p>
 		<a
 			href={premiumUrl}

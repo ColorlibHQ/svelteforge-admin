@@ -1,6 +1,6 @@
 <script>
 	const premiumUrl =
-		'https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium';
+		"https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium";
 </script>
 
 <svelte:head>
@@ -35,8 +35,8 @@
 
 	<ul>
 		<li>
-			<strong>Sortable columns</strong> — Click column headers to sort by name, email, username,
-			role, or creation date.
+			<strong>Sortable columns</strong> — Click column headers to sort by name, email, username, role,
+			or creation date.
 		</li>
 		<li>
 			<strong>Search filtering</strong> — Real-time filtering across name, email, and username using
@@ -51,7 +51,8 @@
 			persists across navigation.
 		</li>
 		<li>
-			<strong>CSV and JSON export</strong> — Export visible or all user data using utility functions from
+			<strong>CSV and JSON export</strong> — Export visible or all user data using utility functions
+			from
 			<code>$lib/utils/export.ts</code>.
 		</li>
 	</ul>
@@ -71,8 +72,8 @@ export const load: PageServerLoad = async () => {
 	<h2>Creating Users</h2>
 
 	<p>
-		New users are created through the <code>user-form-dialog.svelte</code> component, which renders
-		a form inside a dialog. Only administrators can create users.
+		New users are created through the <code>user-form-dialog.svelte</code> component, which renders a
+		form inside a dialog. Only administrators can create users.
 	</p>
 
 	<h3>Form Fields</h3>
@@ -111,8 +112,8 @@ export const load: PageServerLoad = async () => {
 	<h3>Server-Side Validation</h3>
 
 	<p>
-		The <code>create</code> form action in <code>users/+page.server.ts</code> performs the following
-		checks before inserting a new user:
+		The <code>create</code> form action in <code>users/+page.server.ts</code> performs the following checks
+		before inserting a new user:
 	</p>
 
 	<ul>
@@ -123,8 +124,8 @@ export const load: PageServerLoad = async () => {
 	</ul>
 
 	<p>
-		The form uses SvelteKit's <code>use:enhance</code> for progressive enhancement, keeping the
-		page interactive while the server processes the request.
+		The form uses SvelteKit's <code>use:enhance</code> for progressive enhancement, keeping the page interactive
+		while the server processes the request.
 	</p>
 
 	<hr />
@@ -132,8 +133,8 @@ export const load: PageServerLoad = async () => {
 	<h2>Editing Users</h2>
 
 	<p>
-		The same <code>user-form-dialog.svelte</code> component handles editing when opened in edit
-		mode. The dialog pre-populates all fields with the selected user's current data.
+		The same <code>user-form-dialog.svelte</code> component handles editing when opened in edit mode.
+		The dialog pre-populates all fields with the selected user's current data.
 	</p>
 
 	<ul>
@@ -142,8 +143,8 @@ export const load: PageServerLoad = async () => {
 			The <code>update</code> form action validates changes server-side with the same rules as creation.
 		</li>
 		<li>
-			<strong>Last-admin protection</strong> — The server prevents demoting the last remaining admin
-			to a lower role, ensuring at least one admin always exists.
+			<strong>Last-admin protection</strong> — The server prevents demoting the last remaining admin to
+			a lower role, ensuring at least one admin always exists.
 		</li>
 	</ul>
 
@@ -152,8 +153,8 @@ export const load: PageServerLoad = async () => {
 	<h2>Deleting Users</h2>
 
 	<p>
-		User deletion is handled by the <code>delete-confirm-dialog.svelte</code> component, which
-		requires explicit confirmation before proceeding.
+		User deletion is handled by the <code>delete-confirm-dialog.svelte</code> component, which requires
+		explicit confirmation before proceeding.
 	</p>
 
 	<h3>Safety Checks</h3>
@@ -176,8 +177,7 @@ export const load: PageServerLoad = async () => {
 	<ul>
 		<li>Automatically filters out the current user from the selection.</li>
 		<li>
-			Blocks the operation if deleting the selected users would remove all remaining
-			administrators.
+			Blocks the operation if deleting the selected users would remove all remaining administrators.
 		</li>
 		<li>
 			Uses the <code>bulkDelete</code> form action, which processes all deletions in a single database
@@ -315,7 +315,7 @@ export const load: PageServerLoad = async () => {
 			forms, enabling non-blocking submissions without full page reloads.
 		</li>
 		<li>
-			<strong><code>{'{@render}'}</code></strong> — Snippet-based rendering for table cell content, enabling
+			<strong><code>{"{@render}"}</code></strong> — Snippet-based rendering for table cell content, enabling
 			reusable column templates.
 		</li>
 	</ul>

@@ -10,20 +10,20 @@
 
 <p>
 	SvelteForge Admin follows <strong>SvelteKit's</strong> file-based routing conventions and
-	<strong>Svelte 5's</strong> component architecture. Every directory and file has a specific
-	purpose — understanding this structure is key to extending the dashboard efficiently.
+	<strong>Svelte 5's</strong> component architecture. Every directory and file has a specific purpose
+	— understanding this structure is key to extending the dashboard efficiently.
 </p>
 
 <p>
 	Because <strong>SvelteKit</strong> uses the filesystem as its router, the <code>src/routes/</code>
-	directory directly maps to URL paths. Route groups (directories in parentheses) share layouts
-	without affecting the URL, which is how SvelteForge separates protected, auth, public, and
-	documentation pages.
+	directory directly maps to URL paths. Route groups (directories in parentheses) share layouts without
+	affecting the URL, which is how SvelteForge separates protected, auth, public, and documentation pages.
 </p>
 
 <h2>Complete File Tree</h2>
 
-<pre><code>svelteforge-admin/
+<pre><code
+		>svelteforge-admin/
 ├── src/
 │   ├── routes/                      # SvelteKit file-based routing
 │   │   ├── (app)/                   # Protected routes (auth required)
@@ -126,14 +126,15 @@
 ├── tsconfig.json                    # TypeScript configuration
 ├── package.json                     # Dependencies and scripts
 ├── pnpm-lock.yaml                   # pnpm lockfile
-└── .env.example                     # Environment variable template</code></pre>
+└── .env.example                     # Environment variable template</code
+	></pre>
 
 <h2>Route Groups Explained</h2>
 
 <p>
 	<strong>SvelteKit</strong> route groups are a powerful organizational tool. Directories wrapped in
-	parentheses — like <code>(app)</code> — create layout boundaries without adding URL segments.
-	SvelteForge uses four route groups to cleanly separate concerns:
+	parentheses — like <code>(app)</code> — create layout boundaries without adding URL segments. SvelteForge
+	uses four route groups to cleanly separate concerns:
 </p>
 
 <h3><code>(app)/</code> — Protected Routes</h3>
@@ -143,7 +144,8 @@
 	<code>(app)/+layout.server.ts</code> and runs before any page load:
 </p>
 
-<pre><code class="language-ts">// src/routes/(app)/+layout.server.ts
+<pre><code class="language-ts"
+		>// src/routes/(app)/+layout.server.ts
 export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
   if (!locals.user) &#123;
     redirect(302, "/login");
@@ -158,16 +160,20 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
   &#125;
 
   return &#123; user: locals.user, ... &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
-	This single <strong>SvelteKit</strong> layout server load function protects the dashboard, user
-	management, content, analytics, notifications, roles, database, and settings pages — all without
-	repeating auth logic in each route. The layout also enforces maintenance mode, blocking non-admin
-	users with a 503 error.
+	This single <strong>SvelteKit</strong> layout server load function protects the dashboard, user management,
+	content, analytics, notifications, roles, database, and settings pages — all without repeating auth
+	logic in each route. The layout also enforces maintenance mode, blocking non-admin users with a 503
+	error.
 </p>
 
-<p>The <code>(app)/+layout.svelte</code> provides the app shell: a collapsible sidebar, topbar with breadcrumbs, command palette, and notification bell.</p>
+<p>
+	The <code>(app)/+layout.svelte</code> provides the app shell: a collapsible sidebar, topbar with breadcrumbs,
+	command palette, and notification bell.
+</p>
 
 <h3><code>(auth)/</code> — Public Auth Routes</h3>
 
@@ -194,8 +200,9 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	The documentation section (the pages you are reading now) uses its own layout with sidebar
-	navigation and prose styling. This route group is not wrapped in parentheses because <code>docs</code> appears
-	in the URL path.
+	navigation and prose styling. This route group is not wrapped in parentheses because <code
+		>docs</code
+	> appears in the URL path.
 </p>
 
 <h2>Server-Only Code: <code>src/lib/server/</code></h2>
@@ -219,18 +226,22 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 <h3><code>oauth.ts</code> — Arctic OAuth Providers</h3>
 
 <p>
-	Configures Google and GitHub OAuth via the Arctic library. Providers are <strong>environment-driven</strong>
-	— they are <code>null</code> when env vars are missing, and the login page conditionally renders
-	social login buttons. This means OAuth is entirely optional; the dashboard works with password-only
-	auth out of the box.
+	Configures Google and GitHub OAuth via the Arctic library. Providers are <strong
+		>environment-driven</strong
+	>
+	— they are <code>null</code> when env vars are missing, and the login page conditionally renders social
+	login buttons. This means OAuth is entirely optional; the dashboard works with password-only auth out
+	of the box.
 </p>
 
 <h3><code>id.ts</code> — Cryptographic ID Generator</h3>
 
 <p>
-	A simple utility that generates cryptographically random IDs using <code>crypto.getRandomValues()</code>
-	and base32 encoding. Used for user IDs, OAuth account IDs, and password reset tokens throughout
-	the application.
+	A simple utility that generates cryptographically random IDs using <code
+		>crypto.getRandomValues()</code
+	>
+	and base32 encoding. Used for user IDs, OAuth account IDs, and password reset tokens throughout the
+	application.
 </p>
 
 <h3><code>db/</code> — Database Layer</h3>
@@ -241,8 +252,8 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 		enabled for concurrent reads. Exports the Drizzle ORM <code>db</code> instance.
 	</li>
 	<li>
-		<strong><code>schema.ts</code></strong> — Defines all database tables using Drizzle's
-		type-safe schema builder: <code>users</code>, <code>sessions</code>, <code>pages</code>,
+		<strong><code>schema.ts</code></strong> — Defines all database tables using Drizzle's type-safe
+		schema builder: <code>users</code>, <code>sessions</code>, <code>pages</code>,
 		<code>notifications</code>, <code>oauthAccounts</code>, <code>appSettings</code>, and
 		<code>passwordResetTokens</code>. Each table export includes inferred TypeScript types.
 	</li>
@@ -271,19 +282,31 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	<tbody>
 		<tr>
 			<td><code>app-sidebar.svelte</code></td>
-			<td>Main navigation sidebar with collapsible groups, user avatar, and role display. Uses <strong>Svelte 5</strong> <code>$state</code> for open/close tracking.</td>
+			<td
+				>Main navigation sidebar with collapsible groups, user avatar, and role display. Uses <strong
+					>Svelte 5</strong
+				> <code>$state</code> for open/close tracking.</td
+			>
 		</tr>
 		<tr>
 			<td><code>command-palette.svelte</code></td>
-			<td>Keyboard-driven search overlay (<code>Ctrl+K</code> / <code>Cmd+K</code>). Queries the <code>/api/search</code> endpoint and renders results in real time.</td>
+			<td
+				>Keyboard-driven search overlay (<code>Ctrl+K</code> / <code>Cmd+K</code>). Queries the
+				<code>/api/search</code> endpoint and renders results in real time.</td
+			>
 		</tr>
 		<tr>
 			<td><code>notification-bell.svelte</code></td>
-			<td>Topbar notification icon with unread count badge and dropdown list of recent notifications.</td>
+			<td
+				>Topbar notification icon with unread count badge and dropdown list of recent notifications.</td
+			>
 		</tr>
 		<tr>
 			<td><code>theme-toggle.svelte</code></td>
-			<td>Dark/light mode switch using <code>mode-watcher</code>. Accesses <code>mode.current</code> (runes object, not a Svelte store).</td>
+			<td
+				>Dark/light mode switch using <code>mode-watcher</code>. Accesses <code>mode.current</code> (runes
+				object, not a Svelte store).</td
+			>
 		</tr>
 		<tr>
 			<td><code>animated-counter.svelte</code></td>
@@ -315,39 +338,40 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 <h2>UI Primitives: <code>src/lib/components/ui/</code></h2>
 
 <p>
-	This directory contains <strong>shadcn-svelte</strong> components — accessible, composable UI
-	primitives built on Bits UI. These are copy-pasted into your project (not installed as a
-	dependency), giving you full control over their source.
+	This directory contains <strong>shadcn-svelte</strong> components — accessible, composable UI primitives
+	built on Bits UI. These are copy-pasted into your project (not installed as a dependency), giving you
+	full control over their source.
 </p>
 
 <p>
-	<strong>Important:</strong> Do not edit these files directly. To update or add components, use the
-	CLI:
+	<strong>Important:</strong> Do not edit these files directly. To update or add components, use the CLI:
 </p>
 
-<pre><code class="language-bash">npx shadcn-svelte@latest add button
+<pre><code class="language-bash"
+		>npx shadcn-svelte@latest add button
 npx shadcn-svelte@latest add dialog
-npx shadcn-svelte@latest add dropdown-menu</code></pre>
+npx shadcn-svelte@latest add dropdown-menu</code
+	></pre>
 
 <p>
 	shadcn-svelte components are fully compatible with <strong>Svelte 5</strong> runes and use
-	<code>{"@render"}</code> snippets instead of slots for child content.
+	<code>@render</code> snippets instead of slots for child content.
 </p>
 
 <h2>Reactive Utilities: <code>src/lib/hooks/</code></h2>
 
 <p>
 	<strong>Svelte 5</strong> runes enable reactive hooks similar to React's custom hooks, but with
-	compile-time optimization. The <code>.svelte.ts</code> extension tells the Svelte compiler to
-	process runes in these files:
+	compile-time optimization. The <code>.svelte.ts</code> extension tells the Svelte compiler to process
+	runes in these files:
 </p>
 
 <h3><code>is-mobile.svelte.ts</code></h3>
 
 <p>
 	A reactive hook that tracks viewport width using <code>$state</code> and
-	<code>$effect</code>. Returns a boolean that automatically updates when the window resizes.
-	Used by the sidebar to determine default open/closed state on mobile.
+	<code>$effect</code>. Returns a boolean that automatically updates when the window resizes. Used
+	by the sidebar to determine default open/closed state on mobile.
 </p>
 
 <h2>Utility Modules: <code>src/lib/utils/</code></h2>
@@ -362,11 +386,17 @@ npx shadcn-svelte@latest add dropdown-menu</code></pre>
 	<tbody>
 		<tr>
 			<td><code>export.ts</code></td>
-			<td>Functions to export data tables as CSV or JSON files. Handles column mapping, date formatting, and triggers browser download.</td>
+			<td
+				>Functions to export data tables as CSV or JSON files. Handles column mapping, date
+				formatting, and triggers browser download.</td
+			>
 		</tr>
 		<tr>
 			<td><code>user-agent.ts</code></td>
-			<td>Parses user-agent strings to extract browser name and OS. Used in the Settings page to display active sessions with device info.</td>
+			<td
+				>Parses user-agent strings to extract browser name and OS. Used in the Settings page to
+				display active sessions with device info.</td
+			>
 		</tr>
 	</tbody>
 </table>
@@ -375,16 +405,18 @@ npx shadcn-svelte@latest add dropdown-menu</code></pre>
 
 <p>
 	The <code>cn()</code> helper function, which combines <code>clsx</code> (conditional class names)
-	with <code>tailwind-merge</code> (deduplication of Tailwind classes). Used extensively by
-	shadcn-svelte components and throughout the application:
+	with <code>tailwind-merge</code> (deduplication of Tailwind classes). Used extensively by shadcn-svelte
+	components and throughout the application:
 </p>
 
-<pre><code class="language-ts">import &#123; clsx, type ClassValue &#125; from "clsx";
+<pre><code class="language-ts"
+		>import &#123; clsx, type ClassValue &#125; from "clsx";
 import &#123; twMerge &#125; from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) &#123;
   return twMerge(clsx(inputs));
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <h2>App-Level Configuration Files</h2>
 
@@ -392,27 +424,29 @@ export function cn(...inputs: ClassValue[]) &#123;
 
 <p>
 	<strong>Tailwind CSS 4</strong> replaces the traditional JavaScript config with native CSS.
-	SvelteForge defines its design tokens using the <code>@theme</code> directive with OKLCH colors,
-	supporting both light and dark modes. This is where you customize the color palette, border
-	radii, fonts, and other design tokens.
+	SvelteForge defines its design tokens using the <code>@theme</code> directive with OKLCH colors, supporting
+	both light and dark modes. This is where you customize the color palette, border radii, fonts, and other
+	design tokens.
 </p>
 
 <h3><code>src/app.d.ts</code> — TypeScript Definitions</h3>
 
 <p>
 	Extends <strong>SvelteKit's</strong> <code>App.Locals</code> interface to include
-	<code>user</code> and <code>session</code> properties. This ensures TypeScript knows about the
-	authenticated user data available in every server load function and form action:
+	<code>user</code> and <code>session</code> properties. This ensures TypeScript knows about the authenticated
+	user data available in every server load function and form action:
 </p>
 
-<pre><code class="language-ts">declare global &#123;
+<pre><code class="language-ts"
+		>declare global &#123;
   namespace App &#123;
     interface Locals &#123;
       user: SessionUser | null;
       session: Session | null;
     &#125;
   &#125;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <h3><code>src/hooks.server.ts</code> — Server Hooks</h3>
 
@@ -436,19 +470,30 @@ export function cn(...inputs: ClassValue[]) &#123;
 	<tbody>
 		<tr>
 			<td><code>vite.config.ts</code></td>
-			<td>Vite configuration with the SvelteKit plugin. Marks LayerChart and svelte-ux as <code>noExternal</code> for SSR compatibility. Configures Vitest.</td>
+			<td
+				>Vite configuration with the SvelteKit plugin. Marks LayerChart and svelte-ux as <code
+					>noExternal</code
+				> for SSR compatibility. Configures Vitest.</td
+			>
 		</tr>
 		<tr>
 			<td><code>drizzle.config.ts</code></td>
-			<td>Drizzle ORM configuration pointing to <code>src/lib/server/db/schema.ts</code> as the schema source and <code>svelteforge.db</code> as the SQLite database file.</td>
+			<td
+				>Drizzle ORM configuration pointing to <code>src/lib/server/db/schema.ts</code> as the
+				schema source and <code>svelteforge.db</code> as the SQLite database file.</td
+			>
 		</tr>
 		<tr>
 			<td><code>svelte.config.js</code></td>
-			<td>Svelte compiler configuration with the Vite adapter and <code>$lib</code> alias setup.</td>
+			<td>Svelte compiler configuration with the Vite adapter and <code>$lib</code> alias setup.</td
+			>
 		</tr>
 		<tr>
 			<td><code>package.json</code></td>
-			<td>Project dependencies and npm scripts. Key scripts: <code>dev</code>, <code>build</code>, <code>check</code>, <code>db:push</code>, <code>db:seed</code>, <code>test</code>.</td>
+			<td
+				>Project dependencies and npm scripts. Key scripts: <code>dev</code>, <code>build</code>,
+				<code>check</code>, <code>db:push</code>, <code>db:seed</code>, <code>test</code>.</td
+			>
 		</tr>
 		<tr>
 			<td><code>tsconfig.json</code></td>
@@ -456,7 +501,9 @@ export function cn(...inputs: ClassValue[]) &#123;
 		</tr>
 		<tr>
 			<td><code>.env.example</code></td>
-			<td>Template for environment variables: OAuth client IDs/secrets, ORIGIN, and database path.</td>
+			<td
+				>Template for environment variables: OAuth client IDs/secrets, ORIGIN, and database path.</td
+			>
 		</tr>
 	</tbody>
 </table>
@@ -467,30 +514,27 @@ export function cn(...inputs: ClassValue[]) &#123;
 	The SQLite database file <code>svelteforge.db</code> lives at the project root. It is
 	<strong>gitignored</strong> and created automatically when you run <code>pnpm db:push</code>. The
 	database runs in WAL (Write-Ahead Logging) mode for better concurrent read performance. You will
-	also see <code>svelteforge.db-shm</code> and <code>svelteforge.db-wal</code> files — these are
-	WAL support files managed by SQLite.
+	also see <code>svelteforge.db-shm</code> and <code>svelteforge.db-wal</code> files — these are WAL support
+	files managed by SQLite.
 </p>
 
 <p>
-	To inspect the database visually, use <code>pnpm db:studio</code> to open Drizzle Studio in your
-	browser.
+	To inspect the database visually, use <code>pnpm db:studio</code> to open Drizzle Studio in your browser.
 </p>
 
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin gives you a clean, well-organized <strong>Svelte 5</strong> +
-				<strong>SvelteKit</strong> foundation. When your project outgrows it — 50+ pages,
-				multiple dashboard layouts, advanced CRUD generators, theme customizers, and
-				production-grade components — DashboardPack has you covered.
+				<strong>SvelteKit</strong> foundation. When your project outgrows it — 50+ pages, multiple dashboard
+				layouts, advanced CRUD generators, theme customizers, and production-grade components — DashboardPack
+				has you covered.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>

@@ -62,7 +62,9 @@
 				<Card.Header>
 					<div class="flex items-center justify-between">
 						<div class="flex items-center gap-3">
-							<div class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+							<div
+								class="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg"
+							>
 								<ShieldIcon class="size-5" />
 							</div>
 							<div>
@@ -78,7 +80,9 @@
 				</Card.Header>
 				<Card.Content class="space-y-4">
 					<div>
-						<p class="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wider">Permissions</p>
+						<p class="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
+							Permissions
+						</p>
 						<div class="flex flex-wrap gap-2">
 							{#each role.permissions as perm}
 								<Badge variant="outline" class="gap-1">
@@ -91,7 +95,9 @@
 
 					{#if role.users.length > 0}
 						<div>
-							<p class="text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wider">Users</p>
+							<p class="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
+								Users
+							</p>
 							<div class="space-y-2">
 								{#each role.users as user (user.id)}
 									<div class="flex items-center justify-between rounded-lg border p-3">
@@ -107,7 +113,8 @@
 										<Button
 											variant="ghost"
 											size="sm"
-											onclick={() => openRoleChange({ id: user.id, name: user.name, role: role.name })}
+											onclick={() =>
+												openRoleChange({ id: user.id, name: user.name, role: role.name })}
 										>
 											<PencilIcon class="mr-1 size-3" />
 											Change

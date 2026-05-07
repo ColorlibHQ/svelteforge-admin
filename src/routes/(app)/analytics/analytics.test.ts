@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-	createTestDb,
-	createTestUser,
-	createMockLocals,
-} from "$lib/server/db/test-utils.js";
+import { createTestDb, createTestUser, createMockLocals } from "$lib/server/db/test-utils.js";
 import { pages } from "$lib/server/db/schema.js";
 import { generateId } from "$lib/server/id.js";
 

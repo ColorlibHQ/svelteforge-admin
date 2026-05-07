@@ -40,21 +40,64 @@
 	let debounceTimer: ReturnType<typeof setTimeout>;
 
 	const navItems: NavItem[] = [
-		{ label: "Dashboard", href: "/", icon: LayoutDashboardIcon, keywords: ["home", "overview", "kpi"] },
-		{ label: "Analytics", href: "/analytics", icon: BarChart3Icon, keywords: ["charts", "stats", "reports"] },
-		{ label: "Users", href: "/users", icon: UsersIcon, keywords: ["accounts", "members", "people"] },
-		{ label: "Content", href: "/content", icon: FileTextIcon, keywords: ["pages", "blog", "articles"] },
-		{ label: "Roles", href: "/roles", icon: ShieldIcon, keywords: ["permissions", "access", "admin"] },
-		{ label: "Notifications", href: "/notifications", icon: BellIcon, keywords: ["alerts", "messages"] },
-		{ label: "Database", href: "/database", icon: DatabaseIcon, keywords: ["tables", "sql", "storage"] },
-		{ label: "Settings", href: "/settings", icon: SettingsIcon, keywords: ["preferences", "profile", "config"] },
+		{
+			label: "Dashboard",
+			href: "/",
+			icon: LayoutDashboardIcon,
+			keywords: ["home", "overview", "kpi"],
+		},
+		{
+			label: "Analytics",
+			href: "/analytics",
+			icon: BarChart3Icon,
+			keywords: ["charts", "stats", "reports"],
+		},
+		{
+			label: "Users",
+			href: "/users",
+			icon: UsersIcon,
+			keywords: ["accounts", "members", "people"],
+		},
+		{
+			label: "Content",
+			href: "/content",
+			icon: FileTextIcon,
+			keywords: ["pages", "blog", "articles"],
+		},
+		{
+			label: "Roles",
+			href: "/roles",
+			icon: ShieldIcon,
+			keywords: ["permissions", "access", "admin"],
+		},
+		{
+			label: "Notifications",
+			href: "/notifications",
+			icon: BellIcon,
+			keywords: ["alerts", "messages"],
+		},
+		{
+			label: "Database",
+			href: "/database",
+			icon: DatabaseIcon,
+			keywords: ["tables", "sql", "storage"],
+		},
+		{
+			label: "Settings",
+			href: "/settings",
+			icon: SettingsIcon,
+			keywords: ["preferences", "profile", "config"],
+		},
 	];
 
 	function resultIcon(type: string) {
 		switch (type) {
-			case "user": return UserIcon;
-			case "page": return FileTextIcon;
-			default: return BellIcon;
+			case "user":
+				return UserIcon;
+			case "page":
+				return FileTextIcon;
+			default:
+				return BellIcon;
 		}
 	}
 
@@ -107,21 +150,25 @@
 >
 	<SearchIcon class="size-3.5" />
 	<span class="hidden sm:inline">Search...</span>
-	<kbd class="bg-background pointer-events-none hidden h-5 items-center gap-0.5 rounded border px-1.5 font-mono text-[10px] font-medium sm:inline-flex">
+	<kbd
+		class="bg-background pointer-events-none hidden h-5 items-center gap-0.5 rounded border px-1.5 font-mono text-[10px] font-medium sm:inline-flex"
+	>
 		<span class="text-xs">&#8984;</span>K
 	</kbd>
 </button>
 
-<Dialog.Root bind:open onOpenChange={() => { query = ""; searchResults = []; }}>
+<Dialog.Root
+	bind:open
+	onOpenChange={() => {
+		query = "";
+		searchResults = [];
+	}}
+>
 	<Dialog.Content
 		showCloseButton={false}
 		class="top-[20%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-lg"
 	>
-		<Command.Root
-			shouldFilter={true}
-			loop
-			label="Command palette"
-		>
+		<Command.Root shouldFilter={true} loop label="Command palette">
 			<div class="flex items-center border-b px-3">
 				<SearchIcon class="text-muted-foreground mr-2 size-4 shrink-0" />
 				<Command.Input
@@ -133,15 +180,13 @@
 					<LoaderIcon class="text-muted-foreground ml-2 size-4 shrink-0 animate-spin" />
 				{/if}
 			</div>
-			<Command.List class="max-h-[300px] overflow-y-auto overflow-x-hidden px-1 py-1.5">
+			<Command.List class="max-h-[300px] overflow-x-hidden overflow-y-auto px-1 py-1.5">
 				<Command.Empty class="text-muted-foreground py-6 text-center text-sm">
 					No results found.
 				</Command.Empty>
 
 				<Command.Group value="navigation">
-					<Command.GroupHeading
-						class="text-muted-foreground px-2 py-1.5 text-xs font-medium"
-					>
+					<Command.GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
 						Navigation
 					</Command.GroupHeading>
 					<Command.GroupItems>
@@ -162,9 +207,7 @@
 				{#if searchResults.length > 0}
 					<Command.Separator class="bg-border -mx-1 my-1 h-px" />
 					<Command.Group value="search-results" forceMount>
-						<Command.GroupHeading
-							class="text-muted-foreground px-2 py-1.5 text-xs font-medium"
-						>
+						<Command.GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
 							Search Results
 						</Command.GroupHeading>
 						<Command.GroupItems>
@@ -179,7 +222,9 @@
 									<Icon class="text-muted-foreground size-4 shrink-0" />
 									<div class="min-w-0 flex-1">
 										<span class="block truncate">{result.title}</span>
-										<span class="text-muted-foreground block truncate text-xs">{result.subtitle}</span>
+										<span class="text-muted-foreground block truncate text-xs"
+											>{result.subtitle}</span
+										>
 									</div>
 								</Command.Item>
 							{/each}
@@ -189,9 +234,7 @@
 
 				<Command.Separator class="bg-border -mx-1 my-1 h-px" />
 				<Command.Group value="actions">
-					<Command.GroupHeading
-						class="text-muted-foreground px-2 py-1.5 text-xs font-medium"
-					>
+					<Command.GroupHeading class="text-muted-foreground px-2 py-1.5 text-xs font-medium">
 						Quick Actions
 					</Command.GroupHeading>
 					<Command.GroupItems>

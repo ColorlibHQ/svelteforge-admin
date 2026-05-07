@@ -109,11 +109,7 @@
 					</ul>
 				</Card.Content>
 				<Card.Footer>
-					<Button
-						class="w-full"
-						variant={plan.popular ? "default" : "outline"}
-						href="/register"
-					>
+					<Button class="w-full" variant={plan.popular ? "default" : "outline"} href="/register">
 						{plan.cta}
 					</Button>
 				</Card.Footer>

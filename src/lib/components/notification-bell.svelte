@@ -16,7 +16,8 @@
 		createdAt: Date | null;
 	};
 
-	let { count = 0, notifications = [] }: { count: number; notifications: Notification[] } = $props();
+	let { count = 0, notifications = [] }: { count: number; notifications: Notification[] } =
+		$props();
 
 	function typeIcon(type: string) {
 		switch (type) {
@@ -65,7 +66,9 @@
 				<span class="relative">
 					<BellIcon class="size-4" />
 					{#if count > 0}
-						<span class="bg-destructive text-destructive-foreground absolute -top-2.5 -right-2.5 flex size-4 items-center justify-center rounded-full text-[10px] font-bold">
+						<span
+							class="bg-destructive text-destructive-foreground absolute -top-2.5 -right-2.5 flex size-4 items-center justify-center rounded-full text-[10px] font-bold"
+						>
 							{count > 9 ? "9+" : count}
 						</span>
 					{/if}
@@ -93,14 +96,16 @@
 				<div class="divide-y">
 					{#each notifications as notification (notification.id)}
 						{@const Icon = typeIcon(notification.type)}
-						<div class="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/50">
+						<div class="hover:bg-muted/50 flex items-start gap-3 px-4 py-3 transition-colors">
 							<div class={`mt-0.5 shrink-0 ${typeColor(notification.type)}`}>
 								<Icon class="size-4" />
 							</div>
 							<div class="min-w-0 flex-1">
 								<p class="truncate text-sm font-medium">{notification.title}</p>
 								<p class="text-muted-foreground truncate text-xs">{notification.message}</p>
-								<p class="text-muted-foreground mt-1 text-[10px]">{timeAgo(notification.createdAt)}</p>
+								<p class="text-muted-foreground mt-1 text-[10px]">
+									{timeAgo(notification.createdAt)}
+								</p>
 							</div>
 						</div>
 					{/each}
@@ -108,7 +113,10 @@
 			{/if}
 		</div>
 		<div class="border-t px-4 py-2">
-			<a href="/notifications" class="text-primary block text-center text-xs font-medium hover:underline">
+			<a
+				href="/notifications"
+				class="text-primary block text-center text-xs font-medium hover:underline"
+			>
 				View all notifications
 			</a>
 		</div>

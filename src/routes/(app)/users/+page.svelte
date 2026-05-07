@@ -31,7 +31,13 @@
 	let currentPage = $state(1);
 	let selectedIds = $state(new Set<string>());
 
-	let editUser = $state<{ id: string; name: string; email: string; username: string; role: string } | null>(null);
+	let editUser = $state<{
+		id: string;
+		name: string;
+		email: string;
+		username: string;
+		role: string;
+	} | null>(null);
 	let deleteId = $state("");
 
 	const filtered = $derived(
@@ -101,19 +107,32 @@
 
 	function roleBadgeVariant(role: string) {
 		switch (role) {
-			case "admin": return "default" as const;
-			case "editor": return "secondary" as const;
-			default: return "outline" as const;
+			case "admin":
+				return "default" as const;
+			case "editor":
+				return "secondary" as const;
+			default:
+				return "outline" as const;
 		}
 	}
 
 	function formatDate(date: Date | null) {
 		if (!date) return "—";
-		return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
+		return new Intl.DateTimeFormat("en-US", {
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		}).format(new Date(date));
 	}
 
-	function openEdit(user: typeof data.users[0]) {
-		editUser = { id: user.id, name: user.name, email: user.email, username: user.username, role: user.role };
+	function openEdit(user: (typeof data.users)[0]) {
+		editUser = {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			username: user.username,
+			role: user.role,
+		};
 		editOpen = true;
 	}
 
@@ -162,10 +181,12 @@
 	<!-- Toolbar -->
 	<div class="flex items-center gap-2">
 		<div class="relative max-w-sm flex-1">
-			<SearchIcon class="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+			<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 			<Input placeholder="Search users..." class="pl-9" bind:value={search} />
 		</div>
-		<p class="text-muted-foreground text-sm">{filtered.length} user{filtered.length !== 1 ? "s" : ""}</p>
+		<p class="text-muted-foreground text-sm">
+			{filtered.length} user{filtered.length !== 1 ? "s" : ""}
+		</p>
 		<div class="ml-auto flex items-center gap-2">
 			{#if selectedIds.size > 0}
 				<form method="POST" action="?/bulkDelete" use:enhance>
@@ -209,7 +230,10 @@
 					{#each columns as col (col.key)}
 						{@const SortIcon = sortIcon(col.key)}
 						<Table.Head>
-							<button class="flex items-center gap-1 text-left font-medium" onclick={() => toggleSort(col.key)}>
+							<button
+								class="flex items-center gap-1 text-left font-medium"
+								onclick={() => toggleSort(col.key)}
+							>
 								{col.label}
 								<SortIcon class="text-muted-foreground size-3" />
 							</button>
@@ -242,7 +266,12 @@
 									<PencilIcon class="size-4" />
 								</Button>
 								{#if user.id !== data.currentUserId}
-									<Button variant="ghost" size="icon" class="size-8 text-destructive" onclick={() => openDelete(user.id)}>
+									<Button
+										variant="ghost"
+										size="icon"
+										class="text-destructive size-8"
+										onclick={() => openDelete(user.id)}
+									>
 										<TrashIcon class="size-4" />
 									</Button>
 								{/if}

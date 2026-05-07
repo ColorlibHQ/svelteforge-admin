@@ -23,14 +23,18 @@
 				Change role for {userName}. Current role: {currentRole}.
 			</Dialog.Description>
 		</Dialog.Header>
-		<form method="POST" action="?/changeRole" use:enhance={() => {
-			return async ({ result, update }) => {
-				if (result.type === "success" || result.type === "redirect") {
-					open = false;
-				}
-				await update();
-			};
-		}}>
+		<form
+			method="POST"
+			action="?/changeRole"
+			use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === "success" || result.type === "redirect") {
+						open = false;
+					}
+					await update();
+				};
+			}}
+		>
 			<input type="hidden" name="userId" value={userId} />
 			<div class="grid gap-4 py-4">
 				<div class="grid gap-2">

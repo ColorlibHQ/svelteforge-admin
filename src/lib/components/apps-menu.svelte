@@ -41,7 +41,9 @@
 				<a
 					href={app.href}
 					class="hover:bg-muted flex flex-col items-center gap-1.5 rounded-md px-2 py-3 text-center transition-colors"
-					onclick={() => { open = false; }}
+					onclick={() => {
+						open = false;
+					}}
 				>
 					<div class="bg-muted flex size-9 items-center justify-center rounded-lg">
 						<Icon class="text-foreground size-4" />

@@ -19,8 +19,7 @@
 <ul>
 	<li><strong>Node.js 18+</strong> (LTS recommended)</li>
 	<li>
-		<strong>pnpm</strong> — Install globally with <code>npm install -g pnpm</code> if you don't have
-		it
+		<strong>pnpm</strong> — Install globally with <code>npm install -g pnpm</code> if you don't have it
 	</li>
 </ul>
 
@@ -28,8 +27,10 @@
 
 <h3>1. Clone the repository</h3>
 
-<pre><code class="language-bash">git clone https://github.com/your-org/svelteforge-admin.git
-cd svelteforge-admin</code></pre>
+<pre><code class="language-bash"
+		>git clone https://github.com/your-org/svelteforge-admin.git
+cd svelteforge-admin</code
+	></pre>
 
 <h3>2. Install dependencies</h3>
 
@@ -134,8 +135,8 @@ cd svelteforge-admin</code></pre>
 
 <p>
 	<strong>Note:</strong> If you register a new account on a fresh database (before seeding), the
-	<strong>first registered user automatically receives the admin role</strong>. Subsequent registrations
-	default to the viewer role.
+	<strong>first registered user automatically receives the admin role</strong>. Subsequent
+	registrations default to the viewer role.
 </p>
 
 <h2>Environment Variables</h2>
@@ -144,7 +145,8 @@ cd svelteforge-admin</code></pre>
 	Create a <code>.env</code> file in the project root. Copy from <code>.env.example</code> if available:
 </p>
 
-<pre><code class="language-bash"># Database
+<pre><code class="language-bash"
+		># Database
 DATABASE_URL=svelteforge.db
 
 # Application
@@ -154,7 +156,8 @@ ORIGIN=http://localhost:5173
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=</code></pre>
+GITHUB_CLIENT_SECRET=</code
+	></pre>
 
 <table>
 	<thead>
@@ -207,7 +210,9 @@ GITHUB_CLIENT_SECRET=</code></pre>
 
 <h2>Available Commands</h2>
 
-<p>SvelteForge Admin uses <strong>pnpm</strong> as its package manager. Here are all available scripts:</p>
+<p>
+	SvelteForge Admin uses <strong>pnpm</strong> as its package manager. Here are all available scripts:
+</p>
 
 <table>
 	<thead>
@@ -283,11 +288,12 @@ GITHUB_CLIENT_SECRET=</code></pre>
 <h2>SvelteKit Route Groups</h2>
 
 <p>
-	SvelteForge Admin uses <strong>SvelteKit's file-based routing</strong> with route groups to apply
-	different layouts and access controls to different sections of the app:
+	SvelteForge Admin uses <strong>SvelteKit's file-based routing</strong> with route groups to apply different
+	layouts and access controls to different sections of the app:
 </p>
 
-<pre><code class="language-text">src/routes/
+<pre><code class="language-text"
+		>src/routes/
   (app)/          # Protected routes — requires authentication
     dashboard/    # Main dashboard with analytics
     users/        # User management CRUD
@@ -306,7 +312,8 @@ GITHUB_CLIENT_SECRET=</code></pre>
     pricing/
   docs/           # Documentation (you are here)
   api/            # API endpoints
-  logout/         # Server-only logout action</code></pre>
+  logout/         # Server-only logout action</code
+	></pre>
 
 <p>
 	Route groups (directories wrapped in parentheses) do not affect the URL path. They exist purely
@@ -320,7 +327,9 @@ GITHUB_CLIENT_SECRET=</code></pre>
 
 <ul>
 	<li><a href="/docs/project-structure">Project Structure</a> — Understand the codebase layout</li>
-	<li><a href="/docs/authentication">Authentication</a> — Configure OAuth and understand the auth flow</li>
+	<li>
+		<a href="/docs/authentication">Authentication</a> — Configure OAuth and understand the auth flow
+	</li>
 	<li><a href="/docs/database">Database</a> — Learn the Drizzle ORM schema and migrations</li>
 	<li><a href="/docs/routing">Routing</a> — Deep dive into SvelteKit route groups and guards</li>
 </ul>
@@ -328,17 +337,15 @@ GITHUB_CLIENT_SECRET=</code></pre>
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Scale Up with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Scale Up with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				SvelteForge Admin is a great starting point. When your project needs advanced
-				features — multi-layout dashboards, production CRUD generators, theme customizers,
-				and 50+ pre-built pages — explore the premium templates at DashboardPack.
+				SvelteForge Admin is a great starting point. When your project needs advanced features —
+				multi-layout dashboards, production CRUD generators, theme customizers, and 50+ pre-built
+				pages — explore the premium templates at DashboardPack.
 			</p>
 			<div class="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
 				<a

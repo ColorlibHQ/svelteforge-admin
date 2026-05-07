@@ -8,7 +8,13 @@ const roleDefinitions = [
 	{
 		name: "admin" as const,
 		description: "Full system access. Can manage users, content, settings, and view database info.",
-		permissions: ["Manage users", "Manage content", "Manage settings", "View database", "Manage roles"],
+		permissions: [
+			"Manage users",
+			"Manage content",
+			"Manage settings",
+			"View database",
+			"Manage roles",
+		],
 	},
 	{
 		name: "editor" as const,

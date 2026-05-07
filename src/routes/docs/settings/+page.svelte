@@ -11,9 +11,9 @@
 <p>
 	The Settings page is one of the most feature-rich areas of SvelteForge Admin, combining multiple
 	management sections into a single tabbed interface. Built entirely with <strong>Svelte 5</strong>
-	runes and <strong>SvelteKit</strong> form actions, it covers profile management, password changes,
-	session auditing, application configuration, and appearance preferences — all with progressive
-	enhancement and server-side validation.
+	runes and <strong>SvelteKit</strong> form actions, it covers profile management, password changes, session
+	auditing, application configuration, and appearance preferences — all with progressive enhancement and
+	server-side validation.
 </p>
 
 <p>
@@ -27,18 +27,26 @@
 
 <p>
 	The Profile tab allows users to update their display name, email address, and avatar URL. The form
-	action validates all inputs server-side before persisting changes via <strong>Drizzle ORM</strong>.
+	action validates all inputs server-side before persisting changes via <strong>Drizzle ORM</strong
+	>.
 </p>
 
 <h3>How It Works</h3>
 
 <ol>
 	<li><strong>Display name</strong> — Free text field, required, trimmed before storing</li>
-	<li><strong>Email</strong> — Validated for format and checked for uniqueness against the <code>users</code> table</li>
-	<li><strong>Avatar URL</strong> — Optional URL string for a profile picture (Gravatar, uploaded image, etc.)</li>
+	<li>
+		<strong>Email</strong> — Validated for format and checked for uniqueness against the
+		<code>users</code> table
+	</li>
+	<li>
+		<strong>Avatar URL</strong> — Optional URL string for a profile picture (Gravatar, uploaded image,
+		etc.)
+	</li>
 </ol>
 
-<pre><code class="language-ts">// Profile update form action (simplified)
+<pre><code class="language-ts"
+		>// Profile update form action (simplified)
 profile: async (&#123; request, locals &#125;) =&gt; &#123;
   if (!locals.user) return fail(401, &#123; message: "Unauthorized" &#125;);
 
@@ -65,7 +73,8 @@ profile: async (&#123; request, locals &#125;) =&gt; &#123;
     .where(eq(users.id, locals.user.id));
 
   return &#123; success: true, message: "Profile updated" &#125;;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	The email uniqueness check explicitly excludes the current user's ID, so submitting the form
@@ -88,7 +97,8 @@ profile: async (&#123; request, locals &#125;) =&gt; &#123;
 	<li><strong>Confirm password</strong> — Must exactly match the new password</li>
 </ul>
 
-<pre><code class="language-ts">// Password change form action (simplified)
+<pre><code class="language-ts"
+		>// Password change form action (simplified)
 password: async (&#123; request, locals &#125;) =&gt; &#123;
   const formData = await request.formData();
   const currentPassword = formData.get("currentPassword");
@@ -127,12 +137,13 @@ password: async (&#123; request, locals &#125;) =&gt; &#123;
     .where(eq(users.id, locals.user.id));
 
   return &#123; success: true, message: "Password updated" &#125;;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
-	The new password is re-hashed with the same <strong>Argon2id</strong> parameters used during
-	registration (19 MB memory cost, 2 iterations). This ensures consistent security across all
-	password operations in the application.
+	The new password is re-hashed with the same <strong>Argon2id</strong> parameters used during registration
+	(19 MB memory cost, 2 iterations). This ensures consistent security across all password operations in
+	the application.
 </p>
 
 <h2>Session Management</h2>
@@ -169,17 +180,18 @@ password: async (&#123; request, locals &#125;) =&gt; &#123;
 
 <ol>
 	<li>
-		<strong>Revoke individual session</strong> — Deletes a specific session from the database. If the
-		revoked session is the current one, the <code>auth_session</code> cookie is also cleared,
-		effectively logging the user out.
+		<strong>Revoke individual session</strong> — Deletes a specific session from the database. If
+		the revoked session is the current one, the <code>auth_session</code> cookie is also cleared, effectively
+		logging the user out.
 	</li>
 	<li>
-		<strong>Revoke all other sessions</strong> — Keeps the current session active but deletes every
-		other session for the user. This is the "log me out everywhere else" action.
+		<strong>Revoke all other sessions</strong> — Keeps the current session active but deletes every other
+		session for the user. This is the "log me out everywhere else" action.
 	</li>
 </ol>
 
-<pre><code class="language-ts">// Revoke a single session
+<pre><code class="language-ts"
+		>// Revoke a single session
 revokeSession: async (&#123; request, locals, cookies &#125;) =&gt; &#123;
   const formData = await request.formData();
   const sessionId = formData.get("sessionId");
@@ -206,7 +218,8 @@ revokeAllOtherSessions: async (&#123; locals &#125;) =&gt; &#123;
   );
 
   return &#123; success: true, message: "All other sessions revoked" &#125;;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	The revocation queries always scope to the current user's ID, preventing users from revoking
@@ -218,8 +231,8 @@ revokeAllOtherSessions: async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	Session metadata (user agent, IP address) is updated on <strong>every request</strong> via the
-	<strong>SvelteKit</strong> server hook in <code>hooks.server.ts</code>. This means the Sessions tab
-	always reflects the most recent device and location information, even for long-lived sessions.
+	<strong>SvelteKit</strong> server hook in <code>hooks.server.ts</code>. This means the Sessions
+	tab always reflects the most recent device and location information, even for long-lived sessions.
 </p>
 
 <h2>App Settings (Admin-Only)</h2>
@@ -272,7 +285,8 @@ revokeAllOtherSessions: async (&#123; locals &#125;) =&gt; &#123;
 	time:
 </p>
 
-<pre><code class="language-ts">// App settings form action
+<pre><code class="language-ts"
+		>// App settings form action
 appSettings: async (&#123; request, locals &#125;) =&gt; &#123;
   if (locals.user.role !== "admin") &#123;
     return fail(403, &#123; message: "Admin access required" &#125;);
@@ -291,13 +305,14 @@ appSettings: async (&#123; request, locals &#125;) =&gt; &#123;
   &#125;
 
   return &#123; success: true, message: "Settings saved" &#125;;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	<strong>Maintenance mode</strong> is particularly powerful — toggling it on immediately blocks all
 	non-admin users from accessing any route in the <code>(app)</code> route group. The auth guard in
-	<code>src/routes/(app)/+layout.server.ts</code> checks this setting on every request and returns a
-	503 error for non-admin users. Admins retain full access to disable maintenance mode when ready.
+	<code>src/routes/(app)/+layout.server.ts</code> checks this setting on every request and returns a 503
+	error for non-admin users. Admins retain full access to disable maintenance mode when ready.
 </p>
 
 <h2>Appearance</h2>
@@ -311,8 +326,14 @@ appSettings: async (&#123; request, locals &#125;) =&gt; &#123;
 
 <ul>
 	<li><strong>Three modes</strong> — Light, Dark, and System (follows OS preference)</li>
-	<li><strong>Persistence</strong> — Mode preference is stored in <code>localStorage</code> and persists across sessions</li>
-	<li><strong>No flash</strong> — mode-watcher applies the theme before the page renders, preventing the flash of wrong theme</li>
+	<li>
+		<strong>Persistence</strong> — Mode preference is stored in <code>localStorage</code> and persists
+		across sessions
+	</li>
+	<li>
+		<strong>No flash</strong> — mode-watcher applies the theme before the page renders, preventing the
+		flash of wrong theme
+	</li>
 </ul>
 
 <h3>Svelte 5 Integration</h3>
@@ -324,14 +345,16 @@ appSettings: async (&#123; request, locals &#125;) =&gt; &#123;
 	<code>$mode</code> store syntax will not work:
 </p>
 
-<pre><code class="language-ts">// CORRECT — Svelte 5 runes pattern
+<pre><code class="language-ts"
+		>// CORRECT — Svelte 5 runes pattern
 import &#123; mode &#125; from "mode-watcher";
 
 // In your component
 const isDark = $derived(mode.current === "dark");
 
 // WRONG — This is Svelte 4 store syntax, does NOT work
-// $mode === "dark"  // &lt;-- Will not compile in Svelte 5</code></pre>
+// $mode === "dark"  // &lt;-- Will not compile in Svelte 5</code
+	></pre>
 
 <p>
 	The toggle component renders different icons based on the current mode and uses
@@ -342,13 +365,14 @@ const isDark = $derived(mode.current === "dark");
 <h2>Svelte 5 Patterns in Settings</h2>
 
 <p>
-	The Settings page demonstrates several key <strong>Svelte 5</strong> patterns that are used
-	throughout SvelteForge Admin:
+	The Settings page demonstrates several key <strong>Svelte 5</strong> patterns that are used throughout
+	SvelteForge Admin:
 </p>
 
 <h3>Tabbed Interface with <code>$state</code></h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   let activeTab = $state("profile");
 
   const tabs = [
@@ -374,11 +398,13 @@ const isDark = $derived(mode.current === "dark");
   &lt;!-- Profile form --&gt;
 &#123;:else if activeTab === "password"&#125;
   &lt;!-- Password form --&gt;
-&#123;/if&#125;</code></pre>
+&#123;/if&#125;</code
+	></pre>
 
 <h3>Form Data with <code>$state</code></h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   let &#123; data &#125; = $props();
 
   let name = $state(data.user.name);
@@ -391,17 +417,19 @@ const isDark = $derived(mode.current === "dark");
   &lt;input name="email" type="email" bind:value=&#123;email&#125; /&gt;
   &lt;input name="avatarUrl" bind:value=&#123;avatarUrl&#125; /&gt;
   &lt;button type="submit"&gt;Save Changes&lt;/button&gt;
-&lt;/form&gt;</code></pre>
+&lt;/form&gt;</code
+	></pre>
 
 <h3>Progressive Enhancement with <code>use:enhance</code></h3>
 
 <p>
 	All forms on the Settings page use <strong>SvelteKit's</strong> <code>use:enhance</code> directive.
-	This means forms work without JavaScript (full page reload on submit) and upgrade to AJAX-style
-	submissions when JavaScript is available. The enhance callback handles toast notifications:
+	This means forms work without JavaScript (full page reload on submit) and upgrade to AJAX-style submissions
+	when JavaScript is available. The enhance callback handles toast notifications:
 </p>
 
-<pre><code class="language-svelte">&lt;form
+<pre><code class="language-svelte"
+		>&lt;form
   method="POST"
   action="?/profile"
   use:enhance=&#123;() =&gt; &#123;
@@ -414,18 +442,17 @@ const isDark = $derived(mode.current === "dark");
       await update();
     &#125;;
   &#125;&#125;
-&gt;</code></pre>
+&gt;</code
+	></pre>
 
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin provides a complete settings foundation with <strong>Svelte 5</strong>
 				and <strong>SvelteKit</strong>. Need profile picture upload with drag-and-drop, two-factor

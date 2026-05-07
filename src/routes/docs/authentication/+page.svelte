@@ -9,9 +9,8 @@
 <h1>Authentication</h1>
 
 <p>
-	SvelteForge Admin implements authentication from scratch using <strong>SvelteKit's</strong> server
-	infrastructure — no Lucia, no Auth.js, no external auth framework. The entire system is built on
-	three low-level libraries:
+	SvelteForge Admin implements authentication from scratch using <strong>SvelteKit's</strong> server infrastructure
+	— no Lucia, no Auth.js, no external auth framework. The entire system is built on three low-level libraries:
 </p>
 
 <ul>
@@ -29,8 +28,8 @@
 <p>
 	By owning the auth code, you get full control over session lifetimes, cookie settings, metadata
 	tracking, and token rotation — with zero dependency on third-party auth services. This approach
-	leverages <strong>SvelteKit's</strong> server hooks, form actions, and server-only modules to keep
-	sensitive logic completely off the client.
+	leverages <strong>SvelteKit's</strong> server hooks, form actions, and server-only modules to keep sensitive
+	logic completely off the client.
 </p>
 
 <h2>Session Management</h2>
@@ -44,19 +43,21 @@
 <h3><code>generateSessionToken()</code></h3>
 
 <p>
-	Creates a cryptographically secure session token using 20 bytes of randomness, encoded as
-	base32 (no padding). This token is what gets stored in the user's cookie:
+	Creates a cryptographically secure session token using 20 bytes of randomness, encoded as base32
+	(no padding). This token is what gets stored in the user's cookie:
 </p>
 
-<pre><code class="language-ts">export function generateSessionToken(): string &#123;
+<pre><code class="language-ts"
+		>export function generateSessionToken(): string &#123;
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
   return encodeBase32LowerCaseNoPadding(bytes);
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
-	The Web Crypto API (<code>crypto.getRandomValues</code>) provides the randomness — it is
-	available in both Node.js and all modern runtimes that <strong>SvelteKit</strong> deploys to.
+	The Web Crypto API (<code>crypto.getRandomValues</code>) provides the randomness — it is available
+	in both Node.js and all modern runtimes that <strong>SvelteKit</strong> deploys to.
 </p>
 
 <h3><code>hashToken()</code></h3>
@@ -68,24 +69,27 @@
 	tokens.
 </p>
 
-<pre><code class="language-ts">function hashToken(token: string): string &#123;
+<pre><code class="language-ts"
+		>function hashToken(token: string): string &#123;
   return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	SHA-256 is intentionally used here instead of Argon2. Session tokens are already high-entropy
-	random values — they do not need the slow, memory-hard hashing that passwords require. SHA-256
-	is fast, deterministic, and perfectly secure for this use case.
+	random values — they do not need the slow, memory-hard hashing that passwords require. SHA-256 is
+	fast, deterministic, and perfectly secure for this use case.
 </p>
 
 <h3><code>createSession()</code></h3>
 
 <p>
-	Creates a new session in the database. The token is hashed to produce the session ID, and
-	metadata (user agent, IP address) is stored alongside it for security auditing:
+	Creates a new session in the database. The token is hashed to produce the session ID, and metadata
+	(user agent, IP address) is stored alongside it for security auditing:
 </p>
 
-<pre><code class="language-ts">export async function createSession(
+<pre><code class="language-ts"
+		>export async function createSession(
   token: string,
   userId: string,
   metadata?: &#123; userAgent?: string | null; ipAddress?: string | null &#125;
@@ -104,23 +108,34 @@
 
   await db.insert(sessions).values(session);
   return session;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
-<p>Sessions have a <strong>30-day lifetime</strong> by default, configurable via the <code>SESSION_LIFETIME_MS</code> constant.</p>
+<p>
+	Sessions have a <strong>30-day lifetime</strong> by default, configurable via the
+	<code>SESSION_LIFETIME_MS</code> constant.
+</p>
 
 <h3><code>validateSession()</code></h3>
 
 <p>
-	Validates a session token by hashing it and looking up the result in the database. Handles two
-	key scenarios:
+	Validates a session token by hashing it and looking up the result in the database. Handles two key
+	scenarios:
 </p>
 
 <ol>
-	<li><strong>Expired session</strong> — Deletes the session from the database and returns <code>null</code></li>
-	<li><strong>Session nearing expiry</strong> — If less than 15 days remain, the session is automatically extended to a fresh 30-day window (sliding expiration)</li>
+	<li>
+		<strong>Expired session</strong> — Deletes the session from the database and returns
+		<code>null</code>
+	</li>
+	<li>
+		<strong>Session nearing expiry</strong> — If less than 15 days remain, the session is automatically
+		extended to a fresh 30-day window (sliding expiration)
+	</li>
 </ol>
 
-<pre><code class="language-ts">export async function validateSession(token: string): Promise&lt;SessionValidationResult&gt; &#123;
+<pre><code class="language-ts"
+		>export async function validateSession(token: string): Promise&lt;SessionValidationResult&gt; &#123;
   const sessionId = hashToken(token);
 
   const result = await db
@@ -161,7 +176,8 @@
   &#125;
 
   return &#123; session, user &#125;;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	The join with the <code>users</code> table returns a <code>SessionUser</code> object containing
@@ -176,7 +192,8 @@
 	Manage the <code>auth_session</code> cookie with security-hardened defaults:
 </p>
 
-<pre><code class="language-ts">export function setSessionCookie(cookies: Cookies, token: string, expiresAt: number): void &#123;
+<pre><code class="language-ts"
+		>export function setSessionCookie(cookies: Cookies, token: string, expiresAt: number): void &#123;
   cookies.set(SESSION_COOKIE_NAME, token, &#123;
     httpOnly: true,     // Not accessible via JavaScript
     sameSite: "lax",    // Sent with top-level navigations
@@ -194,24 +211,25 @@ export function deleteSessionCookie(cookies: Cookies): void &#123;
     path: "/",
     maxAge: 0,          // Immediately expire
   &#125;);
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	The cookie name <code>auth_session</code> is exported as a constant so it can be referenced
 	consistently across the codebase. The <code>secure</code> flag is automatically disabled in
-	development (via <strong>SvelteKit's</strong> <code>dev</code> variable) to allow HTTP on
-	localhost.
+	development (via <strong>SvelteKit's</strong> <code>dev</code> variable) to allow HTTP on localhost.
 </p>
 
 <h2>Server Hooks</h2>
 
 <p>
 	<strong>SvelteKit</strong> server hooks run on <strong>every single request</strong> — page loads,
-	form submissions, API calls, everything. SvelteForge's <code>hooks.server.ts</code> is the
-	backbone of the auth system:
+	form submissions, API calls, everything. SvelteForge's <code>hooks.server.ts</code> is the backbone
+	of the auth system:
 </p>
 
-<pre><code class="language-ts">// src/hooks.server.ts
+<pre><code class="language-ts"
+		>// src/hooks.server.ts
 export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
   const token = event.cookies.get(SESSION_COOKIE_NAME);
   if (!token) &#123;
@@ -240,15 +258,22 @@ export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
   event.locals.user = user;
   event.locals.session = session;
   return resolve(event);
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>This hook performs four operations on every request:</p>
 
 <ol>
 	<li><strong>Read</strong> the <code>auth_session</code> cookie</li>
 	<li><strong>Validate</strong> the session token (checks expiry, auto-extends if needed)</li>
-	<li><strong>Populate</strong> <code>event.locals.user</code> and <code>event.locals.session</code> so every server load function and form action can access the authenticated user</li>
-	<li><strong>Update metadata</strong> — the user agent and IP address are refreshed on every request, giving you an accurate audit trail in Settings &gt; Sessions</li>
+	<li>
+		<strong>Populate</strong> <code>event.locals.user</code> and <code>event.locals.session</code> so
+		every server load function and form action can access the authenticated user
+	</li>
+	<li>
+		<strong>Update metadata</strong> — the user agent and IP address are refreshed on every request, giving
+		you an accurate audit trail in Settings &gt; Sessions
+	</li>
 </ol>
 
 <p>
@@ -257,20 +282,23 @@ export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
 	<strong>SvelteKit</strong> application:
 </p>
 
-<pre><code class="language-ts">interface Locals &#123;
+<pre><code class="language-ts"
+		>interface Locals &#123;
   user: SessionUser | null;
   session: Session | null;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <h2>Password Hashing</h2>
 
 <p>
-	SvelteForge uses <strong>Argon2id</strong> via <code>@node-rs/argon2</code> — the winner of the
-	Password Hashing Competition and the recommended algorithm for new applications. The parameters
-	are tuned for security:
+	SvelteForge uses <strong>Argon2id</strong> via <code>@node-rs/argon2</code> — the winner of the Password
+	Hashing Competition and the recommended algorithm for new applications. The parameters are tuned for
+	security:
 </p>
 
-<pre><code class="language-ts">import &#123; hash, verify &#125; from "@node-rs/argon2";
+<pre><code class="language-ts"
+		>import &#123; hash, verify &#125; from "@node-rs/argon2";
 
 // Hashing (registration, password reset)
 const passwordHash = await hash(password, &#123;
@@ -286,19 +314,20 @@ const valid = await verify(existingUser.passwordHash, password, &#123;
   timeCost: 2,
   outputLen: 32,
   parallelism: 1,
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <p>
-	These parameters ensure that each hash operation requires ~19 MB of memory and two passes,
-	making brute-force and GPU attacks impractical. The <code>@node-rs/argon2</code> package uses
-	native Rust bindings for performance — significantly faster than pure JavaScript implementations.
+	These parameters ensure that each hash operation requires ~19 MB of memory and two passes, making
+	brute-force and GPU attacks impractical. The <code>@node-rs/argon2</code> package uses native Rust bindings
+	for performance — significantly faster than pure JavaScript implementations.
 </p>
 
 <h2>Login Flow</h2>
 
 <p>
-	The login form is a standard <strong>SvelteKit</strong> form action with progressive enhancement.
-	The entire flow happens server-side:
+	The login form is a standard <strong>SvelteKit</strong> form action with progressive enhancement. The
+	entire flow happens server-side:
 </p>
 
 <ol>
@@ -310,7 +339,8 @@ const valid = await verify(existingUser.passwordHash, password, &#123;
 	<li><strong>Redirect</strong> — send user to the dashboard</li>
 </ol>
 
-<pre><code class="language-ts">// src/routes/(auth)/login/+page.server.ts
+<pre><code class="language-ts"
+		>// src/routes/(auth)/login/+page.server.ts
 export const actions: Actions = &#123;
   default: async (&#123; request, cookies, getClientAddress &#125;) =&gt; &#123;
     const formData = await request.formData();
@@ -344,7 +374,8 @@ export const actions: Actions = &#123;
 
     redirect(302, "/");
   &#125;,
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
 	Notice the deliberate use of a generic error message (<em>"Incorrect username or password"</em>)
@@ -353,22 +384,30 @@ export const actions: Actions = &#123;
 
 <p>
 	The login page uses <strong>SvelteKit's</strong> <code>use:enhance</code> directive for progressive
-	enhancement. The form works without JavaScript and upgrades seamlessly when JS is available,
-	avoiding full page reloads on submission.
+	enhancement. The form works without JavaScript and upgrades seamlessly when JS is available, avoiding
+	full page reloads on submission.
 </p>
 
 <h2>Registration Flow</h2>
 
 <ol>
-	<li><strong>Validate inputs</strong> — name, email, username (lowercase alphanumeric + hyphens/underscores), password</li>
+	<li>
+		<strong>Validate inputs</strong> — name, email, username (lowercase alphanumeric + hyphens/underscores),
+		password
+	</li>
 	<li><strong>Hash password</strong> — Argon2id with the same parameters as login</li>
-	<li><strong>Generate user ID</strong> — cryptographic random ID via <code>generateId(10)</code></li>
-	<li><strong>Insert user</strong> — Drizzle ORM insert with unique constraint on email and username</li>
+	<li>
+		<strong>Generate user ID</strong> — cryptographic random ID via <code>generateId(10)</code>
+	</li>
+	<li>
+		<strong>Insert user</strong> — Drizzle ORM insert with unique constraint on email and username
+	</li>
 	<li><strong>Create session</strong> — immediately log the user in</li>
 	<li><strong>Redirect</strong> — send to dashboard</li>
 </ol>
 
-<pre><code class="language-ts">// src/routes/(auth)/register/+page.server.ts
+<pre><code class="language-ts"
+		>// src/routes/(auth)/register/+page.server.ts
 const passwordHash = await hash(password, &#123;
   memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1,
 &#125;);
@@ -386,25 +425,27 @@ try &#123;
   &#125;);
 &#125; catch &#123;
   return fail(400, &#123; message: "Username or email already taken" &#125;);
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <p>
 	<strong>First user privilege:</strong> The first registered user automatically receives the
-	<code>admin</code> role. This bootstraps the application without requiring database seeding or
-	manual role assignment.
+	<code>admin</code> role. This bootstraps the application without requiring database seeding or manual
+	role assignment.
 </p>
 
 <h2>OAuth (Google + GitHub)</h2>
 
 <p>
 	Social login is implemented using the <strong>Arctic</strong> library, which provides minimal,
-	type-safe OAuth 2.0 clients. OAuth is <strong>entirely optional</strong> — providers are
-	configured via environment variables, and the system degrades gracefully when they are not set.
+	type-safe OAuth 2.0 clients. OAuth is <strong>entirely optional</strong> — providers are configured
+	via environment variables, and the system degrades gracefully when they are not set.
 </p>
 
 <h3>Provider Configuration</h3>
 
-<pre><code class="language-ts">// src/lib/server/oauth.ts
+<pre><code class="language-ts"
+		>// src/lib/server/oauth.ts
 import * as arctic from "arctic";
 import &#123; env &#125; from "$env/dynamic/private";
 
@@ -435,31 +476,41 @@ export function getEnabledProviders(): string[] &#123;
   if (google) providers.push("google");
   if (github) providers.push("github");
   return providers;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
-<p>
-	Key design decisions:
-</p>
+<p>Key design decisions:</p>
 
 <ul>
-	<li><strong>Environment-driven:</strong> Providers are <code>null</code> when their env vars are missing. No errors, no crashes — just graceful absence.</li>
-	<li><strong>Dynamic callback URLs:</strong> The <code>ORIGIN</code> env var controls the base URL, so callback URLs work across localhost, staging, and production without code changes.</li>
-	<li><strong>Conditional UI:</strong> The login page calls <code>getEnabledProviders()</code> via its <strong>SvelteKit</strong> load function and only renders social login buttons for configured providers.</li>
+	<li>
+		<strong>Environment-driven:</strong> Providers are <code>null</code> when their env vars are missing.
+		No errors, no crashes — just graceful absence.
+	</li>
+	<li>
+		<strong>Dynamic callback URLs:</strong> The <code>ORIGIN</code> env var controls the base URL, so
+		callback URLs work across localhost, staging, and production without code changes.
+	</li>
+	<li>
+		<strong>Conditional UI:</strong> The login page calls <code>getEnabledProviders()</code> via its
+		<strong>SvelteKit</strong> load function and only renders social login buttons for configured providers.
+	</li>
 </ul>
 
 <h3>Login Page Integration</h3>
 
-<pre><code class="language-ts">// src/routes/(auth)/login/+page.server.ts
+<pre><code class="language-ts"
+		>// src/routes/(auth)/login/+page.server.ts
 export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
   if (locals.user) redirect(302, "/");
   return &#123;
     enabledProviders: getEnabledProviders(),
   &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
-	The <strong>Svelte 5</strong> login component uses <code>$props()</code> to receive the enabled
-	providers and conditionally renders Google/GitHub buttons only when available.
+	The <strong>Svelte 5</strong> login component uses <code>$props()</code> to receive the enabled providers
+	and conditionally renders Google/GitHub buttons only when available.
 </p>
 
 <h3>OAuth Flow</h3>
@@ -468,9 +519,9 @@ export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <ol>
 	<li>
-		<strong>Initiation</strong> (<code>/login/google/+server.ts</code>) — Generates a random state and
-		code verifier, stores them in short-lived httpOnly cookies (10 minutes), and redirects the user
-		to the provider's authorization URL.
+		<strong>Initiation</strong> (<code>/login/google/+server.ts</code>) — Generates a random state
+		and code verifier, stores them in short-lived httpOnly cookies (10 minutes), and redirects the
+		user to the provider's authorization URL.
 	</li>
 	<li>
 		<strong>Callback</strong> (<code>/login/google/callback/+server.ts</code>) — Validates the state
@@ -490,27 +541,29 @@ export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	OAuth users get a random, unusable password hash — they can only authenticate via their social
-	provider. The user role is set to <code>viewer</code> by default (unlike the first registered
-	user who gets <code>admin</code>).
+	provider. The user role is set to <code>viewer</code> by default (unlike the first registered user
+	who gets <code>admin</code>).
 </p>
 
 <h2>Password Reset Flow</h2>
 
-<p>
-	Password reset follows industry best practices with hashed tokens and time-limited validity:
-</p>
+<p>Password reset follows industry best practices with hashed tokens and time-limited validity:</p>
 
 <h3>Step 1: Request Reset (<code>/forgot-password</code>)</h3>
 
 <ol>
 	<li>User enters their email address</li>
 	<li>Server generates a 25-character random token via <code>generateId(25)</code></li>
-	<li>Token is hashed with SHA-256 and stored in the <code>passwordResetTokens</code> table with a 1-hour expiry</li>
+	<li>
+		Token is hashed with SHA-256 and stored in the <code>passwordResetTokens</code> table with a 1-hour
+		expiry
+	</li>
 	<li>The reset URL is logged to the console (no email service configured in development)</li>
 	<li>Response always returns success — never reveals whether the email exists</li>
 </ol>
 
-<pre><code class="language-ts">// Generate and store hashed token
+<pre><code class="language-ts"
+		>// Generate and store hashed token
 const token = generateId(25);
 const tokenHash = /* SHA-256 hash of token */;
 const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
@@ -522,7 +575,8 @@ await db.insert(passwordResetTokens).values(&#123;
   expiresAt,
 &#125;);
 
-console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</code></pre>
+console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</code
+	></pre>
 
 <h3>Step 2: Reset Password (<code>/reset-password</code>)</h3>
 
@@ -543,20 +597,25 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 </p>
 
 <p>
-	The lock page requires an active session (unauthenticated users are redirected to <code>/login</code>).
-	It displays the user's name and avatar, and verifies the entered password against the stored
+	The lock page requires an active session (unauthenticated users are redirected to <code
+		>/login</code
+	>). It displays the user's name and avatar, and verifies the entered password against the stored
 	Argon2id hash before redirecting back to the dashboard.
 </p>
 
 <h2>Session Metadata</h2>
 
 <p>
-	Every session stores the user agent and IP address, updated on <strong>every request</strong> via
-	the server hook. This metadata powers the Settings &gt; Sessions panel, where users can see:
+	Every session stores the user agent and IP address, updated on <strong>every request</strong> via the
+	server hook. This metadata powers the Settings &gt; Sessions panel, where users can see:
 </p>
 
 <ul>
-	<li>Browser name and version (parsed from the user-agent string using <code>src/lib/utils/user-agent.ts</code>)</li>
+	<li>
+		Browser name and version (parsed from the user-agent string using <code
+			>src/lib/utils/user-agent.ts</code
+		>)
+	</li>
 	<li>Operating system</li>
 	<li>IP address</li>
 	<li>Session creation time</li>
@@ -571,11 +630,12 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 <h2>Auth Guard</h2>
 
 <p>
-	Protected routes are guarded by a single <strong>SvelteKit</strong> layout server load function
-	in <code>src/routes/(app)/+layout.server.ts</code>:
+	Protected routes are guarded by a single <strong>SvelteKit</strong> layout server load function in
+	<code>src/routes/(app)/+layout.server.ts</code>:
 </p>
 
-<pre><code class="language-ts">export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
+<pre><code class="language-ts"
+		>export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
   if (!locals.user) &#123;
     redirect(302, "/login");
   &#125;
@@ -589,19 +649,21 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
   &#125;
 
   return &#123; user: locals.user, ... &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
 	Because this is a <strong>layout</strong> load function, it runs before every page inside the
-	<code>(app)</code> route group. No individual page needs to check authentication — it is
-	handled once at the layout level.
+	<code>(app)</code> route group. No individual page needs to check authentication — it is handled once
+	at the layout level.
 </p>
 
 <h2>Maintenance Mode</h2>
 
 <p>
 	The auth guard also enforces maintenance mode. When the <code>maintenanceMode</code> app setting
-	is set to <code>"true"</code>, all non-admin users receive a <strong>503 Service Unavailable</strong>
+	is set to <code>"true"</code>, all non-admin users receive a
+	<strong>503 Service Unavailable</strong>
 	error. Admin users can still access the application to manage settings and bring it back online.
 </p>
 
@@ -629,17 +691,26 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 		<tr>
 			<td><code>users</code></td>
 			<td>User accounts</td>
-			<td><code>id</code>, <code>email</code>, <code>username</code>, <code>passwordHash</code>, <code>role</code>, <code>avatarUrl</code></td>
+			<td
+				><code>id</code>, <code>email</code>, <code>username</code>, <code>passwordHash</code>,
+				<code>role</code>, <code>avatarUrl</code></td
+			>
 		</tr>
 		<tr>
 			<td><code>sessions</code></td>
 			<td>Active sessions</td>
-			<td><code>id</code> (hashed token), <code>userId</code>, <code>expiresAt</code>, <code>userAgent</code>, <code>ipAddress</code></td>
+			<td
+				><code>id</code> (hashed token), <code>userId</code>, <code>expiresAt</code>,
+				<code>userAgent</code>, <code>ipAddress</code></td
+			>
 		</tr>
 		<tr>
 			<td><code>oauthAccounts</code></td>
 			<td>OAuth provider links</td>
-			<td><code>userId</code>, <code>provider</code>, <code>providerUserId</code> (unique index on provider + providerUserId)</td>
+			<td
+				><code>userId</code>, <code>provider</code>, <code>providerUserId</code> (unique index on provider
+				+ providerUserId)</td
+			>
 		</tr>
 		<tr>
 			<td><code>passwordResetTokens</code></td>
@@ -650,9 +721,9 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 </table>
 
 <p>
-	Roles are defined as a SQLite text enum: <code>admin</code>, <code>editor</code>, <code>viewer</code>.
-	The role determines access levels throughout the application — admin users can manage other users,
-	change settings, and bypass maintenance mode.
+	Roles are defined as a SQLite text enum: <code>admin</code>, <code>editor</code>,
+	<code>viewer</code>. The role determines access levels throughout the application — admin users
+	can manage other users, change settings, and bypass maintenance mode.
 </p>
 
 <h2>Security Summary</h2>
@@ -699,7 +770,10 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 		</tr>
 		<tr>
 			<td>Server boundary</td>
-			<td>All auth code in <code>$lib/server/</code> — <strong>SvelteKit</strong> prevents client-side import</td>
+			<td
+				>All auth code in <code>$lib/server/</code> — <strong>SvelteKit</strong> prevents client-side
+				import</td
+			>
 		</tr>
 		<tr>
 			<td>Metadata tracking</td>
@@ -711,18 +785,16 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin gives you a solid <strong>Svelte 5</strong> +
-				<strong>SvelteKit</strong> authentication foundation. When you need enterprise-grade
-				features — multi-tenant auth, 2FA, API key management, audit logs, and advanced RBAC
-				— check out the premium templates at DashboardPack.
+				<strong>SvelteKit</strong> authentication foundation. When you need enterprise-grade features
+				— multi-tenant auth, 2FA, API key management, audit logs, and advanced RBAC — check out the premium
+				templates at DashboardPack.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>

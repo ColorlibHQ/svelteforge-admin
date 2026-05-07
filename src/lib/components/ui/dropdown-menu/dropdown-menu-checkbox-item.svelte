@@ -29,9 +29,7 @@
 	{...restProps}
 >
 	{#snippet children({ checked, indeterminate })}
-		<span
-			class="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center"
-		>
+		<span class="pointer-events-none absolute start-2 flex size-3.5 items-center justify-center">
 			{#if indeterminate}
 				<MinusIcon class="size-4" />
 			{:else}

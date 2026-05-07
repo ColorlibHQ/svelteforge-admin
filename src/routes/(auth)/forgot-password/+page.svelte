@@ -17,7 +17,9 @@
 	<Card.Root class="w-full max-w-md">
 		<Card.Header class="space-y-1 text-center">
 			<div class="flex justify-center">
-				<div class="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl">
+				<div
+					class="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl"
+				>
 					<MailIcon class="size-6" />
 				</div>
 			</div>
@@ -31,8 +33,9 @@
 				</div>
 			{/if}
 			{#if form?.success}
-				<div class="bg-green-500/10 text-green-700 dark:text-green-400 mb-4 rounded-md p-3 text-sm">
-					If an account exists with that email, a reset link has been sent. Check your console logs in development.
+				<div class="mb-4 rounded-md bg-green-500/10 p-3 text-sm text-green-700 dark:text-green-400">
+					If an account exists with that email, a reset link has been sent. Check your console logs
+					in development.
 				</div>
 			{:else}
 				<form method="POST" use:enhance class="space-y-4">

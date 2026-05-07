@@ -12,8 +12,8 @@
 	Every component in SvelteForge Admin is built with <strong>Svelte 5's runes API</strong>. There
 	are no legacy <code>export let</code> declarations or <code>$:</code> reactive statements anywhere
 	in the codebase. Instead, components use <code>$props</code> for inputs, <code>$state</code> for
-	local reactivity, <code>$derived</code> for computed values, <code>$effect</code> for side effects,
-	and <code>&#123;@render&#125;</code> for snippet-based composition.
+	local reactivity, <code>$derived</code> for computed values, <code>$effect</code> for side
+	effects, and <code>&#123;@render&#125;</code> for snippet-based composition.
 </p>
 
 <p>
@@ -33,8 +33,8 @@
 <h3>Where components live</h3>
 
 <p>
-	All shadcn-svelte components are installed into <code>src/lib/components/ui/</code>. Each component
-	has its own directory with an <code>index.ts</code> barrel export.
+	All shadcn-svelte components are installed into <code>src/lib/components/ui/</code>. Each
+	component has its own directory with an <code>index.ts</code> barrel export.
 </p>
 
 <h3>Important: do not edit directly</h3>
@@ -60,23 +60,41 @@
 		</tr>
 	</thead>
 	<tbody>
-		<tr><td><strong>Button</strong></td><td>Primary interaction element with multiple variants (default, destructive, outline, secondary, ghost, link)</td></tr>
-		<tr><td><strong>Card</strong></td><td>Content container with header, content, and footer sections</td></tr>
+		<tr
+			><td><strong>Button</strong></td><td
+				>Primary interaction element with multiple variants (default, destructive, outline,
+				secondary, ghost, link)</td
+			></tr
+		>
+		<tr
+			><td><strong>Card</strong></td><td
+				>Content container with header, content, and footer sections</td
+			></tr
+		>
 		<tr><td><strong>Dialog</strong></td><td>Modal overlay for focused interactions</td></tr>
-		<tr><td><strong>Alert Dialog</strong></td><td>Confirmation modals for destructive actions</td></tr>
-		<tr><td><strong>Dropdown Menu</strong></td><td>Contextual menu with keyboard navigation</td></tr>
+		<tr
+			><td><strong>Alert Dialog</strong></td><td>Confirmation modals for destructive actions</td
+			></tr
+		>
+		<tr><td><strong>Dropdown Menu</strong></td><td>Contextual menu with keyboard navigation</td></tr
+		>
 		<tr><td><strong>Avatar</strong></td><td>User profile image with fallback initials</td></tr>
 		<tr><td><strong>Badge</strong></td><td>Status indicators and labels</td></tr>
 		<tr><td><strong>Breadcrumb</strong></td><td>Navigation trail for page hierarchy</td></tr>
 		<tr><td><strong>Separator</strong></td><td>Visual divider between content sections</td></tr>
 		<tr><td><strong>Sidebar</strong></td><td>Collapsible navigation sidebar primitives</td></tr>
 		<tr><td><strong>Sonner</strong></td><td>Toast notification system</td></tr>
-		<tr><td><strong>Command</strong></td><td>Command palette primitives (search + keyboard nav)</td></tr>
+		<tr
+			><td><strong>Command</strong></td><td>Command palette primitives (search + keyboard nav)</td
+			></tr
+		>
 		<tr><td><strong>Popover</strong></td><td>Floating content anchored to a trigger</td></tr>
 		<tr><td><strong>Input</strong></td><td>Text input with consistent styling</td></tr>
 		<tr><td><strong>Label</strong></td><td>Accessible form labels</td></tr>
 		<tr><td><strong>Select</strong></td><td>Dropdown select with keyboard support</td></tr>
-		<tr><td><strong>Table</strong></td><td>Data tables with header, body, and row components</td></tr>
+		<tr
+			><td><strong>Table</strong></td><td>Data tables with header, body, and row components</td></tr
+		>
 		<tr><td><strong>Tabs</strong></td><td>Tabbed content navigation</td></tr>
 		<tr><td><strong>Tooltip</strong></td><td>Hover-triggered contextual hints</td></tr>
 		<tr><td><strong>Sheet</strong></td><td>Slide-in panel from screen edge</td></tr>
@@ -87,8 +105,8 @@
 
 <p>
 	Built on top of the shadcn-svelte primitives, SvelteForge Admin includes purpose-built
-	<strong>Svelte 5</strong> components for the admin dashboard experience. Each one uses the runes
-	API exclusively.
+	<strong>Svelte 5</strong> components for the admin dashboard experience. Each one uses the runes API
+	exclusively.
 </p>
 
 <h3>1. App Sidebar</h3>
@@ -96,8 +114,8 @@
 <p><code>src/lib/components/app-sidebar.svelte</code></p>
 
 <p>
-	The primary navigation component for the entire application. It provides a collapsible sidebar with
-	grouped navigation links, a user dropdown, and notification count integration.
+	The primary navigation component for the entire application. It provides a collapsible sidebar
+	with grouped navigation links, a user dropdown, and notification count integration.
 </p>
 
 <h4>Structure</h4>
@@ -131,8 +149,14 @@
 <h4>Svelte 5 patterns used</h4>
 
 <ul>
-	<li><code>$derived</code> — Builds the reactive navigation array so active states update automatically when the URL changes</li>
-	<li>Built entirely with shadcn-svelte Sidebar primitives (<code>Sidebar.Content</code>, <code>Sidebar.Group</code>, <code>Sidebar.MenuItem</code>, etc.)</li>
+	<li>
+		<code>$derived</code> — Builds the reactive navigation array so active states update automatically
+		when the URL changes
+	</li>
+	<li>
+		Built entirely with shadcn-svelte Sidebar primitives (<code>Sidebar.Content</code>,
+		<code>Sidebar.Group</code>, <code>Sidebar.MenuItem</code>, etc.)
+	</li>
 </ul>
 
 <h4>Props</h4>
@@ -142,8 +166,16 @@
 		<tr><th>Prop</th><th>Type</th><th>Description</th></tr>
 	</thead>
 	<tbody>
-		<tr><td><code>user</code></td><td><code>&#123; name, email, username, role &#125;</code></td><td>Current authenticated user</td></tr>
-		<tr><td><code>notificationCount</code></td><td><code>number</code></td><td>Unread notification count for badge display</td></tr>
+		<tr
+			><td><code>user</code></td><td><code>&#123; name, email, username, role &#125;</code></td><td
+				>Current authenticated user</td
+			></tr
+		>
+		<tr
+			><td><code>notificationCount</code></td><td><code>number</code></td><td
+				>Unread notification count for badge display</td
+			></tr
+		>
 	</tbody>
 </table>
 
@@ -153,22 +185,22 @@
 
 <p>
 	A keyboard-driven command palette triggered by <strong>Cmd+K</strong> (macOS) or
-	<strong>Ctrl+K</strong> (Windows/Linux). It provides instant navigation, search, and quick
-	actions — a power-user feature built on bits-ui Command primitives and the shadcn Dialog.
+	<strong>Ctrl+K</strong> (Windows/Linux). It provides instant navigation, search, and quick actions —
+	a power-user feature built on bits-ui Command primitives and the shadcn Dialog.
 </p>
 
 <h4>Three sections</h4>
 
 <ol>
 	<li>
-		<strong>Navigation</strong> — Eight quick-access routes: Dashboard, Users, Content, Analytics,
-		Notifications, Roles, Database, Settings
+		<strong>Navigation</strong> — Eight quick-access routes: Dashboard, Users, Content, Analytics, Notifications,
+		Roles, Database, Settings
 	</li>
 	<li>
 		<strong>Search Results</strong> — API-driven search that queries
-		<code>/api/search?q=&#123;query&#125;</code>. Results are type-aware and display contextual icons:
-		user results show a user icon, page results show a document icon, notification results show a
-		bell icon.
+		<code>/api/search?q=&#123;query&#125;</code>. Results are type-aware and display contextual
+		icons: user results show a user icon, page results show a document icon, notification results
+		show a bell icon.
 	</li>
 	<li>
 		<strong>Quick Actions</strong> — "New Page" (navigates to content creation) and "Toggle Theme"
@@ -179,16 +211,18 @@
 <h4>Search behavior</h4>
 
 <p>
-	Search is <strong>debounced at 250ms</strong> to prevent excessive API calls. As the user types,
-	the component waits 250ms after the last keystroke before sending the request. Results appear
-	inline below the navigation section.
+	Search is <strong>debounced at 250ms</strong> to prevent excessive API calls. As the user types, the
+	component waits 250ms after the last keystroke before sending the request. Results appear inline below
+	the navigation section.
 </p>
 
 <h4>Svelte 5 patterns used</h4>
 
 <ul>
 	<li><code>$state</code> — Tracks the search query string and results array</li>
-	<li><code>$effect</code> — Implements the debounce timer, automatically cleaning up on dependency changes</li>
+	<li>
+		<code>$effect</code> — Implements the debounce timer, automatically cleaning up on dependency changes
+	</li>
 	<li>Integrates with <strong>mode-watcher</strong> for the theme toggle quick action</li>
 </ul>
 
@@ -204,7 +238,10 @@
 <h4>Features</h4>
 
 <ul>
-	<li><strong>Unread count badge</strong> — Displays the count directly. When the count exceeds 9, it shows "9+" to keep the badge compact.</li>
+	<li>
+		<strong>Unread count badge</strong> — Displays the count directly. When the count exceeds 9, it shows
+		"9+" to keep the badge compact.
+	</li>
 	<li><strong>Last 5 notifications</strong> — The popover shows up to 5 unread notifications</li>
 	<li>
 		<strong>Type-specific styling</strong> — Each notification type has its own icon and color:
@@ -215,8 +252,13 @@
 			<li><strong>Success</strong> — Green icon</li>
 		</ul>
 	</li>
-	<li><strong>Time-ago display</strong> — Shows relative timestamps: "just now", "Xm ago", "Xh ago", "Xd ago"</li>
-	<li><strong>Footer link</strong> — "View all notifications" links to <code>/notifications</code></li>
+	<li>
+		<strong>Time-ago display</strong> — Shows relative timestamps: "just now", "Xm ago", "Xh ago", "Xd
+		ago"
+	</li>
+	<li>
+		<strong>Footer link</strong> — "View all notifications" links to <code>/notifications</code>
+	</li>
 </ul>
 
 <h4>Props</h4>
@@ -226,8 +268,16 @@
 		<tr><th>Prop</th><th>Type</th><th>Description</th></tr>
 	</thead>
 	<tbody>
-		<tr><td><code>count</code></td><td><code>number</code></td><td>Total unread notification count</td></tr>
-		<tr><td><code>notifications</code></td><td><code>Notification[]</code></td><td>Array of recent unread notifications to display in the popover</td></tr>
+		<tr
+			><td><code>count</code></td><td><code>number</code></td><td
+				>Total unread notification count</td
+			></tr
+		>
+		<tr
+			><td><code>notifications</code></td><td><code>Notification[]</code></td><td
+				>Array of recent unread notifications to display in the popover</td
+			></tr
+		>
 	</tbody>
 </table>
 
@@ -252,15 +302,14 @@
 <p>
 	The theme toggle uses <code>mode.current</code> to read the current theme — this is a
 	<strong>Svelte 5 runes object</strong> from mode-watcher. Do <strong>NOT</strong> use
-	<code>$mode</code> (which is the Svelte 4 store syntax). This distinction is critical when working
-	with mode-watcher in a Svelte 5 / SvelteKit project.
+	<code>$mode</code> (which is the Svelte 4 store syntax). This distinction is critical when working with
+	mode-watcher in a Svelte 5 / SvelteKit project.
 </p>
 
 <h4>Button style</h4>
 
 <p>
-	Rendered as a <strong>ghost</strong> variant button from shadcn-svelte for a minimal, icon-only
-	appearance.
+	Rendered as a <strong>ghost</strong> variant button from shadcn-svelte for a minimal, icon-only appearance.
 </p>
 
 <h3>5. Animated Counter</h3>
@@ -283,8 +332,8 @@
 <h4>Svelte 5 patterns used</h4>
 
 <p>
-	The animation is driven by <code>$effect</code> — whenever the <code>value</code> prop changes,
-	the effect re-runs and starts a new animation from 0 to the new target.
+	The animation is driven by <code>$effect</code> — whenever the <code>value</code> prop changes, the
+	effect re-runs and starts a new animation from 0 to the new target.
 </p>
 
 <h4>Props</h4>
@@ -294,9 +343,21 @@
 		<tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
 	</thead>
 	<tbody>
-		<tr><td><code>value</code></td><td><code>number</code></td><td>—</td><td>Target number to animate to</td></tr>
-		<tr><td><code>duration</code></td><td><code>number</code></td><td><code>800</code></td><td>Animation duration in milliseconds</td></tr>
-		<tr><td><code>format</code></td><td><code>(n: number) =&gt; string</code></td><td>—</td><td>Optional custom format function (e.g., for currency or percentages)</td></tr>
+		<tr
+			><td><code>value</code></td><td><code>number</code></td><td>—</td><td
+				>Target number to animate to</td
+			></tr
+		>
+		<tr
+			><td><code>duration</code></td><td><code>number</code></td><td><code>800</code></td><td
+				>Animation duration in milliseconds</td
+			></tr
+		>
+		<tr
+			><td><code>format</code></td><td><code>(n: number) =&gt; string</code></td><td>—</td><td
+				>Optional custom format function (e.g., for currency or percentages)</td
+			></tr
+		>
 	</tbody>
 </table>
 
@@ -312,14 +373,20 @@
 <h4>Features</h4>
 
 <ul>
-	<li><strong>"Showing X-Y of Z" display</strong> — Clear indication of which records are visible</li>
-	<li><strong>Page size selector</strong> — Dropdown with options for 10, 25, or 50 items per page</li>
-	<li><strong>Previous/Next navigation</strong> — Buttons with disabled states at boundary pages</li>
+	<li>
+		<strong>"Showing X-Y of Z" display</strong> — Clear indication of which records are visible
+	</li>
+	<li>
+		<strong>Page size selector</strong> — Dropdown with options for 10, 25, or 50 items per page
+	</li>
+	<li>
+		<strong>Previous/Next navigation</strong> — Buttons with disabled states at boundary pages
+	</li>
 </ul>
 
 <p>
-	This component is a great example of <strong>SvelteKit</strong> reusability — the same component
-	works across multiple routes because it accepts standardized pagination data through props.
+	This component is a great example of <strong>SvelteKit</strong> reusability — the same component works
+	across multiple routes because it accepts standardized pagination data through props.
 </p>
 
 <h3>7. Delete Confirm Dialog</h3>
@@ -334,7 +401,10 @@
 <h4>Implementation details</h4>
 
 <ul>
-	<li>Uses a <strong>SvelteKit form action</strong> with <code>use:enhance</code> for progressive enhancement — the delete works even without JavaScript</li>
+	<li>
+		Uses a <strong>SvelteKit form action</strong> with <code>use:enhance</code> for progressive enhancement
+		— the delete works even without JavaScript
+	</li>
 	<li>Cancel and Confirm buttons with the confirm styled as <code>destructive</code> variant</li>
 	<li>The dialog prevents accidental deletions by requiring an explicit confirmation click</li>
 </ul>
@@ -371,8 +441,8 @@
 <h4>Error handling</h4>
 
 <p>
-	Server-side validation errors are returned from <strong>SvelteKit</strong> form actions and
-	displayed inline next to the relevant fields.
+	Server-side validation errors are returned from <strong>SvelteKit</strong> form actions and displayed
+	inline next to the relevant fields.
 </p>
 
 <h3>10. Apps Menu</h3>
@@ -402,7 +472,8 @@
 
 <h4>Usage</h4>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; IsMobile &#125; from "$lib/hooks/is-mobile.svelte";
 
   const isMobile = new IsMobile();
@@ -412,12 +483,13 @@
   &lt;p&gt;Mobile layout&lt;/p&gt;
 &#123;:else&#125;
   &lt;p&gt;Desktop layout&lt;/p&gt;
-&#123;/if&#125;</code></pre>
+&#123;/if&#125;</code
+	></pre>
 
 <p>
 	Because this is a <strong>Svelte 5</strong> runes-based class (note the <code>.svelte.ts</code>
-	file extension), the <code>current</code> property is reactive — components re-render
-	automatically when the viewport crosses the 768px boundary.
+	file extension), the <code>current</code> property is reactive — components re-render automatically
+	when the viewport crosses the 768px boundary.
 </p>
 
 <h2>The cn() Utility</h2>
@@ -426,22 +498,27 @@
 
 <p>
 	A utility function that combines <strong>clsx</strong> (conditional class names) with
-	<strong>tailwind-merge</strong> (deduplicates and resolves conflicting Tailwind classes). It is
-	used throughout the codebase for composing class names:
+	<strong>tailwind-merge</strong> (deduplicates and resolves conflicting Tailwind classes). It is used
+	throughout the codebase for composing class names:
 </p>
 
-<pre><code class="language-ts">import &#123; cn &#125; from "$lib/utils";
+<pre><code class="language-ts"
+		>import &#123; cn &#125; from "$lib/utils";
 
 // Merge base classes with conditional and override classes
 cn("px-4 py-2 bg-primary", isActive && "bg-primary/90", className);
-// tailwind-merge ensures no conflicting classes survive</code></pre>
+// tailwind-merge ensures no conflicting classes survive</code
+	></pre>
 
-<p>Import it from <code>$lib/utils</code> — this is the standard pattern across all <strong>SvelteKit</strong> components in the project.</p>
+<p>
+	Import it from <code>$lib/utils</code> — this is the standard pattern across all
+	<strong>SvelteKit</strong> components in the project.
+</p>
 
 <h2>Need More Components?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
@@ -449,10 +526,9 @@ cn("px-4 py-2 bg-primary", isActive && "bg-primary/90", className);
 				50+ Pages with DashboardPack Premium
 			</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				Want Chat, Mail, Kanban boards, Calendar, File Manager, and more? Our premium
-				Svelte-quality templates on DashboardPack ship with 50+ pages, advanced CRUD
-				interfaces, and dozens of pre-built components — all built to the same standards
-				you see here in SvelteForge Admin.
+				Want Chat, Mail, Kanban boards, Calendar, File Manager, and more? Our premium Svelte-quality
+				templates on DashboardPack ship with 50+ pages, advanced CRUD interfaces, and dozens of
+				pre-built components — all built to the same standards you see here in SvelteForge Admin.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li><strong>Chat</strong> — Real-time messaging UI with conversations and contacts</li>

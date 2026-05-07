@@ -13,12 +13,7 @@ const FRAME = {
 	shadow: { blur: 30, alpha: 0.15 },
 };
 
-function createTitleBarSvg(
-	width: number,
-	height: number,
-	url: string,
-	dark: boolean,
-) {
+function createTitleBarSvg(width: number, height: number, url: string, dark: boolean) {
 	const { buttons, urlBar } = FRAME;
 	const buttonY = (height - buttons.size) / 2 + buttons.size / 2;
 
@@ -42,12 +37,7 @@ function createTitleBarSvg(
 	</svg>`;
 }
 
-async function addBrowserFrame(
-	inputPath: string,
-	outputPath: string,
-	url: string,
-	dark: boolean,
-) {
+async function addBrowserFrame(inputPath: string, outputPath: string, url: string, dark: boolean) {
 	const { titleBar, cornerRadius, padding, shadow } = FRAME;
 
 	const metadata = await sharp(inputPath).metadata();
@@ -60,12 +50,7 @@ async function addBrowserFrame(
 	const totalHeight = frameHeight + padding * 2;
 
 	// Title bar
-	const titleBarSvg = createTitleBarSvg(
-		frameWidth,
-		titleBar.height,
-		url,
-		dark,
-	);
+	const titleBarSvg = createTitleBarSvg(frameWidth, titleBar.height, url, dark);
 	const titleBarImage = await sharp(Buffer.from(titleBarSvg))
 		.resize(frameWidth, titleBar.height)
 		.png()
@@ -97,7 +82,7 @@ async function addBrowserFrame(
 			<rect x="${cornerRadius}" y="${imgHeight - cornerRadius}" width="${imgWidth - cornerRadius * 2}" height="${cornerRadius}" fill="white" />
 			<circle cx="${cornerRadius}" cy="${imgHeight - cornerRadius}" r="${cornerRadius}" fill="white" />
 			<circle cx="${imgWidth - cornerRadius}" cy="${imgHeight - cornerRadius}" r="${cornerRadius}" fill="white" />
-		</svg>`),
+		</svg>`)
 				)
 					.resize(imgWidth, imgHeight)
 					.png()
@@ -118,7 +103,7 @@ async function addBrowserFrame(
 			<feDropShadow dx="0" dy="4" stdDeviation="${shadow.blur / 2}" flood-color="rgba(0,0,0,${shadow.alpha})" />
 		</filter></defs>
 		<rect x="${padding}" y="${padding}" width="${frameWidth}" height="${frameHeight}" rx="${cornerRadius}" fill="${shadowFill}" filter="url(#shadow)" />
-	</svg>`,
+	</svg>`
 	);
 
 	// Composite everything
@@ -135,11 +120,8 @@ async function addBrowserFrame(
 		.png()
 		.toFile(outputPath);
 
-	const inputSize = fs.statSync(inputPath).size;
 	const outputSize = fs.statSync(outputPath).size;
-	console.log(
-		`  ${path.basename(outputPath)} (${(outputSize / 1024 / 1024).toFixed(1)}MB)`,
-	);
+	console.log(`  ${path.basename(outputPath)} (${(outputSize / 1024 / 1024).toFixed(1)}MB)`);
 }
 
 async function main() {
@@ -180,10 +162,7 @@ async function main() {
 
 	for (const ss of screenshots) {
 		const inputPath = path.join(SCREENSHOTS_DIR, ss.input);
-		const outputPath = path.join(
-			SCREENSHOTS_DIR,
-			ss.input.replace(".png", "-framed.png"),
-		);
+		const outputPath = path.join(SCREENSHOTS_DIR, ss.input.replace(".png", "-framed.png"));
 
 		if (!fs.existsSync(inputPath)) {
 			console.log(`  SKIP: ${ss.input} not found`);

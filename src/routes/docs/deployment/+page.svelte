@@ -11,15 +11,15 @@
 <p>
 	SvelteForge Admin is a <strong>Svelte 5</strong> and <strong>SvelteKit</strong> application that
 	uses <code>@sveltejs/adapter-node</code> for Node.js deployment. Because the database is
-	<strong>SQLite</strong> (via better-sqlite3), your hosting environment must provide a persistent
-	filesystem and a full Node.js runtime.
+	<strong>SQLite</strong> (via better-sqlite3), your hosting environment must provide a persistent filesystem
+	and a full Node.js runtime.
 </p>
 
 <h2>Requirements</h2>
 
 <p>
-	Before deploying your <strong>SvelteKit</strong> application, make sure your target environment
-	meets these requirements:
+	Before deploying your <strong>SvelteKit</strong> application, make sure your target environment meets
+	these requirements:
 </p>
 
 <table>
@@ -36,11 +36,17 @@
 		</tr>
 		<tr>
 			<td><strong>Native module compilation</strong></td>
-			<td>better-sqlite3 is a C++ addon that compiles during <code>pnpm install</code>. The build environment needs <code>python3</code>, <code>make</code>, and a C++ compiler.</td>
+			<td
+				>better-sqlite3 is a C++ addon that compiles during <code>pnpm install</code>. The build
+				environment needs <code>python3</code>, <code>make</code>, and a C++ compiler.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Persistent filesystem</strong></td>
-			<td>SQLite stores data in a single file on disk. The filesystem must survive restarts, deploys, and container recreations.</td>
+			<td
+				>SQLite stores data in a single file on disk. The filesystem must survive restarts, deploys,
+				and container recreations.</td
+			>
 		</tr>
 	</tbody>
 </table>
@@ -49,37 +55,39 @@
 
 <p>
 	SQLite is an embedded database — it runs inside your Node.js process, not as a separate service.
-	The better-sqlite3 driver is a native C++ addon that binds directly to the SQLite C library.
-	This means:
+	The better-sqlite3 driver is a native C++ addon that binds directly to the SQLite C library. This
+	means:
 </p>
 
 <ul>
 	<li>
-		<strong>No V8 isolates</strong> — Native C++ addons cannot run in V8 isolate environments
-		like Cloudflare Workers or Vercel Edge Functions.
+		<strong>No V8 isolates</strong> — Native C++ addons cannot run in V8 isolate environments like Cloudflare
+		Workers or Vercel Edge Functions.
 	</li>
 	<li>
-		<strong>No ephemeral filesystems</strong> — If the filesystem resets between requests (as in
-		serverless functions), your database is gone.
+		<strong>No ephemeral filesystems</strong> — If the filesystem resets between requests (as in serverless
+		functions), your database is gone.
 	</li>
 	<li>
-		<strong>No cold start compilation</strong> — The native module must be pre-compiled for the
-		target OS/architecture during the build step.
+		<strong>No cold start compilation</strong> — The native module must be pre-compiled for the target
+		OS/architecture during the build step.
 	</li>
 </ul>
 
 <h2>Building for Production</h2>
 
 <p>
-	<strong>SvelteKit</strong> compiles your <strong>Svelte 5</strong> components, server routes, and
-	hooks into an optimized production bundle:
+	<strong>SvelteKit</strong> compiles your <strong>Svelte 5</strong> components, server routes, and hooks
+	into an optimized production bundle:
 </p>
 
-<pre><code class="language-bash"># Create the production build
+<pre><code class="language-bash"
+		># Create the production build
 pnpm build
 
 # Run the production server
-node build/index.js</code></pre>
+node build/index.js</code
+	></pre>
 
 <p>
 	The <code>pnpm build</code> command creates a <code>build/</code> directory containing the
@@ -87,7 +95,8 @@ node build/index.js</code></pre>
 	<code>svelte.config.js</code> handles the output format:
 </p>
 
-<pre><code class="language-javascript">// svelte.config.js
+<pre><code class="language-javascript"
+		>// svelte.config.js
 import adapter from "@sveltejs/adapter-node";
 
 export default &#123;
@@ -101,7 +110,8 @@ export default &#123;
       envPrefix: "",
     &#125;),
   &#125;,
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
 	The production server listens on <code>0.0.0.0:3000</code> by default. Override with
@@ -128,13 +138,20 @@ export default &#123;
 			<td><code>DATABASE_URL</code></td>
 			<td>Yes</td>
 			<td><code>svelteforge.db</code></td>
-			<td>Path to the SQLite database file. In Docker, point to a mounted volume (e.g., <code>/app/data/svelteforge.db</code>).</td>
+			<td
+				>Path to the SQLite database file. In Docker, point to a mounted volume (e.g., <code
+					>/app/data/svelteforge.db</code
+				>).</td
+			>
 		</tr>
 		<tr>
 			<td><code>ORIGIN</code></td>
 			<td>Yes</td>
 			<td>—</td>
-			<td>Your production URL (e.g., <code>https://admin.example.com</code>). Required for CSRF protection and OAuth callback URLs.</td>
+			<td
+				>Your production URL (e.g., <code>https://admin.example.com</code>). Required for CSRF
+				protection and OAuth callback URLs.</td
+			>
 		</tr>
 		<tr>
 			<td><code>PORT</code></td>
@@ -152,7 +169,10 @@ export default &#123;
 			<td><code>NODE_ENV</code></td>
 			<td>No</td>
 			<td><code>production</code></td>
-			<td>Set automatically by <code>pnpm build</code>. Controls secure cookies and other production behaviors.</td>
+			<td
+				>Set automatically by <code>pnpm build</code>. Controls secure cookies and other production
+				behaviors.</td
+			>
 		</tr>
 		<tr>
 			<td><code>GOOGLE_CLIENT_ID</code></td>
@@ -184,8 +204,8 @@ export default &#123;
 <p>
 	OAuth providers are loaded dynamically in <code>$lib/server/oauth.ts</code> using
 	<strong>SvelteKit's</strong> <code>$env/dynamic/private</code>. When environment variables are
-	missing, the provider is <code>null</code> and the corresponding social login button is
-	automatically hidden from the login page.
+	missing, the provider is <code>null</code> and the corresponding social login button is automatically
+	hidden from the login page.
 </p>
 
 <h2>Docker Deployment</h2>
@@ -197,7 +217,8 @@ export default &#123;
 
 <h3>Dockerfile</h3>
 
-<pre><code class="language-dockerfile"># Stage 1: Install dependencies
+<pre><code class="language-dockerfile"
+		># Stage 1: Install dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
@@ -235,11 +256,13 @@ ENV DATABASE_URL=/app/data/svelteforge.db
 
 EXPOSE 3000
 
-CMD ["node", "build/index.js"]</code></pre>
+CMD ["node", "build/index.js"]</code
+	></pre>
 
 <h3>docker-compose.yml</h3>
 
-<pre><code class="language-yaml">version: "3.8"
+<pre><code class="language-yaml"
+		>version: "3.8"
 services:
   svelteforge:
     build: .
@@ -254,20 +277,23 @@ services:
       - GOOGLE_CLIENT_SECRET=$&#123;GOOGLE_CLIENT_SECRET&#125;
       - GITHUB_CLIENT_ID=$&#123;GITHUB_CLIENT_ID&#125;
       - GITHUB_CLIENT_SECRET=$&#123;GITHUB_CLIENT_SECRET&#125;
-    restart: unless-stopped</code></pre>
+    restart: unless-stopped</code
+	></pre>
 
 <h3>Build and Run</h3>
 
-<pre><code class="language-bash"># Build the Docker image
+<pre><code class="language-bash"
+		># Build the Docker image
 docker build -t svelteforge-admin .
 
 # Run with a persistent volume for SQLite
-docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin</code></pre>
+docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin</code
+	></pre>
 
 <p>
-	<strong>Important:</strong> The <code>-v ./data:/app/data</code> volume mount is critical. Without
-	it, your SQLite database lives inside the container's ephemeral filesystem and will be lost when
-	the container is recreated or updated.
+	<strong>Important:</strong> The <code>-v ./data:/app/data</code> volume mount is critical. Without it,
+	your SQLite database lives inside the container's ephemeral filesystem and will be lost when the container
+	is recreated or updated.
 </p>
 
 <h2>Recommended Hosting Providers</h2>
@@ -292,10 +318,12 @@ docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin</code></pre>
 	<li>Automatic HTTPS with custom domains</li>
 </ul>
 
-<pre><code class="language-bash"># Railway CLI deployment
+<pre><code class="language-bash"
+		># Railway CLI deployment
 railway init
 railway volume add --mount /app/data
-railway up</code></pre>
+railway up</code
+	></pre>
 
 <h3>Fly.io</h3>
 
@@ -311,10 +339,12 @@ railway up</code></pre>
 	<li>Global distribution with automatic TLS</li>
 </ul>
 
-<pre><code class="language-bash"># Fly.io deployment
+<pre><code class="language-bash"
+		># Fly.io deployment
 fly launch
 fly volumes create svelteforge_data --size 1 --region ord
-fly deploy</code></pre>
+fly deploy</code
+	></pre>
 
 <h3>Render</h3>
 
@@ -344,17 +374,19 @@ fly deploy</code></pre>
 	<li>SQLite persistence is automatic (it is just a file on the server)</li>
 </ul>
 
-<pre><code class="language-bash"># Example: PM2 process manager on a VPS
+<pre><code class="language-bash"
+		># Example: PM2 process manager on a VPS
 npm install -g pm2
 pm2 start build/index.js --name svelteforge
 pm2 save
-pm2 startup</code></pre>
+pm2 startup</code
+	></pre>
 
 <h2>NOT Compatible</h2>
 
 <p>
-	These platforms <strong>cannot</strong> run SvelteForge Admin due to better-sqlite3 being a native
-	C++ addon that requires a full Node.js runtime and persistent filesystem:
+	These platforms <strong>cannot</strong> run SvelteForge Admin due to better-sqlite3 being a native C++
+	addon that requires a full Node.js runtime and persistent filesystem:
 </p>
 
 <table>
@@ -375,11 +407,17 @@ pm2 startup</code></pre>
 		</tr>
 		<tr>
 			<td><strong>Vercel Serverless Functions</strong></td>
-			<td>No persistent filesystem. SQLite database would be lost between invocations. Cold starts add latency.</td>
+			<td
+				>No persistent filesystem. SQLite database would be lost between invocations. Cold starts
+				add latency.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>AWS Lambda</strong></td>
-			<td>Ephemeral filesystem (<code>/tmp</code> only, wiped between invocations). No persistent storage for SQLite.</td>
+			<td
+				>Ephemeral filesystem (<code>/tmp</code> only, wiped between invocations). No persistent storage
+				for SQLite.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Netlify Functions</strong></td>
@@ -390,9 +428,9 @@ pm2 startup</code></pre>
 
 <p>
 	<strong>The core issue:</strong> better-sqlite3 is a synchronous, native C++ addon that compiles
-	against the Node.js N-API. It requires <code>dlopen()</code> to load the shared library at
-	runtime — something V8 isolates and edge runtimes simply do not support. Additionally, SQLite
-	needs a persistent filesystem to store its database file, WAL journal, and shared-memory file.
+	against the Node.js N-API. It requires <code>dlopen()</code> to load the shared library at runtime —
+	something V8 isolates and edge runtimes simply do not support. Additionally, SQLite needs a persistent
+	filesystem to store its database file, WAL journal, and shared-memory file.
 </p>
 
 <h2>Production OAuth Setup</h2>
@@ -407,8 +445,14 @@ pm2 startup</code></pre>
 <ol>
 	<li>Go to <strong>APIs &amp; Services &rarr; Credentials</strong> in Google Cloud Console</li>
 	<li>Edit your OAuth 2.0 Client ID</li>
-	<li>Add your production URL to <strong>Authorized JavaScript origins</strong> (e.g., <code>https://admin.example.com</code>)</li>
-	<li>Add the callback URL to <strong>Authorized redirect URIs</strong>: <code>https://admin.example.com/login/google/callback</code></li>
+	<li>
+		Add your production URL to <strong>Authorized JavaScript origins</strong> (e.g.,
+		<code>https://admin.example.com</code>)
+	</li>
+	<li>
+		Add the callback URL to <strong>Authorized redirect URIs</strong>:
+		<code>https://admin.example.com/login/google/callback</code>
+	</li>
 </ol>
 
 <h3>GitHub Developer Settings</h3>
@@ -417,13 +461,16 @@ pm2 startup</code></pre>
 	<li>Go to <strong>Settings &rarr; Developer settings &rarr; OAuth Apps</strong></li>
 	<li>Edit your OAuth application</li>
 	<li>Set <strong>Homepage URL</strong> to your production URL</li>
-	<li>Set <strong>Authorization callback URL</strong> to: <code>https://admin.example.com/login/github/callback</code></li>
+	<li>
+		Set <strong>Authorization callback URL</strong> to:
+		<code>https://admin.example.com/login/github/callback</code>
+	</li>
 </ol>
 
 <p>
 	<strong>Important:</strong> Set the <code>ORIGIN</code> environment variable to match your
-	deployed URL exactly (including the protocol, no trailing slash). <strong>SvelteKit</strong> uses
-	this for CSRF protection — if it does not match, form submissions will fail with a 403 error.
+	deployed URL exactly (including the protocol, no trailing slash). <strong>SvelteKit</strong> uses this
+	for CSRF protection — if it does not match, form submissions will fail with a 403 error.
 </p>
 
 <h2>Database Backup</h2>
@@ -435,9 +482,7 @@ pm2 startup</code></pre>
 
 <h3>WAL Mode Files</h3>
 
-<p>
-	When WAL mode is active, SQLite uses up to three files:
-</p>
+<p>When WAL mode is active, SQLite uses up to three files:</p>
 
 <ul>
 	<li><code>svelteforge.db</code> — the main database file</li>
@@ -450,27 +495,31 @@ pm2 startup</code></pre>
 	<code>.backup</code> command which creates a clean, self-contained copy:
 </p>
 
-<pre><code class="language-bash"># Method 1: SQLite backup command (recommended — creates a clean copy)
+<pre><code class="language-bash"
+		># Method 1: SQLite backup command (recommended — creates a clean copy)
 sqlite3 svelteforge.db ".backup /backups/svelteforge-$(date +%Y%m%d).db"
 
 # Method 2: Copy all WAL files together
-cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code></pre>
+cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
+	></pre>
 
 <h3>Automated Backup Strategies</h3>
 
 <ul>
 	<li>
 		<strong>Cron job</strong> — Schedule a daily backup with <code>crontab -e</code>:
-		<pre><code class="language-bash"># Daily backup at 3 AM
-0 3 * * * sqlite3 /app/data/svelteforge.db ".backup /backups/svelteforge-$(date +\%Y\%m\%d).db"</code></pre>
+		<pre><code class="language-bash"
+				># Daily backup at 3 AM
+0 3 * * * sqlite3 /app/data/svelteforge.db ".backup /backups/svelteforge-$(date +\%Y\%m\%d).db"</code
+			></pre>
 	</li>
 	<li>
-		<strong>Volume snapshots</strong> — If using Railway, Fly.io, or a cloud VPS, take periodic
-		snapshots of the volume containing the database.
+		<strong>Volume snapshots</strong> — If using Railway, Fly.io, or a cloud VPS, take periodic snapshots
+		of the volume containing the database.
 	</li>
 	<li>
-		<strong>Off-site sync</strong> — Use <code>rclone</code> or <code>rsync</code> to copy backups
-		to cloud storage (S3, R2, etc.) for disaster recovery.
+		<strong>Off-site sync</strong> — Use <code>rclone</code> or <code>rsync</code> to copy backups to
+		cloud storage (S3, R2, etc.) for disaster recovery.
 	</li>
 </ul>
 
@@ -483,19 +532,19 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code></pre>
 
 <ul>
 	<li>
-		<strong>WAL mode enables concurrent reads</strong> — Multiple <strong>SvelteKit</strong> server
-		load functions can query the database simultaneously without blocking each other. This is
-		enabled by default in SvelteForge Admin.
+		<strong>WAL mode enables concurrent reads</strong> — Multiple <strong>SvelteKit</strong> server load
+		functions can query the database simultaneously without blocking each other. This is enabled by default
+		in SvelteForge Admin.
 	</li>
 	<li>
-		<strong>Single-writer limitation</strong> — Only one write transaction can execute at a time.
-		This is fine for admin dashboards where write operations are infrequent (user updates, page
-		edits, setting changes). SQLite handles thousands of writes per second on modern hardware.
+		<strong>Single-writer limitation</strong> — Only one write transaction can execute at a time. This
+		is fine for admin dashboards where write operations are infrequent (user updates, page edits, setting
+		changes). SQLite handles thousands of writes per second on modern hardware.
 	</li>
 	<li>
 		<strong>No connection pooling needed</strong> — better-sqlite3 is synchronous and runs in the
-		same process as your <strong>SvelteKit</strong> server. There is no network overhead, no
-		connection handshake, and no pool to manage.
+		same process as your <strong>SvelteKit</strong> server. There is no network overhead, no connection
+		handshake, and no pool to manage.
 	</li>
 	<li>
 		<strong>Synchronous by design</strong> — better-sqlite3 queries are synchronous, which means
@@ -522,31 +571,51 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code></pre>
 	<tbody>
 		<tr>
 			<td><strong>HTTPS only</strong></td>
-			<td>Session cookies are set with <code>secure: true</code> in production. Your deployment must use HTTPS (most hosting providers handle this automatically).</td>
+			<td
+				>Session cookies are set with <code>secure: true</code> in production. Your deployment must use
+				HTTPS (most hosting providers handle this automatically).</td
+			>
 		</tr>
 		<tr>
 			<td><strong>ORIGIN env var</strong></td>
-			<td><strong>SvelteKit</strong> uses this for CSRF protection on form actions. Must match your exact production URL.</td>
+			<td
+				><strong>SvelteKit</strong> uses this for CSRF protection on form actions. Must match your exact
+				production URL.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Database file location</strong></td>
-			<td>Keep the SQLite file outside the public web root. In Docker, use <code>/app/data/</code> — never serve it from <code>/app/build/client/</code>.</td>
+			<td
+				>Keep the SQLite file outside the public web root. In Docker, use <code>/app/data/</code> —
+				never serve it from <code>/app/build/client/</code>.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Regular backups</strong></td>
-			<td>Schedule automated backups of the database file. SQLite corruption is rare but data loss from hardware failure is not.</td>
+			<td
+				>Schedule automated backups of the database file. SQLite corruption is rare but data loss
+				from hardware failure is not.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Session table monitoring</strong></td>
-			<td>Sessions are auto-extended but never auto-deleted for inactive users. Monitor the sessions table size and consider a periodic cleanup job for expired sessions.</td>
+			<td
+				>Sessions are auto-extended but never auto-deleted for inactive users. Monitor the sessions
+				table size and consider a periodic cleanup job for expired sessions.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Change default credentials</strong></td>
-			<td>If you deployed with seeded data, change the default <code>password123</code> passwords immediately or re-seed with production credentials.</td>
+			<td
+				>If you deployed with seeded data, change the default <code>password123</code> passwords immediately
+				or re-seed with production credentials.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Environment variables</strong></td>
-			<td>Never commit <code>.env</code> files to source control. Use your hosting provider's secrets management.</td>
+			<td
+				>Never commit <code>.env</code> files to source control. Use your hosting provider's secrets management.</td
+			>
 		</tr>
 	</tbody>
 </table>
@@ -554,15 +623,22 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code></pre>
 <h2>Next Steps</h2>
 
 <ul>
-	<li><a href="/docs/authentication">Authentication</a> — Deep dive into the session-based auth system and OAuth configuration</li>
-	<li><a href="/docs/database">Database</a> — Full schema reference, migrations, and query patterns</li>
-	<li><a href="/docs/api-reference">API Reference</a> — Server-side utilities, auth functions, and API endpoints</li>
+	<li>
+		<a href="/docs/authentication">Authentication</a> — Deep dive into the session-based auth system and
+		OAuth configuration
+	</li>
+	<li>
+		<a href="/docs/database">Database</a> — Full schema reference, migrations, and query patterns
+	</li>
+	<li>
+		<a href="/docs/api-reference">API Reference</a> — Server-side utilities, auth functions, and API endpoints
+	</li>
 </ul>
 
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
@@ -571,22 +647,21 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code></pre>
 			</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				Need a production-ready deployment with PostgreSQL, Redis, and horizontal scaling?
-				DashboardPack premium templates include production-grade infrastructure
-				configurations, multi-database support, caching layers, and deployment automation
-				that scales from startup to enterprise.
+				DashboardPack premium templates include production-grade infrastructure configurations,
+				multi-database support, caching layers, and deployment automation that scales from startup
+				to enterprise.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — Enterprise-grade with PostgreSQL, Redis caching, and
-					Docker Compose production configs
+					<strong>Apex</strong> — Enterprise-grade with PostgreSQL, Redis caching, and Docker Compose
+					production configs
 				</li>
 				<li>
-					<strong>Zenith</strong> — Horizontally scalable architecture with database
-					connection pooling
+					<strong>Zenith</strong> — Horizontally scalable architecture with database connection pooling
 				</li>
 				<li>
-					<strong>Signal</strong> — Infrastructure monitoring with health checks, uptime
-					tracking, and alerting
+					<strong>Signal</strong> — Infrastructure monitoring with health checks, uptime tracking, and
+					alerting
 				</li>
 			</ul>
 		</div>

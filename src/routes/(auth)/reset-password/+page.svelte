@@ -17,7 +17,9 @@
 	<Card.Root class="w-full max-w-md">
 		<Card.Header class="space-y-1 text-center">
 			<div class="flex justify-center">
-				<div class="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl">
+				<div
+					class="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-xl"
+				>
 					<KeyRoundIcon class="size-6" />
 				</div>
 			</div>
@@ -32,7 +34,9 @@
 			{/if}
 			{#if !data.valid}
 				<div class="text-center">
-					<p class="text-muted-foreground mb-4 text-sm">This reset link is invalid or missing a token.</p>
+					<p class="text-muted-foreground mb-4 text-sm">
+						This reset link is invalid or missing a token.
+					</p>
 					<Button href="/forgot-password" variant="outline">Request a new link</Button>
 				</div>
 			{:else}

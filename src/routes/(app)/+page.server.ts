@@ -144,9 +144,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.groupBy(pages.status);
 
 	// Content creation trend (last 6 months, by status)
-	const sixMonthsAgoSec = Math.floor(
-		new Date(Date.now() - 180 * 86400000).getTime() / 1000
-	);
+	const sixMonthsAgoSec = Math.floor(new Date(Date.now() - 180 * 86400000).getTime() / 1000);
 	const contentTrend = await db
 		.select({
 			month: sql<string>`strftime('%Y-%m-01', created_at, 'unixepoch')`,

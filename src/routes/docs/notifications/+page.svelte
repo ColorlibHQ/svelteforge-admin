@@ -10,16 +10,16 @@
 
 <p>
 	SvelteForge Admin includes a full in-app notification system built with
-	<strong>SvelteKit</strong> form actions and <strong>Svelte 5</strong> reactivity. Notifications
-	support four severity types, per-user and global targeting, real-time badge counts, and bulk
-	operations — all without any external dependencies or third-party services.
+	<strong>SvelteKit</strong> form actions and <strong>Svelte 5</strong> reactivity. Notifications support
+	four severity types, per-user and global targeting, real-time badge counts, and bulk operations — all
+	without any external dependencies or third-party services.
 </p>
 
 <h2>Notification Types</h2>
 
 <p>
-	Each notification has a <code>type</code> field that determines its visual styling — icon, color,
-	and badge appearance:
+	Each notification has a <code>type</code> field that determines its visual styling — icon, color, and
+	badge appearance:
 </p>
 
 <table>
@@ -71,7 +71,8 @@
 	<code>src/lib/server/db/schema.ts</code> using Drizzle ORM:
 </p>
 
-<pre><code class="language-typescript">export const notifications = sqliteTable("notifications", &#123;
+<pre><code class="language-typescript"
+		>export const notifications = sqliteTable("notifications", &#123;
   id: text("id").primaryKey(),
   userId: text("user_id").references(() =&gt; users.id),
   title: text("title").notNull(),
@@ -83,7 +84,8 @@
   createdAt: integer("created_at", &#123; mode: "timestamp" &#125;)
     .notNull()
     .$defaultFn(() =&gt; new Date()),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -149,13 +151,15 @@
 
 <h3>Props</h3>
 
-<pre><code class="language-typescript">let &#123;
+<pre><code class="language-typescript"
+		>let &#123;
   count = 0,
   notifications = []
 &#125;: &#123;
   count: number;
   notifications: Notification[]
-&#125; = $props();</code></pre>
+&#125; = $props();</code
+	></pre>
 
 <table>
 	<thead>
@@ -190,29 +194,28 @@
 		<code>"9+"</code> for double digits
 	</li>
 	<li>
-		<strong>Popover preview</strong> — clicking the bell opens a popover showing the 5 most
-		recent unread notifications via shadcn-svelte's <code>Popover</code> component
+		<strong>Popover preview</strong> — clicking the bell opens a popover showing the 5 most recent
+		unread notifications via shadcn-svelte's <code>Popover</code> component
 	</li>
 	<li>
-		<strong>Type-specific icons</strong> — each notification in the popover shows the
-		corresponding icon (info, warning, error, success) with color coding
+		<strong>Type-specific icons</strong> — each notification in the popover shows the corresponding icon
+		(info, warning, error, success) with color coding
 	</li>
 	<li>
-		<strong>Time-ago display</strong> — relative timestamps: "just now", "Xm ago", "Xh ago", "Xd
-		ago"
+		<strong>Time-ago display</strong> — relative timestamps: "just now", "Xm ago", "Xh ago", "Xd ago"
 	</li>
 	<li>
 		<strong>"View all" footer</strong> — links to the full <code>/notifications</code> page
 	</li>
 	<li>
-		<strong>Empty state</strong> — shows a bell icon with "No notifications" when the list is
-		empty
+		<strong>Empty state</strong> — shows a bell icon with "No notifications" when the list is empty
 	</li>
 </ul>
 
 <h3>Time-Ago Helper</h3>
 
-<pre><code class="language-typescript">function timeAgo(date: Date | null) &#123;
+<pre><code class="language-typescript"
+		>function timeAgo(date: Date | null) &#123;
   if (!date) return "";
   const now = new Date();
   const diff = now.getTime() - new Date(date).getTime();
@@ -223,7 +226,8 @@
   if (hours &lt; 24) return `$&#123;hours&#125;h ago`;
   const days = Math.floor(hours / 24);
   return `$&#123;days&#125;d ago`;
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <h2>Notifications Page</h2>
 
@@ -273,16 +277,15 @@
 		<code>border-primary/30 bg-primary/5</code> card style with a "New" badge
 	</li>
 	<li>
-		<strong>Type icons and colors</strong> — same icon/color mapping as the bell component for
-		visual consistency
+		<strong>Type icons and colors</strong> — same icon/color mapping as the bell component for visual
+		consistency
 	</li>
 	<li>
 		<strong>Formatted timestamps</strong> — full date display using
 		<code>Intl.DateTimeFormat</code> (e.g., "Mar 7, 2:30 PM")
 	</li>
 	<li>
-		<strong>Empty state</strong> — dashed border placeholder with bell icon when no
-		notifications exist
+		<strong>Empty state</strong> — dashed border placeholder with bell icon when no notifications exist
 	</li>
 	<li>
 		<strong>Toast feedback</strong> — success and error toasts via <code>svelte-sonner</code>
@@ -298,7 +301,8 @@
 	<code>userId IS NULL</code>):
 </p>
 
-<pre><code class="language-typescript">// src/routes/(app)/notifications/+page.server.ts
+<pre><code class="language-typescript"
+		>// src/routes/(app)/notifications/+page.server.ts
 import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; notifications &#125; from "$lib/server/db/schema.js";
 import &#123; eq, or, isNull, desc &#125; from "drizzle-orm";
@@ -316,11 +320,12 @@ export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
     .orderBy(desc(notifications.createdAt));
 
   return &#123; notifications: items &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <p>
-	The <code>(app)</code> layout server also loads the unread count so the notification bell badge
-	stays current across all protected pages without additional requests.
+	The <code>(app)</code> layout server also loads the unread count so the notification bell badge stays
+	current across all protected pages without additional requests.
 </p>
 
 <h2>Creating Notifications</h2>
@@ -330,7 +335,8 @@ export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	directly into the notifications table:
 </p>
 
-<pre><code class="language-typescript">import &#123; db &#125; from "$lib/server/db/index.js";
+<pre><code class="language-typescript"
+		>import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; notifications &#125; from "$lib/server/db/schema.js";
 import &#123; generateId &#125; from "$lib/server/id.js";
 
@@ -350,7 +356,8 @@ await db.insert(notifications).values(&#123;
   title: "Scheduled Maintenance",
   message: "The platform will be down for maintenance on Sunday 2am-4am UTC.",
   type: "warning",
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <p>
 	The <code>read</code> field defaults to <code>false</code> and <code>createdAt</code> is
@@ -365,55 +372,63 @@ await db.insert(notifications).values(&#123;
 
 <h3>Reactive Derived State</h3>
 
-<pre><code class="language-typescript">// Computed unread count — updates automatically when data changes
+<pre><code class="language-typescript"
+		>// Computed unread count — updates automatically when data changes
 const unreadCount = $derived(
   data.notifications.filter((n) =&gt; !n.read).length
-);</code></pre>
+);</code
+	></pre>
 
 <h3>Props with Defaults</h3>
 
-<pre><code class="language-typescript">// Svelte 5 $props() with destructured defaults
+<pre><code class="language-typescript"
+		>// Svelte 5 $props() with destructured defaults
 let &#123;
   count = 0,
   notifications = []
 &#125;: &#123;
   count: number;
   notifications: Notification[];
-&#125; = $props();</code></pre>
+&#125; = $props();</code
+	></pre>
 
 <h3>Progressive Enhancement with use:enhance</h3>
 
-<pre><code class="language-svelte">&lt;!-- Form action with SvelteKit's progressive enhancement --&gt;
+<pre><code class="language-svelte"
+		>&lt;!-- Form action with SvelteKit's progressive enhancement --&gt;
 &lt;form method="POST" action="?/markRead" use:enhance&gt;
   &lt;input type="hidden" name="id" value=&#123;notification.id&#125; /&gt;
   &lt;Button variant="ghost" size="icon" type="submit"&gt;
     &lt;CheckIcon class="size-4" /&gt;
   &lt;/Button&gt;
-&lt;/form&gt;</code></pre>
+&lt;/form&gt;</code
+	></pre>
 
 <p>
-	The <code>use:enhance</code> directive from <code>$app/forms</code> prevents full-page reloads
-	on form submission. SvelteKit automatically invalidates the page data after the action completes,
-	so the notification list and unread count update reactively.
+	The <code>use:enhance</code> directive from <code>$app/forms</code> prevents full-page reloads on form
+	submission. SvelteKit automatically invalidates the page data after the action completes, so the notification
+	list and unread count update reactively.
 </p>
 
 <h3>Effect-Based Toast Feedback</h3>
 
-<pre><code class="language-typescript">// Show toast notifications after form actions
+<pre><code class="language-typescript"
+		>// Show toast notifications after form actions
 $effect(() =&gt; &#123;
   if (form?.message) toast.error(form.message);
   if (form?.success) toast.success("Done");
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h2>Security</h2>
 
 <p>
 	All notification actions (mark read, delete) include authorization checks. The
-	<code>where</code> clause ensures users can only modify their own notifications or global
-	notifications:
+	<code>where</code> clause ensures users can only modify their own notifications or global notifications:
 </p>
 
-<pre><code class="language-typescript">// Only allow actions on user's own or global notifications
+<pre><code class="language-typescript"
+		>// Only allow actions on user's own or global notifications
 .where(
   and(
     eq(notifications.id, id),
@@ -422,7 +437,8 @@ $effect(() =&gt; &#123;
       isNull(notifications.userId)
     )
   )
-)</code></pre>
+)</code
+	></pre>
 
 <h2>Key Files</h2>
 
@@ -460,7 +476,7 @@ $effect(() =&gt; &#123;
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
@@ -469,9 +485,9 @@ $effect(() =&gt; &#123;
 			</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				Need real-time notifications with WebSocket support, push notifications, and email
-				integration? Our premium templates include live notification streams, configurable
-				delivery channels (in-app, email, push), notification preferences per user, and
-				scheduled notification campaigns.
+				integration? Our premium templates include live notification streams, configurable delivery
+				channels (in-app, email, push), notification preferences per user, and scheduled
+				notification campaigns.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>WebSocket-powered real-time notification delivery</li>

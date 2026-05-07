@@ -8,12 +8,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const items = await db
 		.select()
 		.from(notifications)
-		.where(
-			or(
-				eq(notifications.userId, locals.user!.id),
-				isNull(notifications.userId)
-			)
-		)
+		.where(or(eq(notifications.userId, locals.user!.id), isNull(notifications.userId)))
 		.orderBy(desc(notifications.createdAt));
 
 	return { notifications: items };
@@ -34,10 +29,7 @@ export const actions: Actions = {
 			.where(
 				and(
 					eq(notifications.id, id),
-					or(
-						eq(notifications.userId, locals.user!.id),
-						isNull(notifications.userId)
-					)
+					or(eq(notifications.userId, locals.user!.id), isNull(notifications.userId))
 				)
 			);
 
@@ -51,10 +43,7 @@ export const actions: Actions = {
 			.where(
 				and(
 					eq(notifications.read, false),
-					or(
-						eq(notifications.userId, locals.user!.id),
-						isNull(notifications.userId)
-					)
+					or(eq(notifications.userId, locals.user!.id), isNull(notifications.userId))
 				)
 			);
 
@@ -74,10 +63,7 @@ export const actions: Actions = {
 			.where(
 				and(
 					eq(notifications.id, id),
-					or(
-						eq(notifications.userId, locals.user!.id),
-						isNull(notifications.userId)
-					)
+					or(eq(notifications.userId, locals.user!.id), isNull(notifications.userId))
 				)
 			);
 

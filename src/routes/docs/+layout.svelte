@@ -20,7 +20,6 @@
 	import ExternalLinkIcon from "@lucide/svelte/icons/external-link";
 	import MenuIcon from "@lucide/svelte/icons/menu";
 	import XIcon from "@lucide/svelte/icons/x";
-	import ChevronRightIcon from "@lucide/svelte/icons/chevron-right";
 
 	let { children } = $props();
 
@@ -77,10 +76,14 @@
 
 <div class="bg-background min-h-screen">
 	<!-- Top Navigation Bar -->
-	<header class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+	<header
+		class="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur"
+	>
 		<div class="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
 			<a href="/" class="flex items-center gap-2">
-				<div class="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+				<div
+					class="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md"
+				>
 					<ZapIcon class="size-4" />
 				</div>
 				<span class="text-sm font-bold">SvelteForge</span>
@@ -120,14 +123,14 @@
 		<div class="lg:grid lg:grid-cols-[240px_1fr] lg:gap-8">
 			<!-- Sidebar Navigation -->
 			<aside
-				class="fixed inset-0 top-14 z-40 w-64 overflow-y-auto border-r bg-background p-4 transition-transform lg:sticky lg:block lg:h-[calc(100vh-3.5rem)] lg:w-auto lg:translate-x-0 lg:border-r-0 lg:p-0 lg:pt-8 {mobileMenuOpen
+				class="bg-background fixed inset-0 top-14 z-40 w-64 overflow-y-auto border-r p-4 transition-transform lg:sticky lg:block lg:h-[calc(100vh-3.5rem)] lg:w-auto lg:translate-x-0 lg:border-r-0 lg:p-0 lg:pt-8 {mobileMenuOpen
 					? 'translate-x-0'
 					: '-translate-x-full'}"
 			>
 				<nav class="space-y-6">
 					{#each sections as section}
 						<div>
-							<h4 class="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wider">
+							<h4 class="text-muted-foreground mb-2 text-xs font-semibold tracking-wider uppercase">
 								{section.label}
 							</h4>
 							<ul class="space-y-0.5">
@@ -136,7 +139,9 @@
 										<a
 											href={item.href}
 											onclick={() => (mobileMenuOpen = false)}
-											class="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors {isActive(item.href)
+											class="flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors {isActive(
+												item.href
+											)
 												? 'bg-primary/10 text-primary font-medium'
 												: 'text-muted-foreground hover:text-foreground hover:bg-muted'}"
 										>
@@ -155,12 +160,14 @@
 							href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs-sidebar&utm_campaign=premium"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="group block rounded-lg border border-dashed p-3 transition-colors hover:border-primary hover:bg-primary/5"
+							class="group hover:border-primary hover:bg-primary/5 block rounded-lg border border-dashed p-3 transition-colors"
 						>
 							<div class="flex items-center gap-2">
 								<ZapIcon class="text-primary size-4" />
 								<span class="text-sm font-semibold">Go Premium</span>
-								<ExternalLinkIcon class="text-muted-foreground size-3 transition-transform group-hover:translate-x-0.5" />
+								<ExternalLinkIcon
+									class="text-muted-foreground size-3 transition-transform group-hover:translate-x-0.5"
+								/>
 							</div>
 							<p class="text-muted-foreground mt-1 text-xs leading-relaxed">
 								50+ pages, 5 dashboards, CRUD, theme customizer &amp; more on DashboardPack.

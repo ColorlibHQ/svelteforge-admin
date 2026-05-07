@@ -105,7 +105,11 @@
 
 	function formatDate(date: Date | null) {
 		if (!date) return "—";
-		return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(date));
+		return new Intl.DateTimeFormat("en-US", {
+			month: "short",
+			day: "numeric",
+			year: "numeric",
+		}).format(new Date(date));
 	}
 
 	function openDelete(id: string) {
@@ -155,10 +159,12 @@
 	<!-- Toolbar -->
 	<div class="flex items-center gap-2">
 		<div class="relative max-w-sm flex-1">
-			<SearchIcon class="text-muted-foreground absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+			<SearchIcon class="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
 			<Input placeholder="Search pages..." class="pl-9" bind:value={search} />
 		</div>
-		<p class="text-muted-foreground text-sm">{filtered.length} page{filtered.length !== 1 ? "s" : ""}</p>
+		<p class="text-muted-foreground text-sm">
+			{filtered.length} page{filtered.length !== 1 ? "s" : ""}
+		</p>
 		<div class="ml-auto flex items-center gap-2">
 			{#if selectedIds.size > 0}
 				<form method="POST" action="?/bulkDelete" use:enhance>
@@ -202,7 +208,10 @@
 					{#each columns as col (col.key)}
 						{@const SortIcon = sortIcon(col.key)}
 						<Table.Head>
-							<button class="flex items-center gap-1 text-left font-medium" onclick={() => toggleSort(col.key)}>
+							<button
+								class="flex items-center gap-1 text-left font-medium"
+								onclick={() => toggleSort(col.key)}
+							>
 								{col.label}
 								<SortIcon class="text-muted-foreground size-3" />
 							</button>
@@ -235,7 +244,12 @@
 								<Button variant="ghost" size="icon" class="size-8" href="/content/{p.id}/edit">
 									<PencilIcon class="size-4" />
 								</Button>
-								<Button variant="ghost" size="icon" class="size-8 text-destructive" onclick={() => openDelete(p.id)}>
+								<Button
+									variant="ghost"
+									size="icon"
+									class="text-destructive size-8"
+									onclick={() => openDelete(p.id)}
+								>
 									<TrashIcon class="size-4" />
 								</Button>
 							</div>

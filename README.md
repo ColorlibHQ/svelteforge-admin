@@ -112,16 +112,16 @@ Loved SvelteForge? Supercharge your workflow with our premium templates on [Dash
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
-| **Framework** | SvelteKit 2.50 + Svelte 5 (runes API) |
-| **Styling** | Tailwind CSS 4 + shadcn-svelte |
-| **Database** | SQLite via Drizzle ORM + better-sqlite3 (WAL mode) |
-| **Auth** | Custom sessions (@oslojs/crypto) + Argon2id password hashing |
-| **OAuth** | Arctic (Google + GitHub) -- optional, environment-driven |
-| **Charts** | LayerChart v2 (D3-based) |
-| **Testing** | Vitest (unit) + Playwright (E2E) |
-| **Linting** | ESLint 9 + Prettier |
+| Layer         | Technology                                                   |
+| ------------- | ------------------------------------------------------------ |
+| **Framework** | SvelteKit 2.59 + Svelte 5 (runes API)                        |
+| **Styling**   | Tailwind CSS 4 + shadcn-svelte                               |
+| **Database**  | SQLite via Drizzle ORM + better-sqlite3 (WAL mode)           |
+| **Auth**      | Custom sessions (@oslojs/crypto) + Argon2id password hashing |
+| **OAuth**     | Arctic (Google + GitHub) -- optional, environment-driven     |
+| **Charts**    | LayerChart v2 (D3-based)                                     |
+| **Testing**   | Vitest (unit) + Playwright (E2E)                             |
+| **Linting**   | ESLint 10 + Prettier                                         |
 
 ---
 
@@ -141,11 +141,11 @@ Loved SvelteForge? Supercharge your workflow with our premium templates on [Dash
 
 Three built-in roles with different permission levels:
 
-| Role | Capabilities |
-| --- | --- |
-| **Admin** | Full access -- manage users, change roles, delete accounts, access all settings |
-| **Editor** | Create and manage content, view analytics and notifications |
-| **Viewer** | Read-only access to dashboard and content |
+| Role       | Capabilities                                                                    |
+| ---------- | ------------------------------------------------------------------------------- |
+| **Admin**  | Full access -- manage users, change roles, delete accounts, access all settings |
+| **Editor** | Create and manage content, view analytics and notifications                     |
+| **Viewer** | Read-only access to dashboard and content                                       |
 
 - First registered user automatically gets the `admin` role.
 - Admins can promote/demote users between roles.
@@ -261,9 +261,9 @@ The app will be running at `http://localhost:5173`.
 
 After seeding, you can log in with:
 
-| Username | Password | Role |
-| --- | --- | --- |
-| `admin` | `password123` | Admin |
+| Username | Password      | Role   |
+| -------- | ------------- | ------ |
+| `admin`  | `password123` | Admin  |
 | `editor` | `password123` | Editor |
 | `viewer` | `password123` | Viewer |
 
@@ -404,15 +404,15 @@ src/
 
 ## Database Schema
 
-| Table | Description |
-| --- | --- |
-| `users` | User accounts (id, email, username, password hash, name, avatar, role) |
-| `sessions` | Active sessions (hashed token ID, user agent, IP, expiry) |
-| `pages` | CMS content (title, slug, content, template, status, author) |
-| `notifications` | In-app notifications (title, message, type, read status) |
-| `password_reset_tokens` | Time-limited password reset tokens (hashed) |
-| `oauth_accounts` | OAuth provider links (Google, GitHub to user mapping) |
-| `app_settings` | Key-value application settings |
+| Table                   | Description                                                            |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `users`                 | User accounts (id, email, username, password hash, name, avatar, role) |
+| `sessions`              | Active sessions (hashed token ID, user agent, IP, expiry)              |
+| `pages`                 | CMS content (title, slug, content, template, status, author)           |
+| `notifications`         | In-app notifications (title, message, type, read status)               |
+| `password_reset_tokens` | Time-limited password reset tokens (hashed)                            |
+| `oauth_accounts`        | OAuth provider links (Google, GitHub to user mapping)                  |
+| `app_settings`          | Key-value application settings                                         |
 
 ---
 
@@ -428,12 +428,12 @@ SvelteForge Admin uses **SQLite** with the `better-sqlite3` native module. Your 
 
 ### Recommended Hosting
 
-| Provider | Tier | Notes |
-| --- | --- | --- |
-| **Railway** | Free tier available | One-click deploy, persistent volumes |
-| **Fly.io** | Free tier available | Global edge, persistent volumes |
-| **Render** | Free tier available | Auto-deploy from GitHub |
-| **VPS** (DigitalOcean, Hetzner) | From ~$4/mo | Full control, Docker-friendly |
+| Provider                        | Tier                | Notes                                |
+| ------------------------------- | ------------------- | ------------------------------------ |
+| **Railway**                     | Free tier available | One-click deploy, persistent volumes |
+| **Fly.io**                      | Free tier available | Global edge, persistent volumes      |
+| **Render**                      | Free tier available | Auto-deploy from GitHub              |
+| **VPS** (DigitalOcean, Hetzner) | From ~$4/mo         | Full control, Docker-friendly        |
 
 ### Not Compatible
 

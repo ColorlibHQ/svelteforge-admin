@@ -10,16 +10,16 @@
 
 <p>
 	SvelteForge Admin uses two complementary testing frameworks: <strong>Vitest</strong> for fast unit
-	tests of server logic, and <strong>Playwright</strong> for end-to-end browser testing.
-	Both are fully integrated into the <strong>SvelteKit</strong> project and designed to work with
+	tests of server logic, and <strong>Playwright</strong> for end-to-end browser testing. Both are
+	fully integrated into the <strong>SvelteKit</strong> project and designed to work with
 	<strong>Svelte 5</strong> and the custom session-based auth system.
 </p>
 
 <p>
 	The testing strategy focuses on server-side logic — load functions, form actions, database
 	queries, and authorization checks — because that is where the critical business logic lives in a
-	<strong>SvelteKit</strong> application. Client-side <strong>Svelte 5</strong> components are
-	tested through Playwright E2E flows.
+	<strong>SvelteKit</strong> application. Client-side <strong>Svelte 5</strong> components are tested
+	through Playwright E2E flows.
 </p>
 
 <h2>Vitest Setup</h2>
@@ -30,7 +30,8 @@
 	<code>$lib</code> work in test files without additional configuration.
 </p>
 
-<pre><code class="language-ts">// vite.config.ts
+<pre><code class="language-ts"
+		>// vite.config.ts
 import &#123; sveltekit &#125; from "@sveltejs/kit/vite";
 import &#123; defineConfig &#125; from "vitest/config";
 
@@ -39,7 +40,8 @@ export default defineConfig(&#123;
   test: &#123;
     include: ["src/**/*.test.ts"],
   &#125;,
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Test Commands</h3>
 
@@ -74,9 +76,9 @@ export default defineConfig(&#123;
 
 <p>
 	This is the most critical pattern in SvelteForge's testing setup. Tests
-	<strong>never touch the development database</strong>. Instead, each test gets a fresh
-	in-memory SQLite database with the full schema applied. This ensures tests are fast, isolated,
-	and repeatable.
+	<strong>never touch the development database</strong>. Instead, each test gets a fresh in-memory
+	SQLite database with the full schema applied. This ensures tests are fast, isolated, and
+	repeatable.
 </p>
 
 <h3>How It Works</h3>
@@ -93,7 +95,8 @@ export default defineConfig(&#123;
 	<li>Returns a Drizzle ORM instance ready for querying</li>
 </ol>
 
-<pre><code class="language-ts">// test-utils.ts
+<pre><code class="language-ts"
+		>// test-utils.ts
 import Database from "better-sqlite3";
 import &#123; drizzle &#125; from "drizzle-orm/better-sqlite3";
 
@@ -127,29 +130,29 @@ export function createTestDb() &#123;
   sqlite.pragma("journal_mode = WAL");
   sqlite.exec(SCHEMA_SQL);
   return drizzle(sqlite);
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
-<div
-	class="not-prose my-6 rounded-lg border-l-4 border-amber-500 bg-amber-500/10 p-4"
->
+<div class="not-prose my-6 rounded-lg border-l-4 border-amber-500 bg-amber-500/10 p-4">
 	<p class="text-foreground text-sm font-semibold">Important: Keep SCHEMA_SQL in Sync</p>
 	<p class="text-muted-foreground mt-1 text-sm">
 		After modifying <code>src/lib/server/db/schema.ts</code>, you <strong>must</strong> also update
 		the <code>SCHEMA_SQL</code> string in <code>test-utils.ts</code> to match. Then run
-		<code>pnpm db:push</code> to apply changes to the development database. Failing to keep these
-		in sync will cause test failures with cryptic SQLite errors.
+		<code>pnpm db:push</code> to apply changes to the development database. Failing to keep these in sync
+		will cause test failures with cryptic SQLite errors.
 	</p>
 </div>
 
 <h3>The Mock Pattern (Critical)</h3>
 
 <p>
-	<strong>SvelteKit</strong> server modules import the database from <code>$lib/server/db/index.js</code>.
-	Tests must intercept this import and redirect it to the in-memory test database. This requires a
-	specific two-step pattern:
+	<strong>SvelteKit</strong> server modules import the database from
+	<code>$lib/server/db/index.js</code>. Tests must intercept this import and redirect it to the
+	in-memory test database. This requires a specific two-step pattern:
 </p>
 
-<pre><code class="language-ts">import &#123; describe, it, expect, vi, beforeEach &#125; from "vitest";
+<pre><code class="language-ts"
+		>import &#123; describe, it, expect, vi, beforeEach &#125; from "vitest";
 import &#123; createTestDb, createTestUser, createMockLocals &#125; from "$lib/test-utils.js";
 
 let testDb: ReturnType&lt;typeof createTestDb&gt;;
@@ -171,7 +174,8 @@ describe("Users page", () =&gt; &#123;
   &#125;);
 
   // ... tests ...
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Why This Pattern?</h3>
 
@@ -187,8 +191,8 @@ describe("Users page", () =&gt; &#123;
 	<li>
 		<strong>Why dynamic import?</strong> — The <code>await import("./+page.server.js")</code> must
 		happen <strong>after</strong> <code>vi.mock()</code> is called. If you used a static
-		<code>import</code> at the top of the file, the real database module would be loaded before the
-		mock is set up, and your tests would hit the development database.
+		<code>import</code> at the top of the file, the real database module would be loaded before the mock
+		is set up, and your tests would hit the development database.
 	</li>
 </ol>
 
@@ -200,18 +204,20 @@ describe("Users page", () =&gt; &#123;
 	redirect cases). Use <code>as any</code> on the result to avoid these:
 </p>
 
-<pre><code class="language-ts">const result = await actions.create(&#123;
+<pre><code class="language-ts"
+		>const result = await actions.create(&#123;
   request: createMockRequest(formData),
   locals: createMockLocals(&#123; user: adminUser &#125;),
 &#125;) as any;
 
-expect(result.success).toBe(true);</code></pre>
+expect(result.success).toBe(true);</code
+	></pre>
 
 <h2>Test Utilities</h2>
 
 <p>
-	The <code>test-utils.ts</code> file provides four helper functions that eliminate boilerplate in
-	every test file:
+	The <code>test-utils.ts</code> file provides four helper functions that eliminate boilerplate in every
+	test file:
 </p>
 
 <h3><code>createTestDb()</code></h3>
@@ -223,11 +229,10 @@ expect(result.success).toBe(true);</code></pre>
 
 <h3><code>createTestUser(db, overrides?)</code></h3>
 
-<p>
-	Inserts a user into the test database with sensible defaults and returns the user record:
-</p>
+<p>Inserts a user into the test database with sensible defaults and returns the user record:</p>
 
-<pre><code class="language-ts">const user = createTestUser(testDb, &#123;
+<pre><code class="language-ts"
+		>const user = createTestUser(testDb, &#123;
   role: "admin",
   email: "admin@test.com",
   username: "admin",
@@ -239,7 +244,8 @@ expect(result.success).toBe(true);</code></pre>
 // - email: "test@example.com"
 // - username: "testuser"
 // - password: hashed "password123"
-// - role: "viewer"</code></pre>
+// - role: "viewer"</code
+	></pre>
 
 <h3><code>createMockLocals(overrides?)</code></h3>
 
@@ -248,23 +254,27 @@ expect(result.success).toBe(true);</code></pre>
 	<code>App.Locals</code> interface. Used when calling load functions and form actions:
 </p>
 
-<pre><code class="language-ts">const locals = createMockLocals(&#123;
+<pre><code class="language-ts"
+		>const locals = createMockLocals(&#123;
   user: &#123; id: "abc", role: "admin", name: "Admin" &#125;,
   session: &#123; id: "sess123", expiresAt: Date.now() + 86400000 &#125;,
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3><code>createFormData(entries)</code></h3>
 
 <p>
-	Creates a <code>FormData</code> object from a plain key-value object. This is used to simulate
-	form submissions in action tests:
+	Creates a <code>FormData</code> object from a plain key-value object. This is used to simulate form
+	submissions in action tests:
 </p>
 
-<pre><code class="language-ts">const formData = createFormData(&#123;
+<pre><code class="language-ts"
+		>const formData = createFormData(&#123;
   name: "Jane Doe",
   email: "jane@example.com",
   role: "editor",
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3><code>createMockRequest(formData)</code></h3>
 
@@ -273,17 +283,20 @@ expect(result.success).toBe(true);</code></pre>
 	ready to pass to <strong>SvelteKit</strong> form action handlers:
 </p>
 
-<pre><code class="language-ts">const request = createMockRequest(formData);
-// Equivalent to: new Request("http://localhost", &#123; method: "POST", body: formData &#125;)</code></pre>
+<pre><code class="language-ts"
+		>const request = createMockRequest(formData);
+// Equivalent to: new Request("http://localhost", &#123; method: "POST", body: formData &#125;)</code
+	></pre>
 
 <h2>Testing Form Actions</h2>
 
 <p>
-	<strong>SvelteKit</strong> form actions are the primary mutation mechanism in SvelteForge Admin.
-	Here is a complete example testing a user creation action:
+	<strong>SvelteKit</strong> form actions are the primary mutation mechanism in SvelteForge Admin. Here
+	is a complete example testing a user creation action:
 </p>
 
-<pre><code class="language-ts">describe("create action", () =&gt; &#123;
+<pre><code class="language-ts"
+		>describe("create action", () =&gt; &#123;
   it("creates a new user when admin submits valid data", async () =&gt; &#123;
     // Arrange: create an admin user
     const admin = createTestUser(testDb, &#123; role: "admin" &#125;);
@@ -335,7 +348,8 @@ expect(result.success).toBe(true);</code></pre>
     const users = testDb.select().from(usersTable).all();
     expect(users).toHaveLength(1);
   &#125;);
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h2>Testing Server Loads</h2>
 
@@ -344,7 +358,8 @@ expect(result.success).toBe(true);</code></pre>
 	appropriate <code>locals</code>:
 </p>
 
-<pre><code class="language-ts">describe("load function", () =&gt; &#123;
+<pre><code class="language-ts"
+		>describe("load function", () =&gt; &#123;
   it("returns user list for admin", async () =&gt; &#123;
     // Seed the test database
     const admin = createTestUser(testDb, &#123; role: "admin" &#125;);
@@ -381,7 +396,8 @@ expect(result.success).toBe(true);</code></pre>
     // Viewers may see limited data or get redirected
     // depending on the page's authorization logic
   &#125;);
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h2>Test File Location</h2>
 
@@ -390,7 +406,8 @@ expect(result.success).toBe(true);</code></pre>
 	conventions. Each test file sits alongside the <code>+page.server.ts</code> it tests:
 </p>
 
-<pre><code class="language-text">src/routes/(app)/users/
+<pre><code class="language-text"
+		>src/routes/(app)/users/
   +page.svelte          # UI component (Svelte 5)
   +page.server.ts       # Server load + form actions
   users.test.ts         # Unit tests for +page.server.ts
@@ -398,7 +415,8 @@ expect(result.success).toBe(true);</code></pre>
 src/routes/(app)/settings/
   +page.svelte
   +page.server.ts
-  settings.test.ts</code></pre>
+  settings.test.ts</code
+	></pre>
 
 <p>
 	This co-location makes it easy to find tests for any given page and ensures that test files are
@@ -409,13 +427,13 @@ src/routes/(app)/settings/
 
 <p>
 	End-to-end tests verify complete user flows through the browser, testing the full
-	<strong>Svelte 5</strong> frontend, <strong>SvelteKit</strong> server, and SQLite database
-	together.
+	<strong>Svelte 5</strong> frontend, <strong>SvelteKit</strong> server, and SQLite database together.
 </p>
 
 <h3>Setup</h3>
 
-<pre><code class="language-ts">// playwright.config.ts
+<pre><code class="language-ts"
+		>// playwright.config.ts
 import &#123; defineConfig &#125; from "@playwright/test";
 
 export default defineConfig(&#123;
@@ -424,28 +442,32 @@ export default defineConfig(&#123;
     port: 4173,
   &#125;,
   testDir: "e2e",
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <p>
 	The <code>webServer</code> configuration automatically builds and starts the
-	<strong>SvelteKit</strong> application before running tests. Tests run against the production
-	build to catch build-time issues.
+	<strong>SvelteKit</strong> application before running tests. Tests run against the production build
+	to catch build-time issues.
 </p>
 
 <h3>Running E2E Tests</h3>
 
-<pre><code class="language-bash"># Run all E2E tests
+<pre><code class="language-bash"
+		># Run all E2E tests
 pnpm test:e2e
 
 # Run with UI mode for debugging
 npx playwright test --ui
 
 # Run a specific test file
-npx playwright test e2e/auth.test.ts</code></pre>
+npx playwright test e2e/auth.test.ts</code
+	></pre>
 
 <h3>Example: Full Auth Flow</h3>
 
-<pre><code class="language-ts">import &#123; test, expect &#125; from "@playwright/test";
+<pre><code class="language-ts"
+		>import &#123; test, expect &#125; from "@playwright/test";
 
 test("user can register, login, and access dashboard", async (&#123; page &#125;) =&gt; &#123;
   // Register a new account
@@ -471,7 +493,8 @@ test("user can register, login, and access dashboard", async (&#123; page &#125;
 
   // Should be back on the dashboard
   await expect(page).toHaveURL("/");
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h2>Best Practices</h2>
 
@@ -483,9 +506,11 @@ test("user can register, login, and access dashboard", async (&#123; page &#125;
 	state, no flaky tests from leftover data.
 </p>
 
-<pre><code class="language-ts">beforeEach(() =&gt; &#123;
+<pre><code class="language-ts"
+		>beforeEach(() =&gt; &#123;
   testDb = createTestDb();
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Test Both Success and Error Paths</h3>
 
@@ -497,7 +522,9 @@ test("user can register, login, and access dashboard", async (&#123; page &#125;
 <ul>
 	<li><strong>Valid input</strong> — Verify the action succeeds and the database is updated</li>
 	<li><strong>Missing required fields</strong> — Verify a 400 error with a descriptive message</li>
-	<li><strong>Duplicate data</strong> — Verify uniqueness constraints are enforced (e.g., email)</li>
+	<li>
+		<strong>Duplicate data</strong> — Verify uniqueness constraints are enforced (e.g., email)
+	</li>
 	<li><strong>Unauthorized access</strong> — Verify a 401 or 403 error for wrong roles</li>
 </ul>
 
@@ -508,7 +535,8 @@ test("user can register, login, and access dashboard", async (&#123; page &#125;
 	<code>viewer</code>). Tests should verify that admin-only actions reject non-admin users:
 </p>
 
-<pre><code class="language-ts">it("prevents viewer from deleting users", async () =&gt; &#123;
+<pre><code class="language-ts"
+		>it("prevents viewer from deleting users", async () =&gt; &#123;
   const viewer = createTestUser(testDb, &#123; role: "viewer" &#125;);
   const target = createTestUser(testDb, &#123;
     email: "target@test.com",
@@ -526,17 +554,18 @@ test("user can register, login, and access dashboard", async (&#123; page &#125;
   // Verify user was NOT deleted
   const users = testDb.select().from(usersTable).all();
   expect(users).toHaveLength(2);
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Verify Database State, Not Just Return Values</h3>
 
 <p>
 	Always check the actual database state after an action, not just the return value. An action might
-	return <code>&#123; success: true &#125;</code> due to a bug even if the database was not actually
-	updated:
+	return <code>&#123; success: true &#125;</code> due to a bug even if the database was not actually updated:
 </p>
 
-<pre><code class="language-ts">// Good: verify the database directly
+<pre><code class="language-ts"
+		>// Good: verify the database directly
 const result = await actions.updateRole(&#123; ... &#125;) as any;
 expect(result.success).toBe(true);
 
@@ -545,7 +574,8 @@ const updatedUser = testDb
   .from(usersTable)
   .where(eq(usersTable.id, userId))
   .get();
-expect(updatedUser.role).toBe("editor"); // Verify DB state</code></pre>
+expect(updatedUser.role).toBe("editor"); // Verify DB state</code
+	></pre>
 
 <h2>Common Pitfalls</h2>
 
@@ -587,26 +617,25 @@ expect(updatedUser.role).toBe("editor"); // Verify DB state</code></pre>
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin demonstrates testing fundamentals for <strong>Svelte 5</strong> and
-				<strong>SvelteKit</strong> applications. Our premium templates at DashboardPack ship with
-				comprehensive test suites out of the box — Vitest unit tests covering every form action
-				and server load, plus Playwright E2E tests for complete user flows including
-				authentication, CRUD operations, and role-based access control.
+				<strong>SvelteKit</strong> applications. Our premium templates at DashboardPack ship with comprehensive
+				test suites out of the box — Vitest unit tests covering every form action and server load, plus
+				Playwright E2E tests for complete user flows including authentication, CRUD operations, and role-based
+				access control.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
 					<strong>Full unit test coverage</strong> — Every server action and load function tested
 				</li>
 				<li>
-					<strong>E2E test suites</strong> — Playwright tests for registration, login, CRUD, and admin flows
+					<strong>E2E test suites</strong> — Playwright tests for registration, login, CRUD, and admin
+					flows
 				</li>
 				<li>
 					<strong>CI/CD integration</strong> — GitHub Actions workflows for automated testing

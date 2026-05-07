@@ -60,7 +60,10 @@ export const actions: Actions = {
 			parallelism: 1,
 		});
 
-		await db.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, resetToken.userId));
+		await db
+			.update(users)
+			.set({ passwordHash, updatedAt: new Date() })
+			.where(eq(users.id, resetToken.userId));
 
 		// Delete used token
 		await db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, resetToken.id));

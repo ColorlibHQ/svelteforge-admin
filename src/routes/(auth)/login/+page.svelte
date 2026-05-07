@@ -117,7 +117,11 @@
 				</div>
 			{/if}
 			<div class="mt-2 text-center">
-				<a href="/forgot-password" class="text-muted-foreground text-sm underline-offset-4 hover:underline">Forgot your password?</a>
+				<a
+					href="/forgot-password"
+					class="text-muted-foreground text-sm underline-offset-4 hover:underline"
+					>Forgot your password?</a
+				>
 			</div>
 		</Card.Content>
 		<Card.Footer class="justify-center">

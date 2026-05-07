@@ -2,7 +2,12 @@ import { redirect } from "@sveltejs/kit";
 import { github } from "$lib/server/oauth.js";
 import { db } from "$lib/server/db/index.js";
 import { users, oauthAccounts } from "$lib/server/db/schema.js";
-import { generateSessionToken, createSession, setSessionCookie, generateId } from "$lib/server/auth.js";
+import {
+	generateSessionToken,
+	createSession,
+	setSessionCookie,
+	generateId,
+} from "$lib/server/auth.js";
 import { eq, and } from "drizzle-orm";
 import { hash } from "@node-rs/argon2";
 import type { RequestHandler } from "./$types.js";
@@ -99,7 +104,10 @@ export const GET: RequestHandler = async ({ url, cookies, request, getClientAddr
 
 	// New user
 	const userId = generateId(10);
-	const rawUsername = githubUser.login.toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 31);
+	const rawUsername = githubUser.login
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]/g, "")
+		.slice(0, 31);
 	const username = rawUsername.length >= 3 ? rawUsername : `user_${userId.slice(0, 8)}`;
 
 	const randomPassword = generateId(25);

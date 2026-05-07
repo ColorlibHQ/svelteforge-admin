@@ -150,8 +150,10 @@
 		>
 			<CrownIcon class="size-4 text-amber-500" />
 			<span class="flex-1 text-sm font-semibold">Go Pro</span>
-			<Badge class="bg-amber-500 text-white hover:bg-amber-600 text-[10px] px-1.5">PRO</Badge>
-			<ExternalLinkIcon class="size-3 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+			<Badge class="bg-amber-500 px-1.5 text-[10px] text-white hover:bg-amber-600">PRO</Badge>
+			<ExternalLinkIcon
+				class="text-muted-foreground size-3 transition-transform group-hover:translate-x-0.5"
+			/>
 		</a>
 	</div>
 
@@ -197,7 +199,9 @@
 									<BellRingIcon class="mr-2 size-4" />
 									Notifications
 									{#if notificationCount > 0}
-										<Badge variant="secondary" class="ml-auto text-[10px] h-5 px-1.5">{notificationCount}</Badge>
+										<Badge variant="secondary" class="ml-auto h-5 px-1.5 text-[10px]"
+											>{notificationCount}</Badge
+										>
 									{/if}
 								</a>
 							{/snippet}
@@ -238,7 +242,10 @@
 						<DropdownMenu.Separator />
 						<DropdownMenu.Item
 							variant="destructive"
-							onclick={() => document.getElementById('logout-form')?.requestSubmit()}
+							onclick={() => {
+								const form = document.getElementById("logout-form");
+								if (form instanceof HTMLFormElement) form.requestSubmit();
+							}}
 						>
 							<LogOutIcon class="mr-2 size-4" />
 							Log out

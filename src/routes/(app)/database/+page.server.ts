@@ -15,7 +15,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
 	const [sessionsCount] = await db.select({ count: sql<number>`count(*)` }).from(sessions);
 	const [pagesCount] = await db.select({ count: sql<number>`count(*)` }).from(pages);
-	const [notificationsCount] = await db.select({ count: sql<number>`count(*)` }).from(notifications);
+	const [notificationsCount] = await db
+		.select({ count: sql<number>`count(*)` })
+		.from(notifications);
 	const [settingsCount] = await db.select({ count: sql<number>`count(*)` }).from(appSettings);
 
 	// Get journal mode

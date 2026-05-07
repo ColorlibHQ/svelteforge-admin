@@ -12,8 +12,8 @@
 	SvelteForge Admin uses <strong>LayerChart v2</strong> for all data visualization. LayerChart is a
 	D3-based charting library <strong>purpose-built for Svelte</strong> — it is fully reactive,
 	composable, and SSR-compatible out of the box. Combined with <strong>Svelte 5</strong> runes and
-	<strong>SvelteKit</strong> server-side data loading, the analytics system delivers fast,
-	interactive charts with zero client-side data fetching.
+	<strong>SvelteKit</strong> server-side data loading, the analytics system delivers fast, interactive
+	charts with zero client-side data fetching.
 </p>
 
 <h2>Why LayerChart for Svelte</h2>
@@ -25,24 +25,22 @@
 
 <ul>
 	<li>
-		<strong>Built specifically for Svelte</strong> — not a React port or framework-agnostic
-		wrapper
+		<strong>Built specifically for Svelte</strong> — not a React port or framework-agnostic wrapper
 	</li>
 	<li>
-		<strong>D3-based calculations with Svelte rendering</strong> — uses D3 for scales, shapes,
-		and math while Svelte handles the DOM
+		<strong>D3-based calculations with Svelte rendering</strong> — uses D3 for scales, shapes, and math
+		while Svelte handles the DOM
 	</li>
 	<li>
-		<strong>Composable chart components</strong> — Area, Bar, Pie, Line, and more can be combined
-		freely
+		<strong>Composable chart components</strong> — Area, Bar, Pie, Line, and more can be combined freely
 	</li>
 	<li>
 		<strong>Fully reactive with Svelte 5 runes</strong> — chart data updates automatically when
 		<code>$state</code> or <code>$derived</code> values change
 	</li>
 	<li>
-		<strong>SSR compatibility</strong> — works with SvelteKit's server-side rendering via a
-		simple Vite configuration
+		<strong>SSR compatibility</strong> — works with SvelteKit's server-side rendering via a simple Vite
+		configuration
 	</li>
 </ul>
 
@@ -50,11 +48,12 @@
 
 <p>
 	LayerChart and its companion library <code>svelte-ux</code> must be listed in the
-	<code>ssr.noExternal</code> array in your Vite config. Without this, SvelteKit's SSR will fail to
-	process these packages:
+	<code>ssr.noExternal</code> array in your Vite config. Without this, SvelteKit's SSR will fail to process
+	these packages:
 </p>
 
-<pre><code class="language-typescript">// vite.config.ts
+<pre><code class="language-typescript"
+		>// vite.config.ts
 import &#123; sveltekit &#125; from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import &#123; defineConfig &#125; from 'vitest/config';
@@ -67,22 +66,25 @@ export default defineConfig(&#123;
   test: &#123;
     include: ['src/**/*.test.ts'],
   &#125;
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <p>
-	Additionally, <code>src/app.css</code> includes <code>@source</code> directives so Tailwind CSS
-	v4 scans LayerChart and svelte-ux for utility classes:
+	Additionally, <code>src/app.css</code> includes <code>@source</code> directives so Tailwind CSS v4 scans
+	LayerChart and svelte-ux for utility classes:
 </p>
 
-<pre><code class="language-css">@source "../node_modules/layerchart";
-@source "../node_modules/svelte-ux";</code></pre>
+<pre><code class="language-css"
+		>@source "../node_modules/layerchart";
+@source "../node_modules/svelte-ux";</code
+	></pre>
 
 <h2>Dashboard Charts</h2>
 
 <p>
 	The main dashboard at <code>/dashboard</code> includes KPI cards with animated counters and
-	summary charts. The analytics page at <code>/analytics</code> provides deeper data exploration.
-	Here is what each chart visualizes:
+	summary charts. The analytics page at <code>/analytics</code> provides deeper data exploration. Here
+	is what each chart visualizes:
 </p>
 
 <table>
@@ -120,9 +122,9 @@ export default defineConfig(&#123;
 <h2>Analytics Page</h2>
 
 <p>
-	The <code>/analytics</code> route provides a grid-based layout with four chart panels. All data
-	is loaded server-side via <code>+page.server.ts</code> and passed to the Svelte 5 component
-	through <code>$props()</code>.
+	The <code>/analytics</code> route provides a grid-based layout with four chart panels. All data is
+	loaded server-side via <code>+page.server.ts</code> and passed to the Svelte 5 component through
+	<code>$props()</code>.
 </p>
 
 <h3>Chart Layout</h3>
@@ -131,12 +133,12 @@ export default defineConfig(&#123;
 
 <ul>
 	<li>
-		<strong>Top row (7-column grid):</strong> User Signups area chart (4 cols) + Content Creation
-		line chart (3 cols)
+		<strong>Top row (7-column grid):</strong> User Signups area chart (4 cols) + Content Creation line
+		chart (3 cols)
 	</li>
 	<li>
-		<strong>Bottom row (7-column grid):</strong> Pages by Status donut chart (3 cols) + Top
-		Authors bar chart (4 cols)
+		<strong>Bottom row (7-column grid):</strong> Pages by Status donut chart (3 cols) + Top Authors bar
+		chart (4 cols)
 	</li>
 </ul>
 
@@ -145,11 +147,12 @@ export default defineConfig(&#123;
 <h3>PieChart (Donut) — Critical Pattern</h3>
 
 <p>
-	LayerChart's <code>PieChart</code> uses <strong>direct props</strong> — not a config object. This
-	is the most common mistake when working with LayerChart:
+	LayerChart's <code>PieChart</code> uses <strong>direct props</strong> — not a config object. This is
+	the most common mistake when working with LayerChart:
 </p>
 
-<pre><code class="language-svelte">&lt;!-- CORRECT: Direct props --&gt;
+<pre><code class="language-svelte"
+		>&lt;!-- CORRECT: Direct props --&gt;
 &lt;PieChart
   data=&#123;statusData&#125;
   value="value"
@@ -167,11 +170,13 @@ export default defineConfig(&#123;
 &lt;PieChart
   data=&#123;statusData&#125;
   props=&#123;&#123; donut: &#123; innerRadius: 0.6 &#125;, legend: &#123; show: true &#125; &#125;&#125;
-/&gt;</code></pre>
+/&gt;</code
+	></pre>
 
 <h3>AreaChart / LineChart with Time Scales</h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; AreaChart &#125; from "layerchart";
   import &#123; scaleUtc &#125; from "d3-scale";
 
@@ -204,11 +209,13 @@ export default defineConfig(&#123;
   &#123;#snippet tooltip()&#125;
     &lt;Chart.Tooltip /&gt;
   &#123;/snippet&#125;
-&lt;/AreaChart&gt;</code></pre>
+&lt;/AreaChart&gt;</code
+	></pre>
 
 <h3>BarChart with Band Scale</h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; BarChart &#125; from "layerchart";
   import &#123; scaleBand &#125; from "d3-scale";
 &lt;/script&gt;
@@ -226,26 +233,29 @@ export default defineConfig(&#123;
   &#123;#snippet tooltip()&#125;
     &lt;Chart.Tooltip /&gt;
   &#123;/snippet&#125;
-&lt;/BarChart&gt;</code></pre>
+&lt;/BarChart&gt;</code
+	></pre>
 
 <h3>Chart Configuration Objects</h3>
 
 <p>
-	SvelteForge uses <code>Chart.ChartConfig</code> from shadcn-svelte to define labels and colors
-	for each data series:
+	SvelteForge uses <code>Chart.ChartConfig</code> from shadcn-svelte to define labels and colors for each
+	data series:
 </p>
 
-<pre><code class="language-typescript">const statusConfig = &#123;
+<pre><code class="language-typescript"
+		>const statusConfig = &#123;
   published: &#123; label: "Published", color: "var(--chart-1)" &#125;,
   draft: &#123; label: "Draft", color: "var(--chart-2)" &#125;,
   archived: &#123; label: "Archived", color: "var(--chart-4)" &#125;,
-&#125; satisfies Chart.ChartConfig;</code></pre>
+&#125; satisfies Chart.ChartConfig;</code
+	></pre>
 
 <h3>Color Tokens</h3>
 
 <p>
-	Chart colors are defined as CSS custom properties in <code>src/app.css</code> using the OKLCH
-	color space. Both light and dark mode variants are provided:
+	Chart colors are defined as CSS custom properties in <code>src/app.css</code> using the OKLCH color
+	space. Both light and dark mode variants are provided:
 </p>
 
 <table>
@@ -287,7 +297,8 @@ export default defineConfig(&#123;
 	block using <code>mode-watcher</code>:
 </p>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import &#123; mode &#125; from "mode-watcher";
 &lt;/script&gt;
 
@@ -295,22 +306,24 @@ export default defineConfig(&#123;
   &lt;Chart.Container config=&#123;signupConfig&#125; class="h-[300px] w-full"&gt;
     &lt;AreaChart ... /&gt;
   &lt;/Chart.Container&gt;
-&#123;/key&#125;</code></pre>
+&#123;/key&#125;</code
+	></pre>
 
 <p>
-	<strong>Important:</strong> With Svelte 5 and mode-watcher, use <code>mode.current</code> (a
-	runes object) — not <code>$mode</code> (the legacy store syntax).
+	<strong>Important:</strong> With Svelte 5 and mode-watcher, use <code>mode.current</code> (a runes
+	object) — not <code>$mode</code> (the legacy store syntax).
 </p>
 
 <h2>Server-Side Data Loading</h2>
 
 <p>
-	All chart data is aggregated on the server in <code>+page.server.ts</code> using Drizzle ORM
-	queries against the SQLite database. This ensures charts render with data on first paint — no
-	loading spinners, no client-side fetch waterfalls.
+	All chart data is aggregated on the server in <code>+page.server.ts</code> using Drizzle ORM queries
+	against the SQLite database. This ensures charts render with data on first paint — no loading spinners,
+	no client-side fetch waterfalls.
 </p>
 
-<pre><code class="language-typescript">// src/routes/(app)/analytics/+page.server.ts
+<pre><code class="language-typescript"
+		>// src/routes/(app)/analytics/+page.server.ts
 import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; users, pages, notifications &#125; from "$lib/server/db/schema.js";
 import &#123; sql, eq &#125; from "drizzle-orm";
@@ -348,7 +361,8 @@ export const load: PageServerLoad = async () =&gt; &#123;
     .limit(5);
 
   return &#123; signupsPerMonth, pagesByStatus, topAuthors &#125;;
-&#125;;</code></pre>
+&#125;;</code
+	></pre>
 
 <h2>Animated Counters</h2>
 
@@ -358,7 +372,8 @@ export const load: PageServerLoad = async () =&gt; &#123;
 	using <strong>easeOutExpo</strong> easing for a satisfying deceleration effect.
 </p>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   import AnimatedCounter from "$lib/components/animated-counter.svelte";
 &lt;/script&gt;
 
@@ -370,7 +385,8 @@ export const load: PageServerLoad = async () =&gt; &#123;
   value=&#123;98.5&#125;
   duration=&#123;1200&#125;
   formatFn=&#123;(n) =&gt; n.toLocaleString("en-US") + "%"&#125;
-/&gt;</code></pre>
+/&gt;</code
+	></pre>
 
 <table>
 	<thead>
@@ -422,8 +438,8 @@ export const load: PageServerLoad = async () =&gt; &#123;
 		<code>BarChart</code>, <code>AreaChart</code>, <code>PieChart</code>)
 	</li>
 	<li>
-		<strong>Transform the data</strong> using <code>$derived</code> to map server data into the
-		shape LayerChart expects
+		<strong>Transform the data</strong> using <code>$derived</code> to map server data into the shape
+		LayerChart expects
 	</li>
 	<li>
 		<strong>Define a ChartConfig</strong> with labels and <code>var(--chart-N)</code> color tokens
@@ -436,18 +452,23 @@ export const load: PageServerLoad = async () =&gt; &#123;
 
 <h3>Using D3 Utilities</h3>
 
-<p>
-	LayerChart works with standard D3 modules. The most commonly used in SvelteForge:
-</p>
+<p>LayerChart works with standard D3 modules. The most commonly used in SvelteForge:</p>
 
 <ul>
-	<li><code>d3-scale</code> — <code>scaleUtc()</code> for time axes, <code>scaleBand()</code> for categorical axes</li>
-	<li><code>d3-array</code> — <code>extent()</code>, <code>max()</code>, <code>sum()</code> for data calculations</li>
+	<li>
+		<code>d3-scale</code> — <code>scaleUtc()</code> for time axes, <code>scaleBand()</code> for categorical
+		axes
+	</li>
+	<li>
+		<code>d3-array</code> — <code>extent()</code>, <code>max()</code>, <code>sum()</code> for data calculations
+	</li>
 	<li><code>d3-shape</code> — arc generators, curve interpolations for custom chart shapes</li>
 </ul>
 
-<pre><code class="language-bash">pnpm add d3-scale d3-array d3-shape
-pnpm add -D @types/d3-scale @types/d3-array @types/d3-shape</code></pre>
+<pre><code class="language-bash"
+		>pnpm add d3-scale d3-array d3-shape
+pnpm add -D @types/d3-scale @types/d3-array @types/d3-shape</code
+	></pre>
 
 <h2>Key Files</h2>
 
@@ -489,7 +510,7 @@ pnpm add -D @types/d3-scale @types/d3-array @types/d3-shape</code></pre>
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
@@ -497,10 +518,9 @@ pnpm add -D @types/d3-scale @types/d3-array @types/d3-shape</code></pre>
 				Advanced Analytics with DashboardPack
 			</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				Need 10+ chart types, real-time data streaming, and advanced analytics dashboards?
-				Our premium templates ship with Recharts 3 integration, 5 dashboard layout variants,
-				date range pickers, exportable reports, and drill-down data tables — all
-				production-ready.
+				Need 10+ chart types, real-time data streaming, and advanced analytics dashboards? Our
+				premium templates ship with Recharts 3 integration, 5 dashboard layout variants, date range
+				pickers, exportable reports, and drill-down data tables — all production-ready.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>Recharts 3 with 10+ chart types (Radar, Treemap, Funnel, Sankey, and more)</li>

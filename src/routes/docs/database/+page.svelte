@@ -11,8 +11,8 @@
 <p>
 	SvelteForge Admin uses <strong>SQLite</strong> as its database, accessed through
 	<strong>Drizzle ORM</strong> with the <strong>better-sqlite3</strong> driver. This gives your
-	<strong>Svelte 5</strong> and <strong>SvelteKit</strong> application a zero-configuration,
-	high-performance database that lives as a single file in your project root.
+	<strong>Svelte 5</strong> and <strong>SvelteKit</strong> application a zero-configuration, high-performance
+	database that lives as a single file in your project root.
 </p>
 
 <h2>Why SQLite</h2>
@@ -27,17 +27,17 @@
 		Just a single file (<code>svelteforge.db</code>) in your project root.
 	</li>
 	<li>
-		<strong>Lightning fast</strong> — Reads are faster than PostgreSQL or MySQL for typical admin
-		workloads. With WAL mode enabled, concurrent reads never block each other.
+		<strong>Lightning fast</strong> — Reads are faster than PostgreSQL or MySQL for typical admin workloads.
+		With WAL mode enabled, concurrent reads never block each other.
 	</li>
 	<li>
-		<strong>Perfect for deployment</strong> — Deploy your <strong>SvelteKit</strong> app with its
-		database as a single unit. No connection strings to manage, no cold start latency.
+		<strong>Perfect for deployment</strong> — Deploy your <strong>SvelteKit</strong> app with its database
+		as a single unit. No connection strings to manage, no cold start latency.
 	</li>
 	<li>
 		<strong>Type-safe with Drizzle</strong> — Drizzle ORM provides full TypeScript inference from
-		your schema, catching query errors at compile time in your <strong>Svelte 5</strong> components
-		and SvelteKit server routes.
+		your schema, catching query errors at compile time in your <strong>Svelte 5</strong> components and
+		SvelteKit server routes.
 	</li>
 </ul>
 
@@ -50,7 +50,8 @@
 	<strong>SvelteKit's</strong> module system.
 </p>
 
-<pre><code class="language-typescript">// src/lib/server/db/index.ts
+<pre><code class="language-typescript"
+		>// src/lib/server/db/index.ts
 import Database from "better-sqlite3";
 import &#123; drizzle &#125; from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema.js";
@@ -59,20 +60,21 @@ const dbPath = process.env.DATABASE_URL || "svelteforge.db";
 const sqlite = new Database(dbPath);
 sqlite.pragma("journal_mode = WAL");
 
-export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
+export const db = drizzle(sqlite, &#123; schema &#125;);</code
+	></pre>
 
 <p>Key details:</p>
 
 <ul>
 	<li>
-		<strong>WAL journal mode</strong> — Write-Ahead Logging allows concurrent reads while a write
-		is in progress. This is critical for <strong>SvelteKit</strong> apps where multiple server-side
-		load functions may query simultaneously.
+		<strong>WAL journal mode</strong> — Write-Ahead Logging allows concurrent reads while a write is
+		in progress. This is critical for <strong>SvelteKit</strong> apps where multiple server-side load
+		functions may query simultaneously.
 	</li>
 	<li>
 		<strong><code>DATABASE_URL</code> env var</strong> — Defaults to
-		<code>svelteforge.db</code> in the project root. Override it in production to point to a
-		persistent volume.
+		<code>svelteforge.db</code> in the project root. Override it in production to point to a persistent
+		volume.
 	</li>
 	<li>
 		<strong>Full schema import</strong> — Passing the entire schema to <code>drizzle()</code>
@@ -83,9 +85,9 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 <h2>Schema Deep Dive</h2>
 
 <p>
-	The complete database schema is defined in <code>src/lib/server/db/schema.ts</code> using
-	Drizzle ORM's SQLite table builder. Every table, column, type, constraint, and default is defined
-	in TypeScript — giving your <strong>Svelte 5</strong> components and
+	The complete database schema is defined in <code>src/lib/server/db/schema.ts</code> using Drizzle
+	ORM's SQLite table builder. Every table, column, type, constraint, and default is defined in
+	TypeScript — giving your <strong>Svelte 5</strong> components and
 	<strong>SvelteKit</strong> server routes full type inference.
 </p>
 
@@ -96,7 +98,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 	first user to register gets the <code>admin</code> role automatically.
 </p>
 
-<pre><code class="language-typescript">export const users = sqliteTable("users", &#123;
+<pre><code class="language-typescript"
+		>export const users = sqliteTable("users", &#123;
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   username: text("username").notNull().unique(),
@@ -112,7 +115,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
   updatedAt: integer("updated_at", &#123; mode: "timestamp" &#125;)
     .notNull()
     .$defaultFn(() =&gt; new Date()),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -185,11 +189,12 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 
 <p>
 	Session tokens are SHA-256 hashed before storage. The <code>expiresAt</code> column uses a raw
-	integer (milliseconds since epoch) instead of <code>&#123; mode: "timestamp" &#125;</code> for
-	precise expiry comparisons in the auth system.
+	integer (milliseconds since epoch) instead of <code>&#123; mode: "timestamp" &#125;</code> for precise
+	expiry comparisons in the auth system.
 </p>
 
-<pre><code class="language-typescript">export const sessions = sqliteTable("sessions", &#123;
+<pre><code class="language-typescript"
+		>export const sessions = sqliteTable("sessions", &#123;
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -199,7 +204,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
   ipAddress: text("ip_address"),
   createdAt: integer("created_at", &#123; mode: "timestamp" &#125;)
     .$defaultFn(() =&gt; new Date()),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -257,7 +263,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 	<code>authorId</code> foreign key links each page to its creator in the users table.
 </p>
 
-<pre><code class="language-typescript">export const pages = sqliteTable("pages", &#123;
+<pre><code class="language-typescript"
+		>export const pages = sqliteTable("pages", &#123;
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
@@ -278,7 +285,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
     .notNull()
     .$defaultFn(() =&gt; new Date()),
   publishedAt: integer("published_at", &#123; mode: "timestamp" &#125;),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -357,11 +365,11 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 
 <p>
 	Notifications can be user-specific or global (when <code>userId</code> is null). The
-	<strong>SvelteKit</strong> app layout queries both types for the authenticated user's notification
-	bell.
+	<strong>SvelteKit</strong> app layout queries both types for the authenticated user's notification bell.
 </p>
 
-<pre><code class="language-typescript">export const notifications = sqliteTable("notifications", &#123;
+<pre><code class="language-typescript"
+		>export const notifications = sqliteTable("notifications", &#123;
   id: text("id").primaryKey(),
   userId: text("user_id").references(() =&gt; users.id),
   title: text("title").notNull(),
@@ -373,7 +381,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
   createdAt: integer("created_at", &#123; mode: "timestamp" &#125;)
     .notNull()
     .$defaultFn(() =&gt; new Date()),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -437,14 +446,16 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 	sessions) and has a time-limited expiry.
 </p>
 
-<pre><code class="language-typescript">export const passwordResetTokens = sqliteTable("password_reset_tokens", &#123;
+<pre><code class="language-typescript"
+		>export const passwordResetTokens = sqliteTable("password_reset_tokens", &#123;
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() =&gt; users.id),
   tokenHash: text("token_hash").notNull(),
   expiresAt: integer("expires_at", &#123; mode: "timestamp" &#125;).notNull(),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -490,7 +501,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 	<code>(provider, providerUserId)</code> ensures no duplicate OAuth links.
 </p>
 
-<pre><code class="language-typescript">export const oauthAccounts = sqliteTable(
+<pre><code class="language-typescript"
+		>export const oauthAccounts = sqliteTable(
   "oauth_accounts",
   &#123;
     id: text("id").primaryKey(),
@@ -507,7 +519,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
     uniqueIndex("oauth_provider_user_idx")
       .on(table.provider, table.providerUserId)
   ]
-);</code></pre>
+);</code
+	></pre>
 
 <table>
 	<thead>
@@ -554,24 +567,26 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 
 <p>
 	<strong>Unique composite index:</strong> <code>oauth_provider_user_idx</code> on
-	<code>(provider, providerUserId)</code> prevents the same OAuth account from being linked to
-	multiple users.
+	<code>(provider, providerUserId)</code> prevents the same OAuth account from being linked to multiple
+	users.
 </p>
 
 <h3>App Settings Table</h3>
 
 <p>
-	A simple key-value store for application-wide configuration. The <code>key</code> column is the
-	primary key — no separate ID needed.
+	A simple key-value store for application-wide configuration. The <code>key</code> column is the primary
+	key — no separate ID needed.
 </p>
 
-<pre><code class="language-typescript">export const appSettings = sqliteTable("app_settings", &#123;
+<pre><code class="language-typescript"
+		>export const appSettings = sqliteTable("app_settings", &#123;
   key: text("key").primaryKey(),
   value: text("value").notNull(),
   updatedAt: integer("updated_at", &#123; mode: "timestamp" &#125;)
     .notNull()
     .$defaultFn(() =&gt; new Date()),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <table>
 	<thead>
@@ -607,8 +622,8 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 <h3>Timestamp Modes</h3>
 
 <p>
-	Drizzle ORM's <code>&#123; mode: "timestamp" &#125;</code> option on integer columns controls how
-	values are serialized:
+	Drizzle ORM's <code>&#123; mode: "timestamp" &#125;</code> option on integer columns controls how values
+	are serialized:
 </p>
 
 <ul>
@@ -619,23 +634,29 @@ export const db = drizzle(sqlite, &#123; schema &#125;);</code></pre>
 	</li>
 	<li>
 		<strong>Without <code>mode: "timestamp"</code></strong> — The column stores and returns raw
-		integers. Used for <code>sessions.expiresAt</code> which stores milliseconds since epoch for
-		precise expiry comparisons without Date conversion overhead.
+		integers. Used for <code>sessions.expiresAt</code> which stores milliseconds since epoch for precise
+		expiry comparisons without Date conversion overhead.
 	</li>
 </ul>
 
 <h3>Type Exports</h3>
 
-<p>The schema file also exports inferred TypeScript types for use throughout the <strong>SvelteKit</strong> application:</p>
+<p>
+	The schema file also exports inferred TypeScript types for use throughout the <strong
+		>SvelteKit</strong
+	> application:
+</p>
 
-<pre><code class="language-typescript">export type User = typeof users.$inferSelect;
+<pre><code class="language-typescript"
+		>export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type NewPage = typeof pages.$inferInsert;
 export type Notification = typeof notifications.$inferSelect;
 export type OAuthAccount = typeof oauthAccounts.$inferSelect;
-export type AppSetting = typeof appSettings.$inferSelect;</code></pre>
+export type AppSetting = typeof appSettings.$inferSelect;</code
+	></pre>
 
 <h2>ID Generation</h2>
 
@@ -644,19 +665,21 @@ export type AppSetting = typeof appSettings.$inferSelect;</code></pre>
 	<code>src/lib/server/id.ts</code>:
 </p>
 
-<pre><code class="language-typescript">// src/lib/server/id.ts
+<pre><code class="language-typescript"
+		>// src/lib/server/id.ts
 import &#123; encodeBase32LowerCaseNoPadding &#125; from "@oslojs/encoding";
 
 export function generateId(length: number = 15): string &#123;
   const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
   return encodeBase32LowerCaseNoPadding(bytes);
-&#125;</code></pre>
+&#125;</code
+	></pre>
 
 <ul>
 	<li>
-		<strong>Cryptographically secure</strong> — Uses <code>crypto.getRandomValues()</code> for
-		truly random bytes.
+		<strong>Cryptographically secure</strong> — Uses <code>crypto.getRandomValues()</code> for truly random
+		bytes.
 	</li>
 	<li>
 		<strong>Base32 encoded</strong> — Lowercase, no padding. URL-safe and case-insensitive.
@@ -674,7 +697,8 @@ export function generateId(length: number = 15): string &#123;
 	lives in <code>drizzle.config.ts</code>:
 </p>
 
-<pre><code class="language-typescript">// drizzle.config.ts
+<pre><code class="language-typescript"
+		>// drizzle.config.ts
 import &#123; defineConfig &#125; from "drizzle-kit";
 
 export default defineConfig(&#123;
@@ -684,7 +708,8 @@ export default defineConfig(&#123;
   dbCredentials: &#123;
     url: "svelteforge.db",
   &#125;,
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Available Commands</h3>
 
@@ -719,17 +744,17 @@ export default defineConfig(&#123;
 
 <ol>
 	<li>
-		<strong>Edit the schema</strong> — Modify <code>src/lib/server/db/schema.ts</code> (add
-		columns, tables, constraints).
+		<strong>Edit the schema</strong> — Modify <code>src/lib/server/db/schema.ts</code> (add columns, tables,
+		constraints).
 	</li>
 	<li>
-		<strong>Push changes</strong> — Run <code>pnpm db:push</code> to apply changes directly to
-		your local SQLite database.
+		<strong>Push changes</strong> — Run <code>pnpm db:push</code> to apply changes directly to your local
+		SQLite database.
 	</li>
 	<li>
 		<strong>Update test utilities</strong> — If you have tests, update the
-		<code>SCHEMA_SQL</code> constant in <code>test-utils.ts</code> to match the new schema. Tests
-		use an in-memory SQLite database that is created from this SQL string.
+		<code>SCHEMA_SQL</code> constant in <code>test-utils.ts</code> to match the new schema. Tests use
+		an in-memory SQLite database that is created from this SQL string.
 	</li>
 	<li>
 		<strong>Generate migrations (optional)</strong> — For production deployments, run
@@ -740,8 +765,8 @@ export default defineConfig(&#123;
 <h2>Database Seeding</h2>
 
 <p>
-	The seed script at <code>src/lib/server/db/seed.ts</code> populates the database with realistic
-	sample data. Run it with:
+	The seed script at <code>src/lib/server/db/seed.ts</code> populates the database with realistic sample
+	data. Run it with:
 </p>
 
 <pre><code class="language-bash">pnpm db:seed</code></pre>
@@ -760,17 +785,26 @@ export default defineConfig(&#123;
 		<tr>
 			<td><strong>Users</strong></td>
 			<td>50</td>
-			<td>Realistic 12-month growth curve (2 users/month early, 7 users/month recent). Mix of admin, editor, and viewer roles.</td>
+			<td
+				>Realistic 12-month growth curve (2 users/month early, 7 users/month recent). Mix of admin,
+				editor, and viewer roles.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Pages</strong></td>
 			<td>65</td>
-			<td>Across all templates (default, landing, blog) and statuses. Earlier months mostly published, recent months more drafts.</td>
+			<td
+				>Across all templates (default, landing, blog) and statuses. Earlier months mostly
+				published, recent months more drafts.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Notifications</strong></td>
 			<td>33</td>
-			<td>Mix of info, warning, error, and success types. Older ones marked as read, recent ones unread.</td>
+			<td
+				>Mix of info, warning, error, and success types. Older ones marked as read, recent ones
+				unread.</td
+			>
 		</tr>
 		<tr>
 			<td><strong>App Settings</strong></td>
@@ -784,16 +818,16 @@ export default defineConfig(&#123;
 
 <ul>
 	<li>
-		<strong>All passwords:</strong> <code>password123</code> — Hashed with Argon2id (memoryCost:
-		19456, timeCost: 2, outputLen: 32, parallelism: 1).
+		<strong>All passwords:</strong> <code>password123</code> — Hashed with Argon2id (memoryCost: 19456,
+		timeCost: 2, outputLen: 32, parallelism: 1).
 	</li>
 	<li>
 		<strong>Login with:</strong> <code>admin@svelteforge.dev</code> / <code>password123</code> (or
 		any seeded user with <code>password123</code>).
 	</li>
 	<li>
-		<strong>Realistic timestamps:</strong> Uses a <code>daysAgo()</code> helper to create dates
-		spread across the past 12 months.
+		<strong>Realistic timestamps:</strong> Uses a <code>daysAgo()</code> helper to create dates spread
+		across the past 12 months.
 	</li>
 	<li>
 		<strong>Runs outside SvelteKit:</strong> The seed script is executed via
@@ -806,8 +840,8 @@ export default defineConfig(&#123;
 <h2>Drizzle Studio</h2>
 
 <p>
-	Drizzle Studio provides a browser-based GUI for inspecting and editing your SQLite database. Launch
-	it with:
+	Drizzle Studio provides a browser-based GUI for inspecting and editing your SQLite database.
+	Launch it with:
 </p>
 
 <pre><code class="language-bash">pnpm db:studio</code></pre>
@@ -821,13 +855,14 @@ export default defineConfig(&#123;
 <h2>Querying Patterns</h2>
 
 <p>
-	Here are common Drizzle ORM query patterns used throughout the <strong>SvelteKit</strong> server
-	routes in SvelteForge Admin.
+	Here are common Drizzle ORM query patterns used throughout the <strong>SvelteKit</strong> server routes
+	in SvelteForge Admin.
 </p>
 
 <h3>Select All Records</h3>
 
-<pre><code class="language-typescript">import &#123; db &#125; from "$lib/server/db/index.js";
+<pre><code class="language-typescript"
+		>import &#123; db &#125; from "$lib/server/db/index.js";
 import &#123; users &#125; from "$lib/server/db/schema.js";
 
 // Select specific columns
@@ -840,20 +875,24 @@ const allUsers = await db
     createdAt: users.createdAt,
   &#125;)
   .from(users)
-  .orderBy(users.createdAt);</code></pre>
+  .orderBy(users.createdAt);</code
+	></pre>
 
 <h3>Find One Record</h3>
 
-<pre><code class="language-typescript">import &#123; eq &#125; from "drizzle-orm";
+<pre><code class="language-typescript"
+		>import &#123; eq &#125; from "drizzle-orm";
 
 // Using the relational query API
 const user = await db.query.users.findFirst(&#123;
   where: eq(users.email, "admin@svelteforge.dev"),
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Insert a Record</h3>
 
-<pre><code class="language-typescript">import &#123; generateId &#125; from "$lib/server/id.js";
+<pre><code class="language-typescript"
+		>import &#123; generateId &#125; from "$lib/server/id.js";
 
 await db.insert(users).values(&#123;
   id: generateId(10),
@@ -862,26 +901,32 @@ await db.insert(users).values(&#123;
   passwordHash: hashedPassword,
   name: "New User",
   role: "viewer",
-&#125;);</code></pre>
+&#125;);</code
+	></pre>
 
 <h3>Update a Record</h3>
 
-<pre><code class="language-typescript">import &#123; eq &#125; from "drizzle-orm";
+<pre><code class="language-typescript"
+		>import &#123; eq &#125; from "drizzle-orm";
 
 await db
   .update(users)
   .set(&#123; role: "editor", updatedAt: new Date() &#125;)
-  .where(eq(users.id, userId));</code></pre>
+  .where(eq(users.id, userId));</code
+	></pre>
 
 <h3>Delete Records</h3>
 
-<pre><code class="language-typescript">import &#123; eq &#125; from "drizzle-orm";
+<pre><code class="language-typescript"
+		>import &#123; eq &#125; from "drizzle-orm";
 
-await db.delete(users).where(eq(users.id, userId));</code></pre>
+await db.delete(users).where(eq(users.id, userId));</code
+	></pre>
 
 <h3>Aggregation with SQL</h3>
 
-<pre><code class="language-typescript">import &#123; sql, eq, and, or, isNull &#125; from "drizzle-orm";
+<pre><code class="language-typescript"
+		>import &#123; sql, eq, and, or, isNull &#125; from "drizzle-orm";
 
 // Count unread notifications for a user (including global ones)
 const [result] = await db
@@ -895,11 +940,13 @@ const [result] = await db
         isNull(notifications.userId)
       )
     )
-  );</code></pre>
+  );</code
+	></pre>
 
 <h3>Pattern Matching (LIKE)</h3>
 
-<pre><code class="language-typescript">import &#123; sql, or &#125; from "drizzle-orm";
+<pre><code class="language-typescript"
+		>import &#123; sql, or &#125; from "drizzle-orm";
 
 const pattern = `%$&#123;searchQuery&#125;%`;
 const results = await db
@@ -909,37 +956,36 @@ const results = await db
     sql`$&#123;users.name&#125; LIKE $&#123;pattern&#125;`,
     sql`$&#123;users.email&#125; LIKE $&#123;pattern&#125;`
   ))
-  .limit(10);</code></pre>
+  .limit(10);</code
+	></pre>
 
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin demonstrates a solid SQLite + Drizzle ORM setup for
 				<strong>Svelte 5</strong> and <strong>SvelteKit</strong>. Need more advanced database
 				patterns? DashboardPack premium templates include multi-tenant schemas, advanced CRUD
-				interfaces with pagination/filtering/sorting, data import/export, and
-				production-grade database management UIs.
+				interfaces with pagination/filtering/sorting, data import/export, and production-grade
+				database management UIs.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — Enterprise admin with 5 dashboards, advanced data tables,
-					and full CRUD operations
+					<strong>Apex</strong> — Enterprise admin with 5 dashboards, advanced data tables, and full CRUD
+					operations
 				</li>
 				<li>
-					<strong>Zenith</strong> — Analytics dashboard with complex aggregation queries
-					and real-time data
+					<strong>Zenith</strong> — Analytics dashboard with complex aggregation queries and real-time
+					data
 				</li>
 				<li>
-					<strong>Signal</strong> — Monitoring dashboard with database health metrics and
-					query performance tracking
+					<strong>Signal</strong> — Monitoring dashboard with database health metrics and query performance
+					tracking
 				</li>
 			</ul>
 		</div>

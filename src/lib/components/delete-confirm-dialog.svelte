@@ -22,14 +22,21 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-			<form method="POST" action={action} use:enhance={() => {
-				return async ({ update }) => {
-					await update();
-					open = false;
-				};
-			}}>
+			<form
+				method="POST"
+				{action}
+				use:enhance={() => {
+					return async ({ update }) => {
+						await update();
+						open = false;
+					};
+				}}
+			>
 				<input type="hidden" name="id" value={id} />
-				<AlertDialog.Action type="submit" class="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+				<AlertDialog.Action
+					type="submit"
+					class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+				>
 					Delete
 				</AlertDialog.Action>
 			</form>

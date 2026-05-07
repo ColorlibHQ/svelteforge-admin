@@ -2,6 +2,53 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v1.1.0 -- May 2026
+
+Dependency refresh. All packages updated to their latest versions, including major bumps for TypeScript, Vite, and the Svelte Vite plugin. No public API changes -- existing code continues to work.
+
+### Major version bumps
+
+- **TypeScript 5.9 -> 6.0** -- new compiler version, no codebase changes required
+- **Vite 7.3 -> 8.0** -- newer build tooling
+- **@sveltejs/vite-plugin-svelte 6.2 -> 7.1** -- compatible with Vite 8
+- **@lucide/svelte 0.577 -> 1.14** -- icon library now stable at 1.x
+- **prettier-plugin-tailwindcss 0.7 -> 0.8**
+
+### Other notable updates
+
+- SvelteKit 2.53 -> 2.59
+- Svelte 5.53 -> 5.55
+- Vitest 4.0 -> 4.1
+- bits-ui 2.16 -> 2.18
+- shadcn-svelte 1.1 -> 1.2 (chart component re-generated)
+- LayerChart 2.0.0-next.43 -> 2.0.0-next.48 (pinned by shadcn-svelte 1.2)
+- ESLint 10.0 -> 10.3, eslint-plugin-svelte 3.15 -> 3.17, typescript-eslint 8.56 -> 8.59
+- better-sqlite3 12.6 -> 12.9, drizzle-orm 0.45.1 -> 0.45.2
+- @playwright/test 1.58 -> 1.59
+- Plus minor/patch bumps across all remaining dependencies
+
+### Fixes
+
+- **Logout button type error** in `app-sidebar.svelte` -- `requestSubmit` was called on `HTMLElement` (which doesn't have it). Now narrowed via `instanceof HTMLFormElement`.
+- **Sidebar trigger ref binding** in `ui/sidebar/sidebar-trigger.svelte` -- `ref` was exposed as a bindable prop but never bound to the underlying element. Now binds via `bind:ref` on the Button, matching the convention used by the other sidebar primitives.
+- **Stale state warnings** in `content/[id]/edit/+page.svelte` -- initial form values now captured via `untrack()` to silence Svelte 5's `state_referenced_locally` warning while preserving the original behavior.
+- **Unused imports/variables** removed from `scripts/add-browser-frame.ts` and `routes/docs/+layout.svelte`.
+
+### Build/tooling
+
+- **`pnpm.onlyBuiltDependencies`** added to `package.json`. pnpm 10's modern approval mechanism for native modules (better-sqlite3, sharp, esbuild, @node-rs/argon2) -- replaces the legacy `.npmrc` `approve-builds=` flag, which pnpm 10 ignores. Without this, fresh installs leave better-sqlite3 unbuilt and tests fail.
+- **`@types/node`** added as a devDependency. SvelteKit 2.59's generated `.svelte-kit/tsconfig.json` now references the `node` type definitions; without it, `pnpm check` warns.
+- **shadcn-svelte chart component re-generated.** layerchart 2.0.0-next.48 ships with shadcn-svelte 1.2; the older local copy referenced `getTooltipContext`, which was reorganized in newer layerchart prereleases.
+
+### Verified
+
+- All 33 unit tests pass
+- `pnpm check` -- 0 errors, 0 warnings
+- `pnpm lint` -- clean
+- `pnpm build` -- production build succeeds
+
+---
+
 ## v1.0.0 -- March 2026
 
 Initial release. Full-featured admin dashboard with custom auth, RBAC, built-in documentation site, and a complete admin toolset.

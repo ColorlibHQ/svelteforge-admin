@@ -7,12 +7,13 @@
 	import * as Card from "$lib/components/ui/card/index.js";
 	import { enhance } from "$app/forms";
 	import { toast } from "svelte-sonner";
+	import { untrack } from "svelte";
 	import ArrowLeftIcon from "@lucide/svelte/icons/arrow-left";
 
 	let { data, form } = $props();
 
-	let title = $state(data.page.title);
-	let slug = $state(data.page.slug);
+	let title = $state(untrack(() => data.page.title));
+	let slug = $state(untrack(() => data.page.slug));
 
 	$effect(() => {
 		if (form?.message) toast.error(form.message);

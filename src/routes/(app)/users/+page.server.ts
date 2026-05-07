@@ -44,7 +44,8 @@ export const actions: Actions = {
 			!/^[a-z0-9_-]+$/.test(username)
 		) {
 			return fail(400, {
-				message: "Username must be 3-31 characters, lowercase letters, numbers, hyphens, underscores",
+				message:
+					"Username must be 3-31 characters, lowercase letters, numbers, hyphens, underscores",
 			});
 		}
 		if (typeof password !== "string" || password.length < 6 || password.length > 255) {
@@ -180,10 +181,7 @@ export const actions: Actions = {
 		}
 
 		// Check if any targets are the last admin
-		const admins = await db
-			.select({ id: users.id })
-			.from(users)
-			.where(eq(users.role, "admin"));
+		const admins = await db.select({ id: users.id }).from(users).where(eq(users.role, "admin"));
 		const remainingAdmins = admins.filter((a) => !toDelete.includes(a.id));
 		if (remainingAdmins.length === 0) {
 			return fail(400, { message: "Cannot delete all admin users" });

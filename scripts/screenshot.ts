@@ -46,9 +46,7 @@ async function takeScreenshots() {
 	await page.waitForTimeout(300);
 
 	// Verify dark mode is applied
-	const isDark = await page.evaluate(() =>
-		document.documentElement.classList.contains("dark"),
-	);
+	const isDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
 	console.log("Dark mode applied:", isDark);
 
 	// Dark mode dashboard

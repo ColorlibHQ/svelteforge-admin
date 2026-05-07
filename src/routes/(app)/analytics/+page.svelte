@@ -50,9 +50,12 @@
 	const statusColors = $derived(
 		data.pagesByStatus.map((d) => {
 			switch (d.status) {
-				case "published": return statusConfig.published.color;
-				case "draft": return statusConfig.draft.color;
-				default: return statusConfig.archived.color;
+				case "published":
+					return statusConfig.published.color;
+				case "draft":
+					return statusConfig.draft.color;
+				default:
+					return statusConfig.archived.color;
 			}
 		})
 	);
@@ -91,8 +94,7 @@
 								]}
 								props={{
 									xAxis: {
-										format: (d: Date) =>
-											d.toLocaleDateString("en-US", { month: "short" }),
+										format: (d: Date) => d.toLocaleDateString("en-US", { month: "short" }),
 									},
 								}}
 							>
@@ -132,8 +134,7 @@
 								]}
 								props={{
 									xAxis: {
-										format: (d: Date) =>
-											d.toLocaleDateString("en-US", { month: "short" }),
+										format: (d: Date) => d.toLocaleDateString("en-US", { month: "short" }),
 									},
 								}}
 							>

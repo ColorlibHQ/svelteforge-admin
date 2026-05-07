@@ -34,14 +34,18 @@
 				{mode === "create" ? "Create a new user account." : "Update user details."}
 			</Dialog.Description>
 		</Dialog.Header>
-		<form method="POST" {action} use:enhance={() => {
-			return async ({ result, update }) => {
-				if (result.type === "success" || result.type === "redirect") {
-					open = false;
-				}
-				await update();
-			};
-		}}>
+		<form
+			method="POST"
+			{action}
+			use:enhance={() => {
+				return async ({ result, update }) => {
+					if (result.type === "success" || result.type === "redirect") {
+						open = false;
+					}
+					await update();
+				};
+			}}
+		>
 			{#if mode === "edit" && user}
 				<input type="hidden" name="id" value={user.id} />
 			{/if}
@@ -61,7 +65,13 @@
 					</div>
 					<div class="grid gap-2">
 						<Label for="password">Password</Label>
-						<Input id="password" name="password" type="password" placeholder="6+ characters" required />
+						<Input
+							id="password"
+							name="password"
+							type="password"
+							placeholder="6+ characters"
+							required
+						/>
 					</div>
 				{/if}
 				<div class="grid gap-2">

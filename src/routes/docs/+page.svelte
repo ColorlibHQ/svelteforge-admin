@@ -31,20 +31,20 @@
 
 <ul>
 	<li>
-		<strong><code>$state</code></strong> — Declare reactive state with fine-grained granularity.
-		No wrapping in stores or signals — just assign and go.
+		<strong><code>$state</code></strong> — Declare reactive state with fine-grained granularity. No wrapping
+		in stores or signals — just assign and go.
 	</li>
 	<li>
 		<strong><code>$props</code></strong> — Type-safe component props with destructuring. No more
 		<code>export let</code>.
 	</li>
 	<li>
-		<strong><code>$derived</code></strong> — Computed values that automatically track their
-		dependencies and update only when needed.
+		<strong><code>$derived</code></strong> — Computed values that automatically track their dependencies
+		and update only when needed.
 	</li>
 	<li>
-		<strong><code>$effect</code></strong> — Side effects that run when their dependencies change,
-		with automatic cleanup.
+		<strong><code>$effect</code></strong> — Side effects that run when their dependencies change, with
+		automatic cleanup.
 	</li>
 </ul>
 
@@ -60,7 +60,8 @@
 
 <h3>Example: Reactive state with Svelte 5 runes</h3>
 
-<pre><code class="language-svelte">&lt;script lang="ts"&gt;
+<pre><code class="language-svelte"
+		>&lt;script lang="ts"&gt;
   let count = $state(0);
   let doubled = $derived(count * 2);
 
@@ -71,19 +72,20 @@
 
 &lt;button onclick=&#123;() =&gt; count++&#125;&gt;
   &#123;count&#125; (doubled: &#123;doubled&#125;)
-&lt;/button&gt;</code></pre>
+&lt;/button&gt;</code
+	></pre>
 
 <h2>Why SvelteKit</h2>
 
 <p>
-	<strong>SvelteKit</strong> is the official application framework for Svelte, and it powers every
-	aspect of SvelteForge Admin:
+	<strong>SvelteKit</strong> is the official application framework for Svelte, and it powers every aspect
+	of SvelteForge Admin:
 </p>
 
 <ul>
 	<li>
-		<strong>Server-side rendering (SSR)</strong> — Pages render on the server for fast initial
-		loads, then hydrate on the client for interactivity.
+		<strong>Server-side rendering (SSR)</strong> — Pages render on the server for fast initial loads,
+		then hydrate on the client for interactivity.
 	</li>
 	<li>
 		<strong>File-based routing</strong> — Routes are defined by the filesystem. SvelteForge uses
@@ -96,9 +98,8 @@
 		available.
 	</li>
 	<li>
-		<strong>Progressive enhancement</strong> — The entire app works without client-side JavaScript
-		and progressively enhances with it. No loading spinners, no skeleton screens for core
-		functionality.
+		<strong>Progressive enhancement</strong> — The entire app works without client-side JavaScript and
+		progressively enhances with it. No loading spinners, no skeleton screens for core functionality.
 	</li>
 	<li>
 		<strong>Server-only modules</strong> — Sensitive code (auth, database, OAuth) lives in
@@ -135,11 +136,14 @@
 		</tr>
 		<tr>
 			<td><strong>Analytics Dashboard</strong></td>
-			<td>Interactive charts powered by LayerChart v2 (D3-based) with area, bar, pie, and line charts</td>
+			<td
+				>Interactive charts powered by LayerChart v2 (D3-based) with area, bar, pie, and line charts</td
+			>
 		</tr>
 		<tr>
 			<td><strong>User Management</strong></td>
-			<td>CRUD operations for users with role assignment, search, filtering, and CSV/JSON export</td>
+			<td>CRUD operations for users with role assignment, search, filtering, and CSV/JSON export</td
+			>
 		</tr>
 		<tr>
 			<td><strong>Notifications</strong></td>
@@ -180,7 +184,9 @@
 		</tr>
 		<tr>
 			<td><strong>Tailwind CSS 4</strong></td>
-			<td>Utility-first styling with OKLCH color system and native CSS <code>@theme</code> directive</td>
+			<td
+				>Utility-first styling with OKLCH color system and native CSS <code>@theme</code> directive</td
+			>
 		</tr>
 		<tr>
 			<td><strong>shadcn-svelte</strong></td>
@@ -216,30 +222,25 @@
 <h2>Need More?</h2>
 
 <div
-	class="not-prose my-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 sm:p-8"
+	class="not-prose border-primary/30 bg-primary/5 my-8 rounded-xl border-2 border-dashed p-6 sm:p-8"
 >
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
 		<div class="flex-1">
-			<h3 class="text-foreground text-lg font-bold sm:text-xl">
-				Go Premium with DashboardPack
-			</h3>
+			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				SvelteForge Admin gives you a solid foundation. When you need more — 50+ pages,
-				multiple dashboard layouts, advanced CRUD interfaces, theme customizers, and
-				production-grade components — check out the premium templates at DashboardPack.
+				SvelteForge Admin gives you a solid foundation. When you need more — 50+ pages, multiple
+				dashboard layouts, advanced CRUD interfaces, theme customizers, and production-grade
+				components — check out the premium templates at DashboardPack.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — Enterprise admin with 5 unique dashboards and 50+
-					pages
+					<strong>Apex</strong> — Enterprise admin with 5 unique dashboards and 50+ pages
 				</li>
 				<li>
-					<strong>Zenith</strong> — Modern analytics dashboard with advanced data
-					visualization
+					<strong>Zenith</strong> — Modern analytics dashboard with advanced data visualization
 				</li>
 				<li>
-					<strong>Signal</strong> — Real-time monitoring dashboard with live data
-					feeds
+					<strong>Signal</strong> — Real-time monitoring dashboard with live data feeds
 				</li>
 			</ul>
 		</div>

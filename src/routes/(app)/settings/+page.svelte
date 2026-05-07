@@ -139,7 +139,9 @@
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>Change Password</Card.Title>
-					<Card.Description>Update your password. You'll need your current password.</Card.Description>
+					<Card.Description
+						>Update your password. You'll need your current password.</Card.Description
+					>
 				</Card.Header>
 				<Card.Content>
 					<form method="POST" action="?/changePassword" use:enhance class="space-y-4">
@@ -150,7 +152,13 @@
 						<Separator />
 						<div class="grid gap-2">
 							<Label for="newPassword">New Password</Label>
-							<Input id="newPassword" name="newPassword" type="password" placeholder="6+ characters" required />
+							<Input
+								id="newPassword"
+								name="newPassword"
+								type="password"
+								placeholder="6+ characters"
+								required
+							/>
 						</div>
 						<div class="grid gap-2">
 							<Label for="confirmPassword">Confirm New Password</Label>
@@ -299,10 +307,7 @@
 										When enabled, non-admin users will see a maintenance page.
 									</p>
 								</div>
-								<Switch
-									name="maintenanceMode"
-									checked={data.settings.maintenanceMode === "true"}
-								/>
+								<Switch name="maintenanceMode" checked={data.settings.maintenanceMode === "true"} />
 							</div>
 
 							<Button type="submit">Save Settings</Button>

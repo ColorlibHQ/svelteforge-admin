@@ -68,9 +68,12 @@
 	const roleColors = $derived(
 		data.roleDistribution.map((d) => {
 			switch (d.role) {
-				case "admin": return roleChartConfig.admin.color;
-				case "editor": return roleChartConfig.editor.color;
-				default: return roleChartConfig.viewer.color;
+				case "admin":
+					return roleChartConfig.admin.color;
+				case "editor":
+					return roleChartConfig.editor.color;
+				default:
+					return roleChartConfig.viewer.color;
 			}
 		})
 	);
@@ -97,9 +100,12 @@
 	const pageStatusColors = $derived(
 		data.pagesByStatus.map((d) => {
 			switch (d.status) {
-				case "published": return pageStatusConfig.published.color;
-				case "draft": return pageStatusConfig.draft.color;
-				default: return pageStatusConfig.archived.color;
+				case "published":
+					return pageStatusConfig.published.color;
+				case "draft":
+					return pageStatusConfig.draft.color;
+				default:
+					return pageStatusConfig.archived.color;
 			}
 		})
 	);
@@ -155,19 +161,27 @@
 
 	function notifIcon(type: string) {
 		switch (type) {
-			case "warning": return AlertTriangleIcon;
-			case "error": return CircleAlertIcon;
-			case "success": return CheckCircleIcon;
-			default: return InfoIcon;
+			case "warning":
+				return AlertTriangleIcon;
+			case "error":
+				return CircleAlertIcon;
+			case "success":
+				return CheckCircleIcon;
+			default:
+				return InfoIcon;
 		}
 	}
 
 	function notifColor(type: string) {
 		switch (type) {
-			case "warning": return "text-yellow-600 dark:text-yellow-400";
-			case "error": return "text-red-600 dark:text-red-400";
-			case "success": return "text-green-600 dark:text-green-400";
-			default: return "text-blue-600 dark:text-blue-400";
+			case "warning":
+				return "text-yellow-600 dark:text-yellow-400";
+			case "error":
+				return "text-red-600 dark:text-red-400";
+			case "success":
+				return "text-green-600 dark:text-green-400";
+			default:
+				return "text-blue-600 dark:text-blue-400";
 		}
 	}
 </script>
@@ -206,17 +220,23 @@
 					{#if stat.trend !== null}
 						<div class="mt-1.5 flex items-center gap-1.5">
 							{#if stat.trend > 0}
-								<span class="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400">
+								<span
+									class="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400"
+								>
 									<TrendingUpIcon class="size-3" />
 									+{stat.trend}%
 								</span>
 							{:else if stat.trend < 0}
-								<span class="inline-flex items-center gap-0.5 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-400">
+								<span
+									class="inline-flex items-center gap-0.5 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-400"
+								>
 									<TrendingDownIcon class="size-3" />
 									{stat.trend}%
 								</span>
 							{:else}
-								<span class="bg-muted text-muted-foreground inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium">
+								<span
+									class="bg-muted text-muted-foreground inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium"
+								>
 									No change
 								</span>
 							{/if}
@@ -252,8 +272,7 @@
 								]}
 								props={{
 									xAxis: {
-										format: (d: Date) =>
-											d.toLocaleDateString("en-US", { month: "short" }),
+										format: (d: Date) => d.toLocaleDateString("en-US", { month: "short" }),
 									},
 									area: { opacity: 0.15 },
 									line: { class: "stroke-2" },
@@ -431,9 +450,13 @@
 						<span class="text-muted-foreground text-sm">System</span>
 					</div>
 					{#if data.systemStatus.maintenanceMode}
-						<Badge variant="outline" class="border-yellow-500 text-yellow-600 dark:text-yellow-400">Maintenance</Badge>
+						<Badge variant="outline" class="border-yellow-500 text-yellow-600 dark:text-yellow-400"
+							>Maintenance</Badge
+						>
 					{:else}
-						<Badge variant="outline" class="border-green-500 text-green-600 dark:text-green-400">Operational</Badge>
+						<Badge variant="outline" class="border-green-500 text-green-600 dark:text-green-400"
+							>Operational</Badge
+						>
 					{/if}
 				</div>
 				<Separator />
@@ -460,7 +483,9 @@
 					<div class="space-y-4">
 						{#each data.recentActivity as activity (activity.time)}
 							<div class="flex items-center gap-3">
-								<div class="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium">
+								<div
+									class="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"
+								>
 									{getInitials(activity.label)}
 								</div>
 								<div class="flex-1 space-y-0.5">
@@ -483,7 +508,9 @@
 					<Card.Title>Notifications</Card.Title>
 					<Card.Description>Recent alerts and updates</Card.Description>
 				</div>
-				<a href="/notifications" class="text-primary text-xs font-medium hover:underline">View all</a>
+				<a href="/notifications" class="text-primary text-xs font-medium hover:underline"
+					>View all</a
+				>
 			</Card.Header>
 			<Card.Content>
 				{#if data.recentNotifications.length > 0}

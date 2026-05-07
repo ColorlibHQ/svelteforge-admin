@@ -5,10 +5,7 @@ import { eq } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async ({ params }) => {
-	const [page] = await db
-		.select()
-		.from(pages)
-		.where(eq(pages.id, params.id));
+	const [page] = await db.select().from(pages).where(eq(pages.id, params.id));
 
 	if (!page) {
 		error(404, "Page not found");
@@ -55,14 +52,15 @@ export const actions: Actions = {
 		}
 
 		// Get existing page to check published status
-		const [existing] = await db.select({ status: pages.status, publishedAt: pages.publishedAt })
+		const [existing] = await db
+			.select({ status: pages.status, publishedAt: pages.publishedAt })
 			.from(pages)
 			.where(eq(pages.id, params.id));
 
 		const publishedAt =
 			status === "published" && existing?.status !== "published"
 				? new Date()
-				: existing?.publishedAt ?? null;
+				: (existing?.publishedAt ?? null);
 
 		try {
 			await db
