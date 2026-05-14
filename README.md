@@ -8,6 +8,19 @@ A production-ready admin dashboard template built with **SvelteKit 2**, **Svelte
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+> **⚡ Need workspaces, billing, AI chat, kanban, helpdesk, CRM, invoicing, MFA + passkeys?**
+>
+> [**SvelteForge Premium →**](https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=top-banner&utm_campaign=upgrade-svelteforge-premium) — same stack, plus 30+ wired-up modules, multi-tenant from row zero. **[Live demo →](https://svelteforge-pro.dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=top-banner-demo&utm_campaign=upgrade-svelteforge-premium)** · [See feature comparison ↓](#free-vs-premium)
+
+<p align="center">
+  <a href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=top-badge&utm_campaign=upgrade-svelteforge-premium">
+    <img src="https://img.shields.io/badge/⚡_Upgrade_to-SvelteForge_Premium-FF3E00?style=for-the-badge" alt="Upgrade to SvelteForge Premium" />
+  </a>
+  <a href="https://svelteforge-pro.dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=top-badge-demo&utm_campaign=upgrade-svelteforge-premium">
+    <img src="https://img.shields.io/badge/▶_Live-Demo-2da44e?style=for-the-badge" alt="Live demo" />
+  </a>
+</p>
+
 ## Screenshots
 
 <table>
@@ -39,9 +52,56 @@ A production-ready admin dashboard template built with **SvelteKit 2**, **Svelte
 
 ---
 
-## Upgrade to SvelteForge Premium
+## Free vs Premium
 
-Ready for multi-tenant orgs, billing (Stripe & Polar), MFA + passkeys, AI chat, CRM, helpdesk, invoicing, e-commerce, kanban, calendar, mail, and 30+ more wired-up modules? Get the same stack, type-checked and seeded with a demo workspace, in [**SvelteForge Premium**](https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=intro-banner&utm_campaign=upgrade-svelteforge-premium) on DashboardPack.
+SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + custom session auth, MIT-licensed, free forever. **SvelteForge Premium** clones this codebase and adds a multi-tenant SaaS layer on top: workspaces, billing, MFA + passkeys, AI chat, CRM, helpdesk, invoicing, and 30+ other production-ready modules.
+
+| Capability | **Free** (this repo) | **[Premium →](https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=comparison-table-header&utm_campaign=upgrade-svelteforge-premium)** |
+| --- | :---: | :---: |
+| **Auth** — username/email + password, Google + GitHub OAuth, sessions, Argon2id | ✅ | ✅ |
+| **Magic-link sign-in** | — | ✅ |
+| **TOTP 2FA + recovery codes** | — | ✅ |
+| **WebAuthn passkeys** | — | ✅ |
+| **User impersonation** ("sign in as") | — | ✅ |
+| **Multi-tenant workspaces** + org switcher + member roster + invitations | — | ✅ |
+| **Custom roles** + permission catalogue | — | ✅ |
+| **Billing** — Stripe + Polar (env-switched), webhooks, customer portal | — | ✅ |
+| **Per-org usage metering** + quota dashboards | — | ✅ |
+| **Inbox** — multi-folder mail client with threads, snooze, scheduled send | — | ✅ |
+| **Team Chat** — real-time SSE, presence, typing, mentions, reactions | — | ✅ |
+| **Calendar** — month + week views, color tagging | — | ✅ |
+| **Kanban** — drag-drop boards, columns, due dates | — | ✅ |
+| **Notes / Wiki** — workspace markdown with folder tree | — | ✅ |
+| **Projects + tasks** — Gantt timeline, status, priority | — | ✅ |
+| **Files** — S3-compatible storage (AWS S3, R2, MinIO, B2) | — | ✅ |
+| **AI Chat** — Anthropic Claude with prompt caching + tool use | — | ✅ |
+| **CRM** — contacts directory, drag-to-stage deals, CSV import | — | ✅ |
+| **Helpdesk** — ticket queue with SLA stamps, threaded replies | — | ✅ |
+| **Store** — products + orders with line-item snapshots | — | ✅ |
+| **Invoicing** — line-item editor, PDF, recurring schedules, customer portal | — | ✅ |
+| **Forms builder** — drag-drop with conditional logic + rate-limited submit | — | ✅ |
+| **Status page** — public services + incidents + email subscribers | — | ✅ |
+| **Audit log** — saved-filter chips + CSV export | — | ✅ |
+| **API keys** — prefix + hash storage, scopes, IP allowlist, per-key rate limit | — | ✅ |
+| **Outgoing webhooks** — HMAC-signed, retries, delivery history | — | ✅ |
+| **REST API** at `/api/v1` — OpenAPI 3.1 spec + Postman collection | — | ✅ |
+| **Cron suite** — 6 recurring endpoints (bearer-token auth) | — | ✅ |
+| **Slack/Discord notification channels** — fan-out keyed by audit events | — | ✅ |
+| **Scheduled CSV reports** — emailed daily/weekly/monthly | — | ✅ |
+| **Referrals** — codes, attribution, commission accrual | — | ✅ |
+| **Customisable My Dashboard** — drag-reorder widget grid | — | ✅ |
+| **Onboarding wizard** + product tour primitive | — | ✅ |
+| **Theme customizer** — brand color + typography picker | — | ✅ |
+| **Form wizard** + **Data table** + **CSV importer** components | — | ✅ |
+| **Email** — Resend + Cloudflare Email Sending adapters (free has console only) | console (dev) | + Resend + Cloudflare |
+| **Documentation** — `/docs` developer reference | 16 pages | 16 pages |
+| **User guide** at `/guide` — workspaces, billing, AI, every premium app | — | 30+ chapters |
+| **Database tables** | 7 | 7 + **49 premium** |
+| **Demo seeder** — Acme workspace + 30 tenant orgs for SaaS analytics | — | ✅ |
+| **License** | MIT | Commercial |
+| **Pricing** | Free forever | $69 / $149 / $349 |
+
+[**▶ Try the live Premium demo →**](https://svelteforge-pro.dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=comparison-table-footer&utm_campaign=upgrade-svelteforge-premium) (sign in with `admin` / `password123` · seeded with realistic data across every module)
 
 ## Other premium dashboards on DashboardPack
 
