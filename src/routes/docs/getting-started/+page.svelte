@@ -382,7 +382,7 @@ GITHUB_CLIENT_SECRET=</code
 		</div>
 		<div class="shrink-0">
 			<a
-				href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=docs&utm_content=docs-getting-started&utm_campaign=upgrade-svelteforge-premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold shadow-sm transition-colors"

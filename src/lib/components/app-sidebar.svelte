@@ -143,7 +143,7 @@
 	<!-- Go Pro CTA -->
 	<div class="px-3 py-2">
 		<a
-			href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=sidebar&utm_campaign=go-pro"
+			href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=sidebar&utm_content=go-pro-card&utm_campaign=upgrade-svelteforge-premium"
 			target="_blank"
 			rel="noopener noreferrer"
 			class="group flex items-center gap-2 rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 px-3 py-2.5 transition-all hover:border-amber-500 hover:bg-amber-500/10"

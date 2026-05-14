@@ -39,9 +39,13 @@ A production-ready admin dashboard template built with **SvelteKit 2**, **Svelte
 
 ---
 
-## Premium Dashboards from DashboardPack
+## Upgrade to SvelteForge Premium
 
-Loved SvelteForge? Supercharge your workflow with our premium templates on [DashboardPack](https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge) -- built for production, backed by dedicated support.
+Ready for multi-tenant orgs, billing (Stripe & Polar), MFA + passkeys, AI chat, CRM, helpdesk, invoicing, e-commerce, kanban, calendar, mail, and 30+ more wired-up modules? Get the same stack, type-checked and seeded with a demo workspace, in [**SvelteForge Premium**](https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=intro-banner&utm_campaign=upgrade-svelteforge-premium) on DashboardPack.
+
+## Other premium dashboards on DashboardPack
+
+Loved SvelteForge but need it in another stack? Check out our premium templates on [DashboardPack](https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=other-templates&utm_campaign=svelteforge) -- built for production, backed by dedicated support.
 
 <table>
   <tr>
@@ -105,7 +109,7 @@ Loved SvelteForge? Supercharge your workflow with our premium templates on [Dash
 </table>
 
 <p align="center">
-  <a href="https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Browse All Premium Templates on DashboardPack</strong></a>
+  <a href="https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=other-templates-footer&utm_campaign=svelteforge"><strong>Browse All Premium Templates on DashboardPack</strong></a>
 </p>
 
 ---

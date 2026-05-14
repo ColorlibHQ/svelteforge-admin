@@ -93,7 +93,7 @@
 
 			<div class="ml-auto flex items-center gap-3">
 				<a
-					href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs-header&utm_campaign=premium"
+					href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=docs-header&utm_content=topbar-button&utm_campaign=upgrade-svelteforge-premium"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="bg-primary text-primary-foreground hover:bg-primary/90 hidden items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:flex"
@@ -157,7 +157,7 @@
 					<!-- DashboardPack Promo in Sidebar -->
 					<div class="border-t pt-4">
 						<a
-							href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs-sidebar&utm_campaign=premium"
+							href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=docs-sidebar&utm_content=sidebar-promo-card&utm_campaign=upgrade-svelteforge-premium"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="group hover:border-primary hover:bg-primary/5 block rounded-lg border border-dashed p-3 transition-colors"

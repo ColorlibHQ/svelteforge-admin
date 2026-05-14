@@ -798,7 +798,7 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 		</div>
 		<div class="flex shrink-0 flex-col gap-2">
 			<a
-				href="https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=docs&utm_content=docs-routing&utm_campaign=upgrade-svelteforge-premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold shadow-sm transition-colors"

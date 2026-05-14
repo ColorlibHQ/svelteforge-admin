@@ -1,6 +1,6 @@
 <script>
 	const premiumUrl =
-		"https://dashboardpack.com/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium";
+		"https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=svelteforge&utm_medium=docs&utm_content=docs-content-management&utm_campaign=upgrade-svelteforge-premium";
 </script>
 
 <svelte:head>
