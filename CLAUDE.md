@@ -48,9 +48,10 @@ pnpm format:check     # Prettier (check only)
 
 Routes use SvelteKit route groups for layout separation:
 
-- `(app)/` — Protected routes. Auth guard in `(app)/+layout.server.ts` redirects unauthenticated users to `/login`
-- `(auth)/` — Public auth routes (login, register, OAuth callbacks at `login/google/`, `login/github/`)
+- `(app)/` — Protected routes behind the app shell. Auth guard in `(app)/+layout.server.ts` redirects unauthenticated users to `/login`. Features: dashboard (`+page`), `users/`, `roles/`, `content/` (CMS — list, `new/`, `[id]/edit/`), `analytics/`, `notifications/`, `database/`, `settings/`
+- `(auth)/` — Public auth routes: `login/` (+ OAuth callbacks at `login/google/`, `login/github/`), `register/`, `forgot-password/`, `reset-password/`, `lock/` (re-auth screen, requires an existing session)
 - `(public)/` — Public pages (pricing)
+- `docs/` — **Ungrouped, so NOT auth-guarded** — a public, statically-rendered documentation site (its own `+layout.svelte`, ~16 pages). Anything placed outside a `(group)/` is reachable without a session
 - `logout/` — Standalone logout action (server-only)
 - `api/search/` — Search endpoint for command palette
 - `sitemap.xml/` — Auto-generated sitemap
@@ -82,6 +83,15 @@ The `(app)/+layout.server.ts` guard also enforces **maintenance mode**: when `ap
 SQLite database file: `svelteforge.db` (project root, gitignored). Roles enum: `admin | editor | viewer`. First registered user gets `admin` role.
 
 **Notifications with `userId = NULL` are global** — every user sees them. Per-user notifications set `userId` to the recipient. The `(app)/+layout.server.ts` filter (`eq(userId, X) OR isNull(userId)`) is the canonical pattern for any notification query.
+
+### Demo Mode
+
+Gated by the `DEMO_MODE=true` env var (read directly via `process.env` in `settings/+page.server.ts`, not the DB). When enabled it unlocks two things that are otherwise invisible:
+
+1. An admin-only **Demo tab in Settings** with a *Reset Demo Data Now* button → the `resetDemo` action, which wipes and re-seeds the DB via `seedDemo()` from `seed.ts`.
+2. A **self-modification guard on the shared `demo` account** — `updateProfile`/`changePassword` refuse to touch `username === "demo"` so one visitor can't lock everyone else out between resets.
+
+Leave it unset on real deployments. For a hands-off public demo, an hourly cron runs `pnpm db:seed` (this is why deploy syncs `src/` too — see below).
 
 ### Testing
 
@@ -121,3 +131,9 @@ This is the **free** repo (public, MIT). A separate private repo holds the **pre
 - Any route group starting with `(premium` (e.g. `src/routes/(premium)/`, `(premium-app)/`)
 
 If a feature request sounds premium-tier (multi-tenancy, billing, 2FA, passkeys, AI/RAG, audit log, impersonation, advanced apps like Mail/Chat/Kanban/Calendar/File-Manager/Invoice/eCommerce/CRM), say so and stop — it belongs in the premium repo, not here.
+
+### Deployment
+
+Builds with `@sveltejs/adapter-node`. `.github/workflows/deploy.yml` deploys on push to `main`: rebuilds the `better-sqlite3` native module, runs `pnpm build`, then rsyncs `build/` **and** `src/` to a Hetzner box and `pm2 restart`s. `src/` is synced (not just `build/`) so the demo-reset cron can run `seed.ts` against the latest schema. Set `DEMO_MODE` via a PM2 ecosystem file (not `pm2 start build/index.js`) so it survives restarts.
+
+`scripts/` holds Playwright tooling for marketing screenshots (`screenshot.ts`, `add-browser-frame.ts`) — outputs to `screenshots/`, unrelated to the app runtime.
