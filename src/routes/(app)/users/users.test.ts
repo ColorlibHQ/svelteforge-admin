@@ -122,15 +122,15 @@ describe("Users page", () => {
 			expect(result).toHaveProperty("data");
 		});
 
-		it("prevents deletion of last admin", async () => {
+		it("denies non-admins from deleting users", async () => {
 			const viewerId = await createTestUser(testDb, {
 				email: "viewer@test.com",
 				username: "viewer",
 				role: "viewer",
 			});
 
-			// Try to delete the only admin from the viewer's perspective
-			// (the guard checks the target's role, not the requester's)
+			// /users mutations are gated on the admin role (requireAdmin), so a
+			// viewer is rejected with 403 before reaching any deletion guard.
 			const formData = createFormData({ id: adminId });
 
 			const result = await actions.delete({
@@ -138,7 +138,7 @@ describe("Users page", () => {
 				locals: createMockLocals(viewerId, "viewer"),
 			} as any);
 
-			expect(result).toHaveProperty("status", 400);
+			expect(result).toHaveProperty("status", 403);
 		});
 
 		it("allows deletion of non-admin users", async () => {
