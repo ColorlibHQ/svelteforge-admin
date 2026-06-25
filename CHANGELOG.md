@@ -2,6 +2,44 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v1.2.0 -- June 2026
+
+Dependency refresh plus mobile sidebar fixes. All packages updated to their latest versions; no public API changes -- existing code continues to work.
+
+### Major version bumps
+
+- **prettier-plugin-svelte 3.5 -> 4.1** -- new formatting tool major; the only output change was one component (`ui/textarea/textarea.svelte`) collapsing onto the new `{...restProps}` line style. Whole codebase re-run through Prettier.
+- **svelte-meta-tags 4.7 -> 5.0** -- no markup changes required; the existing `MetaTags` usage in the root layout still type-checks.
+- **@types/node 25 -> 26** -- matches the Node 26 runtime.
+
+### Other notable updates
+
+- SvelteKit 2.59 -> 2.68, Svelte 5.55 -> 5.56, svelte-check 4.4 -> 4.7
+- Tailwind CSS 4.2 -> 4.3 (`tailwindcss` + `@tailwindcss/vite`), @tailwindcss/typography 0.5.19 -> 0.5.20
+- better-sqlite3 12.9 -> 12.11 -- now declares Node 26 support in `engines` (no more install engine warning on Node 26)
+- shadcn-svelte 1.2 -> 1.3, @lucide/svelte 1.14 -> 1.21, tailwind-merge 3.5 -> 3.6
+- Vite 8.0 -> 8.1, Vitest 4.1.5 -> 4.1.9, @playwright/test 1.59 -> 1.61
+- ESLint 10.3 -> 10.5, eslint-plugin-svelte 3.17 -> 3.19, typescript-eslint 8.59 -> 8.62, prettier 3.8.3 -> 3.8.4
+- sharp 0.34 -> 0.35, tsx 4.21 -> 4.22, globals 17.6 -> 17.7, @internationalized/date 3.12.1 -> 3.12.2
+- @sveltejs/adapter-node 5.5.4 -> 5.5.7, @sveltejs/vite-plugin-svelte 7.1.1 -> 7.1.2
+- LayerChart held at 2.0.0-next.48 (pinned prerelease for Svelte 5 / shadcn-svelte compatibility)
+
+### Fixes
+
+- **Mobile sidebar stayed open after navigation** (issue #2) -- on mobile the sidebar is an overlay sheet, but nav links never closed it, leaving it on top of the page just opened. Brand link, all nav links, and the account-dropdown links now call `setOpenMobile(false)` on mobile (no-op on desktop).
+- **`InvalidStateError: Transition was aborted because of invalid state`** (issue #2) -- a fresh navigation interrupting an in-flight View Transition rejected the `ViewTransition` promises, surfacing as an uncaught error. `onNavigate` now swallows the `ready`/`finished`/`updateCallbackDone` rejections; navigation still completes normally.
+- **Stale unit test** in `users.test.ts` -- the "prevents deletion of last admin" case predated the admin-role gate on `/users` mutations and asserted `400`; with `requireAdmin` a non-admin is rejected with `403` first. Re-scoped to assert the admin gate (the last-admin delete path is now only reachable via self-deletion, already covered by the self-deletion test).
+
+### Verified
+
+- All 33 unit tests pass
+- `pnpm check` -- 0 errors, 0 warnings
+- `pnpm lint` -- clean
+- `pnpm format:check` -- clean
+- `pnpm build` -- production build succeeds (adapter-node)
+
+---
+
 ## v1.1.0 -- May 2026
 
 Dependency refresh. All packages updated to their latest versions, including major bumps for TypeScript, Vite, and the Svelte Vite plugin. No public API changes -- existing code continues to work.

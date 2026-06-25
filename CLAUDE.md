@@ -88,7 +88,7 @@ SQLite database file: `svelteforge.db` (project root, gitignored). Roles enum: `
 
 Gated by the `DEMO_MODE=true` env var (read directly via `process.env` in `settings/+page.server.ts`, not the DB). When enabled it unlocks two things that are otherwise invisible:
 
-1. An admin-only **Demo tab in Settings** with a *Reset Demo Data Now* button → the `resetDemo` action, which wipes and re-seeds the DB via `seedDemo()` from `seed.ts`.
+1. An admin-only **Demo tab in Settings** with a _Reset Demo Data Now_ button → the `resetDemo` action, which wipes and re-seeds the DB via `seedDemo()` from `seed.ts`.
 2. A **self-modification guard on the shared `demo` account** — `updateProfile`/`changePassword` refuse to touch `username === "demo"` so one visitor can't lock everyone else out between resets.
 
 Leave it unset on real deployments. For a hands-off public demo, an hourly cron runs `pnpm db:seed` (this is why deploy syncs `src/` too — see below).

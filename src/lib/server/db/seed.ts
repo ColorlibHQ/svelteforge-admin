@@ -1275,8 +1275,12 @@ export async function seedDemo() {
 		`  ${pageData.length} pages (${pageData.filter((p) => p.status === "published").length} published, ${pageData.filter((p) => p.status === "draft").length} draft, ${pageData.filter((p) => p.status === "archived").length} archived)`
 	);
 	console.log(`  ${notificationData.length} notifications`);
-	console.log("Login: username 'demo' / password 'SvelteDemo2026!' (viewer, what the UI pre-fills)");
-	console.log("       username 'admin' / password 'password123' (admin — use to access demo reset)");
+	console.log(
+		"Login: username 'demo' / password 'SvelteDemo2026!' (viewer, what the UI pre-fills)"
+	);
+	console.log(
+		"       username 'admin' / password 'password123' (admin — use to access demo reset)"
+	);
 	console.log("       any other seeded username / 'password123'");
 }
 
