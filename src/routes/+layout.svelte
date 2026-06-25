@@ -10,10 +10,17 @@
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
 		return new Promise((resolve) => {
-			document.startViewTransition(async () => {
+			const transition = document.startViewTransition(async () => {
 				resolve();
 				await navigation.complete;
 			});
+			// A fresh navigation (e.g. tapping a sidebar link on mobile) can interrupt
+			// an in-flight transition, rejecting these with InvalidStateError. The
+			// navigation still completes, so swallow the rejection instead of letting
+			// it surface as an uncaught promise error.
+			transition.ready.catch(() => {});
+			transition.finished.catch(() => {});
+			transition.updateCallbackDone.catch(() => {});
 		});
 	});
 </script>

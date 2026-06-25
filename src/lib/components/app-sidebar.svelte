@@ -36,6 +36,14 @@
 
 	let { user, notificationCount = 0 }: Props = $props();
 
+	const sidebar = Sidebar.useSidebar();
+
+	// On mobile the sidebar is an overlay sheet; close it after navigating so it
+	// doesn't stay open on top of the page the user just opened.
+	function handleNavigate() {
+		if (sidebar.isMobile) sidebar.setOpenMobile(false);
+	}
+
 	function getInitials(name: string) {
 		return name
 			.split(" ")
@@ -96,7 +104,7 @@
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton size="lg">
 					{#snippet child({ props })}
-						<a href="/" {...props}>
+						<a href="/" {...props} onclick={handleNavigate}>
 							<div
 								class="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 							>
@@ -123,7 +131,7 @@
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton>
 									{#snippet child({ props })}
-										<a href={item.url} {...props}>
+										<a href={item.url} {...props} onclick={handleNavigate}>
 											<item.icon class="size-4" />
 											<span>{item.title}</span>
 										</a>
@@ -185,7 +193,7 @@
 							<Badge variant="outline" class="text-xs capitalize">{user.role}</Badge>
 						</DropdownMenu.Label>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/settings" {...props}>
 									<UserIcon class="mr-2 size-4" />
@@ -193,7 +201,7 @@
 								</a>
 							{/snippet}
 						</DropdownMenu.Item>
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/notifications" {...props}>
 									<BellRingIcon class="mr-2 size-4" />
@@ -206,7 +214,7 @@
 								</a>
 							{/snippet}
 						</DropdownMenu.Item>
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/settings" {...props}>
 									<SettingsIcon class="mr-2 size-4" />
@@ -215,7 +223,7 @@
 							{/snippet}
 						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/lock" {...props}>
 									<LockIcon class="mr-2 size-4" />
@@ -223,7 +231,7 @@
 								</a>
 							{/snippet}
 						</DropdownMenu.Item>
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/settings" {...props}>
 									<KeyboardIcon class="mr-2 size-4" />
@@ -231,7 +239,7 @@
 								</a>
 							{/snippet}
 						</DropdownMenu.Item>
-						<DropdownMenu.Item>
+						<DropdownMenu.Item onclick={handleNavigate}>
 							{#snippet child({ props })}
 								<a href="/" {...props}>
 									<HelpCircleIcon class="mr-2 size-4" />
