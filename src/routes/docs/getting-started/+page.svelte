@@ -349,10 +349,10 @@ GITHUB_CLIENT_SECRET=</code
 			</p>
 			<div class="text-muted-foreground mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
 				<a
-					href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+					href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-primary hover:underline">Apex</a
+					class="text-primary hover:underline">Apex Svelte</a
 				>
 				<a
 					href="https://dashboardpack.com/theme-details/zenith-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"

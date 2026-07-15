@@ -2,6 +2,15 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v1.2.1 -- July 2026
+
+Documentation and cross-promotion refresh.
+
+- Replaced the Next.js "Apex" cross-sell with **Apex Dashboard -- Svelte Edition**, our flagship premium SvelteKit template (same Svelte 5 + Tailwind CSS v4 stack as this repo). All README and in-app docs promo links now point to the Svelte edition.
+- Added a prominent Apex Svelte feature block to the README, plus a link to the [DashboardPack Svelte category](https://dashboardpack.com/templates/svelte/) so readers can find new Svelte templates as they ship.
+
+---
+
 ## v1.2.0 -- June 2026
 
 Dependency refresh plus mobile sidebar fixes. All packages updated to their latest versions; no public API changes -- existing code continues to work.

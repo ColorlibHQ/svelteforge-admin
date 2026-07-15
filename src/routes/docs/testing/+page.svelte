@@ -658,12 +658,12 @@ expect(updatedUser.role).toBe("editor"); // Verify DB state</code
 				Go Premium
 			</a>
 			<a
-				href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 text-center text-xs font-medium transition-colors"
 			>
-				Preview Apex
+				Preview Apex (Svelte)
 			</a>
 		</div>
 	</div>

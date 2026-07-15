@@ -103,21 +103,37 @@ SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + c
 
 [**▶ Try the live Premium demo →**](https://svelteforge-pro.dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=comparison-table-footer&utm_campaign=upgrade-svelteforge-premium) (sign in with `admin` / `password123` · seeded with realistic data across every module)
 
-## Other premium dashboards on DashboardPack
+## More Svelte dashboards from DashboardPack
 
-Loved SvelteForge but need it in another stack? Check out our premium templates on [DashboardPack](https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=other-templates&utm_campaign=svelteforge) -- built for production, backed by dedicated support.
+Building on Svelte? **[Apex Dashboard — Svelte Edition](https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-intro&utm_campaign=svelteforge)** is our flagship premium SvelteKit template — the **same Svelte 5 + Tailwind CSS v4 stack as this repo**, with a completely different design system and 36 production-ready pages. If SvelteForge got you shipping, Apex takes the polish further.
+
+<p align="center">
+  <a href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-featured&utm_campaign=svelteforge">
+    <img src="screenshots/apex-svelte.png" alt="Apex Dashboard — Svelte Edition: premium SvelteKit 2 + Svelte 5 admin template with 36 pages, command palette, and live theme customizer" width="100%">
+  </a>
+</p>
+
+<p align="center">
+  <strong>Apex Dashboard — Svelte Edition</strong><br>
+  <sub>SvelteKit 2 + Svelte 5 (runes) + Tailwind CSS v4 · 36 pages · 6 dashboards · ⌘K command palette · LayerChart data viz · live theme customizer · runtime i18n (en/de/fr) · drag-and-drop Kanban · Storybook component library.</sub>
+</p>
+
+<p align="center">
+  <a href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-details&utm_campaign=svelteforge"><strong>View Apex Svelte →</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://demo.dashboardpack.com/apex-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-demo&utm_campaign=svelteforge"><strong>▶ Live demo</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://dashboardpack.com/templates/svelte/?utm_source=github&utm_medium=readme&utm_content=svelte-category&utm_campaign=svelteforge"><strong>Browse all Svelte templates →</strong></a>
+</p>
+
+More Svelte & SvelteKit templates land on the **[DashboardPack Svelte category](https://dashboardpack.com/templates/svelte/?utm_source=github&utm_medium=readme&utm_content=svelte-category-text&utm_campaign=svelteforge)** as we build them — bookmark it to catch new releases.
+
+### Prefer another stack?
+
+Loved SvelteForge but need it in another framework? Check out our premium templates on [DashboardPack](https://dashboardpack.com/?utm_source=github&utm_medium=readme&utm_content=other-templates&utm_campaign=svelteforge) -- built for production, backed by dedicated support.
 
 <table>
   <tr>
-    <td align="center" width="33%">
-      <a href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/apex.png" alt="Apex -- premium Next.js admin dashboard with 50+ pages" width="100%">
-      </a>
-      <br>
-      <a href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Apex</strong></a>
-      <br>
-      <sub>Next.js 16 + React 19 + Tailwind CSS v4. 50+ pages, full CRUD, live theme customizer, 5 dashboards.</sub>
-    </td>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/zenith-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
         <img src="screenshots/zenith.png" alt="Zenith -- achromatic Next.js admin dashboard with clean minimal design" width="100%">

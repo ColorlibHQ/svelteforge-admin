@@ -653,7 +653,7 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — Enterprise-grade with PostgreSQL, Redis caching, and Docker Compose
+					<strong>Apex (Svelte)</strong> — static-deploy ready for any host, at the root or a subpath
 					production configs
 				</li>
 				<li>
@@ -675,12 +675,12 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 				Go Premium
 			</a>
 			<a
-				href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 text-center text-xs font-medium transition-colors"
 			>
-				Preview Apex
+				Preview Apex (Svelte)
 			</a>
 		</div>
 	</div>

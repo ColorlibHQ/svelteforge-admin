@@ -798,7 +798,7 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — Enterprise admin with 5 unique dashboards and 50+ pages
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, 36 pages, and a full auth flow
 				</li>
 				<li>
 					<strong>Zenith</strong> — Modern analytics dashboard with advanced data visualization
@@ -824,12 +824,12 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 				Go Premium
 			</a>
 			<a
-				href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 text-center text-xs font-medium transition-colors"
 			>
-				Preview Apex
+				Preview Apex (Svelte)
 			</a>
 		</div>
 	</div>

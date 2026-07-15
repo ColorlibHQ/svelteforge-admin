@@ -784,7 +784,7 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex</strong> — 50+ pages with 5 unique dashboards, CRUD modules, and nested routing
+					<strong>Apex (Svelte)</strong> — 36 pages with 6 dashboards, CRUD modules, and SvelteKit file-based routing
 					patterns
 				</li>
 				<li>
@@ -806,12 +806,12 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 				Go Premium
 			</a>
 			<a
-				href="https://dashboardpack.com/theme-details/apex-nextjs/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
+				href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=svelteforge&utm_medium=docs&utm_campaign=premium"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="text-primary hover:text-primary/80 text-center text-xs font-medium transition-colors"
 			>
-				Preview Apex
+				Preview Apex (Svelte)
 			</a>
 		</div>
 	</div>
