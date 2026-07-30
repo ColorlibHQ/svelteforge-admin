@@ -29,23 +29,23 @@ A production-ready admin dashboard template built with **SvelteKit 2**, **Svelte
     <td align="center"><strong>Dashboard (Dark)</strong></td>
   </tr>
   <tr>
-    <td><img src="screenshots/dashboard-light-framed.png" alt="Dashboard Light Mode" /></td>
-    <td><img src="screenshots/dashboard-dark-framed.png" alt="Dashboard Dark Mode" /></td>
+    <td><img src="screenshots/dashboard-light-framed.webp" alt="Dashboard Light Mode" /></td>
+    <td><img src="screenshots/dashboard-dark-framed.webp" alt="Dashboard Dark Mode" /></td>
   </tr>
   <tr>
     <td align="center"><strong>User Management</strong></td>
     <td align="center"><strong>Analytics</strong></td>
   </tr>
   <tr>
-    <td><img src="screenshots/users-light-framed.png" alt="User Management" /></td>
-    <td><img src="screenshots/analytics-light-framed.png" alt="Analytics" /></td>
+    <td><img src="screenshots/users-light-framed.webp" alt="User Management" /></td>
+    <td><img src="screenshots/analytics-light-framed.webp" alt="Analytics" /></td>
   </tr>
   <tr>
     <td align="center"><strong>Command Palette (Cmd+K)</strong></td>
     <td align="center"><strong>Login</strong></td>
   </tr>
   <tr>
-    <td><img src="screenshots/command-palette-framed.png" alt="Command Palette" /></td>
+    <td><img src="screenshots/command-palette-framed.webp" alt="Command Palette" /></td>
     <td><img src="screenshots/login-framed.png" alt="Login Page" /></td>
   </tr>
 </table>
@@ -109,7 +109,7 @@ Building on Svelte? **[Apex Dashboard — Svelte Edition](https://dashboardpack.
 
 <p align="center">
   <a href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-featured&utm_campaign=svelteforge">
-    <img src="screenshots/apex-svelte.png" alt="Apex Dashboard — Svelte Edition: premium SvelteKit 2 + Svelte 5 admin template with 36 pages, command palette, and live theme customizer" width="100%">
+    <img src="screenshots/apex-svelte.webp" alt="Apex Dashboard — Svelte Edition: premium SvelteKit 2 + Svelte 5 admin template with 36 pages, command palette, and live theme customizer" width="100%">
   </a>
 </p>
 
@@ -136,7 +136,7 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
   <tr>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/zenith-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/zenith.png" alt="Zenith -- achromatic Next.js admin dashboard with clean minimal design" width="100%">
+        <img src="screenshots/zenith.webp" alt="Zenith -- achromatic Next.js admin dashboard with clean minimal design" width="100%">
       </a>
       <br>
       <a href="https://dashboardpack.com/theme-details/zenith-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Zenith</strong></a>
@@ -145,7 +145,7 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
     </td>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/signal-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/signal.png" alt="Signal -- modern Next.js admin dashboard with bold design" width="100%">
+        <img src="screenshots/signal.webp" alt="Signal -- modern Next.js admin dashboard with bold design" width="100%">
       </a>
       <br>
       <a href="https://dashboardpack.com/theme-details/signal-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Signal</strong></a>
@@ -156,7 +156,7 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
   <tr>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/ember-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/ember.png" alt="Ember -- minimal Next.js admin dashboard with achromatic design" width="100%">
+        <img src="screenshots/ember.webp" alt="Ember -- minimal Next.js admin dashboard with achromatic design" width="100%">
       </a>
       <br>
       <a href="https://dashboardpack.com/theme-details/ember-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Ember</strong></a>
@@ -165,7 +165,7 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
     </td>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/flux-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/flux.png" alt="Flux -- gradient-forward Next.js admin dashboard for startups" width="100%">
+        <img src="screenshots/flux.webp" alt="Flux -- gradient-forward Next.js admin dashboard for startups" width="100%">
       </a>
       <br>
       <a href="https://dashboardpack.com/theme-details/flux-nextjs/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Flux</strong></a>
@@ -174,7 +174,7 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
     </td>
     <td align="center" width="33%">
       <a href="https://dashboardpack.com/theme-details/admindek-html/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge">
-        <img src="screenshots/admindek.png" alt="Admindek -- comprehensive Bootstrap 5 admin template" width="100%">
+        <img src="screenshots/admindek.webp" alt="Admindek -- comprehensive Bootstrap 5 admin template" width="100%">
       </a>
       <br>
       <a href="https://dashboardpack.com/theme-details/admindek-html/?utm_source=github&utm_medium=readme&utm_campaign=svelteforge"><strong>Admindek</strong></a>
