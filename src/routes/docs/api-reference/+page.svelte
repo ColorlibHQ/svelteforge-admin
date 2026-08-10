@@ -584,8 +584,8 @@ export const load = async (event) =&gt; &#123;
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, full CRUD modals, and reactive data tables
-					system
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, full CRUD modals, and reactive
+					data tables system
 				</li>
 				<li>
 					<strong>Zenith</strong> — GraphQL API with subscriptions, real-time data streaming, and query

@@ -208,7 +208,7 @@
 	</div>
 
 	<!-- Row 1: KPI Cards with Trend Pill Badges -->
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 		{#each stats as stat (stat.title)}
 			<Card.Root>
 				<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -249,7 +249,7 @@
 	</div>
 
 	<!-- Row 2: Signups Area Chart + Content Trend Bar Chart -->
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
 		<Card.Root class="lg:col-span-4">
 			<Card.Header>
 				<Card.Title>User Signups</Card.Title>
@@ -356,7 +356,7 @@
 	</div>
 
 	<!-- Row 3: Role Distribution + Page Status + System Overview -->
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
 		<Card.Root class="lg:col-span-3">
 			<Card.Header>
 				<Card.Title>User Roles</Card.Title>
@@ -472,7 +472,7 @@
 	</div>
 
 	<!-- Row 4: Activity + Notifications -->
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
 		<Card.Root class="lg:col-span-4">
 			<Card.Header>
 				<Card.Title>Recent Activity</Card.Title>

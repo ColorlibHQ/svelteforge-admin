@@ -24,3 +24,14 @@ export async function register(
 export async function expectHeading(page: Page, text: string) {
 	await expect(page.locator("h1").first()).toContainText(text);
 }
+
+/**
+ * Card titles render as `<div data-slot="card-title">`. Scope to that slot so the
+ * assertion can't collide with sidebar links, chart legends, or body copy that
+ * happen to contain the same words (which trips Playwright's strict mode).
+ */
+export async function expectCardTitle(page: Page, text: string) {
+	await expect(
+		page.locator('[data-slot="card-title"]').filter({ hasText: text }).first()
+	).toBeVisible();
+}

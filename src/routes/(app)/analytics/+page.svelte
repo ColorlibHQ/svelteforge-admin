@@ -71,7 +71,7 @@
 		<p class="text-muted-foreground">Monitor your platform metrics and performance.</p>
 	</div>
 
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
 		<Card.Root class="col-span-4">
 			<Card.Header>
 				<Card.Title>User Signups Over Time</Card.Title>
@@ -153,7 +153,7 @@
 		</Card.Root>
 	</div>
 
-	<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7">
 		<Card.Root class="col-span-3">
 			<Card.Header>
 				<Card.Title>Pages by Status</Card.Title>

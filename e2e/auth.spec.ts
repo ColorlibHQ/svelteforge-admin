@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { expectHeading } from "./helpers.js";
+import { expectCardTitle } from "./helpers.js";
 
 test.describe("Authentication", () => {
 	test("login page renders correctly", async ({ page }) => {
 		await page.goto("/login");
-		await expectHeading(page, "Sign in");
+		await expectCardTitle(page, "Welcome back");
 		await expect(page.locator('input[name="username"]')).toBeVisible();
 		await expect(page.locator('input[name="password"]')).toBeVisible();
 		await expect(page.locator('button[type="submit"]')).toBeVisible();
@@ -12,7 +12,7 @@ test.describe("Authentication", () => {
 
 	test("register page renders correctly", async ({ page }) => {
 		await page.goto("/register");
-		await expectHeading(page, "Create an account");
+		await expectCardTitle(page, "Create an account");
 		await expect(page.locator('input[name="name"]')).toBeVisible();
 		await expect(page.locator('input[name="email"]')).toBeVisible();
 		await expect(page.locator('input[name="username"]')).toBeVisible();
@@ -35,7 +35,7 @@ test.describe("Authentication", () => {
 
 	test("forgot password page renders", async ({ page }) => {
 		await page.goto("/forgot-password");
-		await expectHeading(page, "Forgot password");
+		await expectCardTitle(page, "Forgot password");
 		await expect(page.locator('input[name="email"]')).toBeVisible();
 	});
 

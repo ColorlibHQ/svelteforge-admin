@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login } from "./helpers.js";
+import { login, expectCardTitle } from "./helpers.js";
 
 test.describe("Dashboard", () => {
 	test.beforeEach(async ({ page }) => {
@@ -7,22 +7,23 @@ test.describe("Dashboard", () => {
 	});
 
 	test("dashboard displays KPI cards", async ({ page }) => {
-		await expect(page.locator("text=Total Users")).toBeVisible();
-		await expect(page.locator("text=Total Pages")).toBeVisible();
-		await expect(page.locator("text=Notifications")).toBeVisible();
+		await expectCardTitle(page, "Total Users");
+		await expectCardTitle(page, "Total Pages");
+		await expectCardTitle(page, "Unread Notifications");
 	});
 
 	test("dashboard displays charts section", async ({ page }) => {
-		await expect(page.locator("text=User Signups")).toBeVisible();
-		await expect(page.locator("text=User Roles")).toBeVisible();
+		await expectCardTitle(page, "User Signups");
+		await expectCardTitle(page, "User Roles");
 	});
 
 	test("dashboard displays recent activity", async ({ page }) => {
-		await expect(page.locator("text=Recent Activity")).toBeVisible();
+		await expectCardTitle(page, "Recent Activity");
 	});
 
 	test("quick stats section renders", async ({ page }) => {
-		await expect(page.locator("text=Published Pages")).toBeVisible();
-		await expect(page.locator("text=Active Editors")).toBeVisible();
+		await expectCardTitle(page, "System Overview");
+		await expect(page.getByText("Published", { exact: true }).first()).toBeVisible();
+		await expect(page.getByText("Active Editors", { exact: true }).first()).toBeVisible();
 	});
 });

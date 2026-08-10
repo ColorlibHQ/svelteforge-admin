@@ -798,7 +798,8 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, 36 pages, and a full auth flow
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, 36 pages, and a full auth
+					flow
 				</li>
 				<li>
 					<strong>Zenith</strong> — Modern analytics dashboard with advanced data visualization

@@ -2,6 +2,50 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v1.3.0 -- August 2026
+
+Dependency refresh plus a mobile layout fix and a green, reliable E2E suite. No public API changes -- existing code continues to work.
+
+### Major version bumps
+
+- **better-sqlite3 12.11 -> 13.0** -- v13 moves the driver onto N-API, so prebuilt binaries are portable across Node/Electron versions instead of being rebuilt per ABI. No API changes; the schema push, seeder, and all 33 unit tests (which run against real in-memory SQLite) pass untouched.
+- **@types/better-sqlite3 7.6 -> 9.6** -- catches the types up to the v13 driver.
+- **LayerChart 2.0.0-next.48 -> 2.1.0** -- off the pinned prerelease and onto the first stable 2.x. The `getChartContext()` / `Tooltip` API this template uses is unchanged, so `chart-tooltip.svelte` and `chart-utils.ts` needed no edits.
+- **Prettier 3.8 -> 3.9** -- new minor changed how union types wrap; the whole codebase was re-run through Prettier (`src/lib/server/auth.ts` plus four docs pages reflowed, no semantic changes).
+
+### Other notable updates
+
+- SvelteKit 2.68 -> 2.70, Svelte 5.56.4 -> 5.56.8, svelte-check 4.7.1 -> 4.7.5, @sveltejs/vite-plugin-svelte 7.1 -> 7.3
+- Tailwind CSS 4.3.1 -> 4.3.3 (`tailwindcss` + `@tailwindcss/vite`), tailwind-variants 3.2 -> 3.3, prettier-plugin-tailwindcss 0.8.0 -> 0.8.1
+- shadcn-svelte 1.3 -> 1.5, @lucide/svelte 1.21 -> 1.31, svelte-meta-tags 5.0.0 -> 5.0.2
+- Vite 8.1 -> 8.2, Vitest 4.1.9 -> 4.1.10, @playwright/test 1.61 -> 1.62
+- ESLint 10.5 -> 10.8, eslint-plugin-svelte 3.19 -> 3.22, typescript-eslint 8.62 -> 8.66, globals 17.7 -> 17.9
+- @types/node 26.0 -> 26.2, tsx 4.22 -> 4.23, sharp 0.35.2 -> 0.35.3, @internationalized/date 3.12.2 -> 3.12.3
+
+### Held back
+
+- **TypeScript 6.0.3 (7.0.2 available)** -- TypeScript 7 (the native port) is not yet usable here: `svelte-check` refuses to start without a side-by-side TS 6 install plus the `--tsgo` flag, and `typescript-eslint` hard-errors with "does not support TS 7.0" ([typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940) tracks TS >=7.1 support). Both `pnpm check` and `pnpm lint` fail outright on TS 7, so the toolchain stays on the latest 6.x.
+- **`arctic` and `@oslojs/crypto` show as deprecated** but 3.7.0 and 1.0.1 _are_ the latest published versions -- the author sunset the Lucia/oslo ecosystem rather than superseding these packages. Nothing to upgrade to; both still work and are unchanged.
+
+### Fixes
+
+- **Dashboard and Analytics overflowed horizontally on mobile** -- at a 390px viewport the pages scrolled sideways by 209px and 225px respectively. The chart grids were declared as `grid gap-4 md:grid-cols-2 ...` with no base column definition, so below the `md` breakpoint the single implicit column sized itself to the chart SVG's intrinsic width (~549px) instead of the viewport. Adding an explicit `grid-cols-1` (which is `minmax(0, 1fr)`) lets the column shrink. Both pages now measure zero overflow at 390px. This bug predates this release -- it reproduces identically on the previous LayerChart pin.
+
+### Testing
+
+- **E2E suite is green again (38/38).** Twelve specs had been failing against correct markup: ten used `page.locator("text=X")`, whose substring matching tripped Playwright strict mode once a word appeared in both a card title and body copy (`text=Free` matched three elements on the pricing page). They now target `[data-slot="card-title"]` and ARIA roles. The rest asserted text the UI no longer renders -- the auth pages have no `<h1>` for `expectHeading` to find, and the dashboard's quick stat reads "Published", not "Published Pages".
+- **Fixed flaky logins on high-core machines.** Every test signs in, and Argon2id verification is deliberately slow and memory-hard; Playwright's default of one worker per core stacked those hashes onto a single server process until logins exceeded the 30s timeout. Local runs are now capped at 4 workers (CI already used 1), and the `webServer` timeout was raised to 180s so a cold production build can finish. Three consecutive full runs: 38/38 in ~4.2s each.
+- `test-results/` and `playwright-report/` are now git- and Prettier-ignored; they were previously untracked-but-not-ignored and showed up as noise.
+
+### Verified
+
+- 33 unit tests pass, 38 E2E tests pass (cold and warm runs)
+- `pnpm check` -- 0 errors, 0 warnings across 1858 files
+- `pnpm lint` and `pnpm format:check` -- clean
+- Runtime sweep of all 37 routes in light and dark themes at both 1440px and 390px: no console errors or warnings, no uncaught exceptions, no failed requests, no horizontal overflow
+
+---
+
 ## v1.2.1 -- July 2026
 
 Documentation and cross-promotion refresh.

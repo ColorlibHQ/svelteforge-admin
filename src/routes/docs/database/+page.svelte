@@ -976,8 +976,8 @@ const results = await db
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, advanced data tables, and full CRUD
-					operations
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards, advanced data tables, and
+					full CRUD operations
 				</li>
 				<li>
 					<strong>Zenith</strong> — Analytics dashboard with complex aggregation queries and real-time

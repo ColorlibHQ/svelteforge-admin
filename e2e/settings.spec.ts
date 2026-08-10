@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, expectHeading } from "./helpers.js";
+import { login, expectHeading, expectCardTitle } from "./helpers.js";
 
 test.describe("Settings Page", () => {
 	test.beforeEach(async ({ page }) => {
@@ -9,9 +9,9 @@ test.describe("Settings Page", () => {
 
 	test("settings page renders with tabs", async ({ page }) => {
 		await expectHeading(page, "Settings");
-		await expect(page.locator("text=Profile")).toBeVisible();
-		await expect(page.locator("text=Sessions")).toBeVisible();
-		await expect(page.locator("text=Notifications")).toBeVisible();
+		await expect(page.getByRole("tab", { name: "Profile" })).toBeVisible();
+		await expect(page.getByRole("tab", { name: "Sessions" })).toBeVisible();
+		await expect(page.getByRole("tab", { name: "Notifications" })).toBeVisible();
 	});
 
 	test("profile tab shows form", async ({ page }) => {
@@ -20,18 +20,18 @@ test.describe("Settings Page", () => {
 	});
 
 	test("sessions tab shows active sessions", async ({ page }) => {
-		await page.click("text=Sessions");
-		await expect(page.locator("text=Active Sessions")).toBeVisible();
+		await page.getByRole("tab", { name: "Sessions" }).click();
+		await expectCardTitle(page, "Active Sessions");
 	});
 
 	test("notifications tab shows toggles", async ({ page }) => {
-		await page.click("text=Notifications");
-		await expect(page.locator("text=Notification Preferences")).toBeVisible();
-		await expect(page.locator("text=New user registrations")).toBeVisible();
-		await expect(page.locator("text=Security alerts")).toBeVisible();
+		await page.getByRole("tab", { name: "Notifications" }).click();
+		await expectCardTitle(page, "Notification Preferences");
+		await expect(page.getByText("New user registrations")).toBeVisible();
+		await expect(page.getByText("Security alerts")).toBeVisible();
 	});
 
 	test("application tab visible for admin", async ({ page }) => {
-		await expect(page.locator('button:text("Application")')).toBeVisible();
+		await expect(page.getByRole("tab", { name: "Application" })).toBeVisible();
 	});
 });

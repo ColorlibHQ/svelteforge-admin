@@ -17,8 +17,7 @@ export const SESSION_COOKIE_NAME = "auth_session";
 export type SessionUser = Pick<User, "id" | "email" | "username" | "name" | "role" | "avatarUrl">;
 
 export type SessionValidationResult =
-	| { session: Session; user: SessionUser }
-	| { session: null; user: null };
+	{ session: Session; user: SessionUser } | { session: null; user: null };
 
 export function generateSessionToken(): string {
 	const bytes = new Uint8Array(20);
