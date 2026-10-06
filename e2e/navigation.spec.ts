@@ -6,6 +6,19 @@ test.describe("Navigation", () => {
 		await login(page);
 	});
 
+	test("sidebar highlights the current section after navigation", async ({ page }) => {
+		const active = page.locator('a[data-sidebar="menu-button"][data-active="true"]');
+		await expect(active).toHaveCount(1);
+		await expect(active).toHaveAttribute("href", "/");
+		await page.locator('a[data-sidebar="menu-button"][href="/users"]').click();
+		await page.waitForURL("/users");
+		await expect(active).toHaveAttribute("href", "/users");
+		await expect(active).toHaveAttribute("aria-current", "page");
+		await page.goto("/content/new?from=sidebar");
+		await expect(active).toHaveCount(1);
+		await expect(active).toHaveAttribute("href", "/content");
+	});
+
 	test("sidebar link to users works", async ({ page }) => {
 		await page.click('a[href="/users"]');
 		await page.waitForURL("/users");

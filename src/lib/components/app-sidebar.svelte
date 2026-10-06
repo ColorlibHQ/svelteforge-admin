@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from "$app/state";
 	import LayoutDashboardIcon from "@lucide/svelte/icons/layout-dashboard";
 	import UsersIcon from "@lucide/svelte/icons/users";
 	import SettingsIcon from "@lucide/svelte/icons/settings";
@@ -128,10 +129,19 @@
 				<Sidebar.GroupContent>
 					<Sidebar.Menu>
 						{#each group.items as item (item.title)}
+							{@const active =
+								item.url === "/"
+									? page.url.pathname === "/"
+									: page.url.pathname === item.url || page.url.pathname.startsWith(`${item.url}/`)}
 							<Sidebar.MenuItem>
-								<Sidebar.MenuButton>
+								<Sidebar.MenuButton isActive={active}>
 									{#snippet child({ props })}
-										<a href={item.url} {...props} onclick={handleNavigate}>
+										<a
+											href={item.url}
+											{...props}
+											aria-current={active ? "page" : undefined}
+											onclick={handleNavigate}
+										>
 											<item.icon class="size-4" />
 											<span>{item.title}</span>
 										</a>
