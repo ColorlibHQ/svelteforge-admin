@@ -308,6 +308,10 @@ Three built-in roles with different permission levels:
 
 ---
 
+## Upgrading
+
+See the [v1.4 migration guide](https://svelteforge.dashboardpack.com/docs/upgrading) for SvelteKit 3 configuration, `#lib` imports, environment variables, deployment, and permission changes.
+
 ## Quick Start
 
 ### Prerequisites
@@ -527,7 +531,7 @@ SvelteForge Admin uses **SQLite** with the `better-sqlite3` native module. Your 
 A `Dockerfile` is included for containerized deployments:
 
 ```bash
-docker build -t svelteforge-admin .
+docker build --build-arg ORIGIN=https://yourdomain.com -t svelteforge-admin .
 docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin
 ```
 
@@ -538,7 +542,7 @@ docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin
 DATABASE_URL=svelteforge.db        # SQLite database file path
 
 # Required for production
-ORIGIN=https://yourdomain.com      # Used for OAuth redirect URIs
+ORIGIN=https://yourdomain.com      # Set before building and at runtime for OAuth
 
 # Optional -- OAuth providers (omit to disable)
 GOOGLE_CLIENT_ID=

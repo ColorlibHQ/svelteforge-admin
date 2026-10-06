@@ -258,8 +258,8 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	</li>
 	<li>
 		<strong><code>seed.ts</code></strong> — Populates the database with sample data. Runs via
-		<code>pnpm db:seed</code> using <code>npx tsx</code> (not SvelteKit's runtime), so it uses
-		relative imports instead of <code>#lib/</code> aliases.
+		<code>pnpm db:seed</code> using <code>tsx</code> (not SvelteKit's runtime), so it uses relative
+		imports instead of <code>#lib/</code> aliases.
 	</li>
 </ul>
 

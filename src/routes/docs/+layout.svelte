@@ -58,6 +58,7 @@
 			label: "Advanced",
 			items: [
 				{ title: "Testing", href: "/docs/testing", icon: TestTubeIcon },
+				{ title: "Upgrading to v1.4", href: "/docs/upgrading", icon: RocketIcon },
 				{ title: "Deployment", href: "/docs/deployment", icon: CloudIcon },
 				{ title: "API Reference", href: "/docs/api-reference", icon: CodeIcon },
 			],

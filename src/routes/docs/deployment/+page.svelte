@@ -202,7 +202,7 @@ export default defineConfig((&#123; mode &#125;) =&gt; &#123;
 
 <p>
 	OAuth providers are loaded dynamically in <code>#lib/server/oauth.ts</code> using
-	<strong>SvelteKit's</strong> <code>$env/dynamic/private</code>. When environment variables are
+	<strong>SvelteKit's</strong> <code>$app/env/private</code>. When environment variables are
 	missing, the provider is <code>null</code> and the corresponding social login button is automatically
 	hidden from the login page.
 </p>
@@ -211,52 +211,44 @@ export default defineConfig((&#123; mode &#125;) =&gt; &#123;
 
 <p>
 	Docker is the recommended way to deploy SvelteForge Admin. The multi-stage build keeps the final
-	image small while properly compiling the better-sqlite3 native module.
+	image small. It uses the Node 24 runtime and the pinned pnpm version.
 </p>
 
 <h3>Dockerfile</h3>
 
 <pre><code class="language-dockerfile"
-		># Stage 1: Install dependencies
-FROM node:24-alpine AS deps
-RUN apk add --no-cache python3 make g++
-WORKDIR /app
-RUN corepack enable pnpm
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+		>FROM node:24-slim AS builder
 
-# Stage 2: Build the SvelteKit application
-FROM node:24-alpine AS builder
+RUN corepack enable &amp;&amp; corepack prepare pnpm@12.9.1 --activate
 WORKDIR /app
-RUN corepack enable pnpm
-COPY --from=deps /app/node_modules ./node_modules
+
 COPY . .
+RUN pnpm install --frozen-lockfile
+ARG ORIGIN=http://localhost:3000
+ENV ORIGIN=$ORIGIN
 RUN pnpm build
 
-# Stage 3: Production image
-FROM node:24-alpine AS runner
-RUN apk add --no-cache python3 make g++
-WORKDIR /app
-RUN corepack enable pnpm
+FROM node:24-slim AS runner
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+RUN corepack enable &amp;&amp; corepack prepare pnpm@12.9.1 --activate
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+RUN pnpm rebuild better-sqlite3
 
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/drizzle ./drizzle
-
-# Create data directory for SQLite
-RUN mkdir -p /app/data
+COPY drizzle ./drizzle
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV HOST=0.0.0.0
 ENV DATABASE_URL=/app/data/svelteforge.db
+RUN mkdir -p /app/data
 
 EXPOSE 3000
 
-CMD ["node", "build/index.js"]</code
-	></pre>
+CMD ["node", "build/index.js"]
+</code></pre>
 
 <h3>docker-compose.yml</h3>
 
@@ -264,14 +256,17 @@ CMD ["node", "build/index.js"]</code
 		>version: "3.8"
 services:
   svelteforge:
-    build: .
+    build:
+      context: .
+      args:
+        ORIGIN: https://admin.example.com
     ports:
       - "3000:3000"
     volumes:
       - ./data:/app/data
     environment:
       - DATABASE_URL=/app/data/svelteforge.db
-      - ORIGIN=https://admin.example.com
+      - ORIGIN=https://admin.example.com # Runtime OAuth callback URL
       - GOOGLE_CLIENT_ID=$&#123;GOOGLE_CLIENT_ID&#125;
       - GOOGLE_CLIENT_SECRET=$&#123;GOOGLE_CLIENT_SECRET&#125;
       - GITHUB_CLIENT_ID=$&#123;GITHUB_CLIENT_ID&#125;

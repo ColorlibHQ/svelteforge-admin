@@ -30,7 +30,7 @@ Use tabs, double quotes, ES5 trailing commas, and a 100-column print width, as c
 
 ## Testing Guidelines
 
-Name colocated Vitest tests `*.test.ts` and Playwright tests `e2e/*.spec.ts`. Use `createTestDb()` and fixtures from `test-utils.ts` for isolated in-memory SQLite tests. Update its `SCHEMA_SQL` when changing the schema. Cover changed actions, validation, and role restrictions; no numeric coverage threshold is configured. Browser tests use Chromium and automatically build/start the preview server; automatically prepare a disposable seeded database.
+Name colocated Vitest tests `*.test.ts` and Playwright tests `e2e/*.spec.ts`. Use `createTestDb()` and fixtures from `test-utils.ts` for isolated in-memory SQLite tests. Update its `SCHEMA_SQL` when changing the schema. Cover changed actions, validation, and role restrictions; no numeric coverage threshold is configured. Browser tests use Chromium, automatically seed a disposable database, and build/start a fresh preview server.
 
 ## Commit & Pull Request Guidelines
 

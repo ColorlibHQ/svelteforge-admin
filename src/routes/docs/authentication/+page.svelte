@@ -2,7 +2,7 @@
 	<title>Authentication - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Deep dive into SvelteForge Admin's custom session-based authentication built with Svelte 5, SvelteKit server hooks, @oslojs/crypto, Argon2id, and Arctic OAuth."
+		content="Deep dive into SvelteForge Admin's custom session-based authentication built with Svelte 5, SvelteKit server hooks, node:crypto, Argon2id, and Arctic OAuth."
 	/>
 </svelte:head>
 
@@ -15,10 +15,10 @@
 
 <ul>
 	<li>
-		<strong>@oslojs/crypto</strong> — SHA-256 hashing for session tokens
+		<strong>node:crypto</strong> — SHA-256 hashing for session tokens
 	</li>
 	<li>
-		<strong>@oslojs/encoding</strong> — Base32 and hex encoding
+		<strong>@oslojs/encoding</strong> — Base32 encoding
 	</li>
 	<li>
 		<strong>@node-rs/argon2</strong> — Argon2id password hashing (memory-hard, GPU-resistant)
@@ -70,8 +70,10 @@
 </p>
 
 <pre><code class="language-ts"
-		>function hashToken(token: string): string &#123;
-  return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+		>import &#123; createHash &#125; from "node:crypto";
+
+function hashToken(token: string): string &#123;
+  return createHash("sha256").update(token).digest("hex");
 &#125;</code
 	></pre>
 
@@ -407,31 +409,34 @@ export const actions: Actions = &#123;
 </ol>
 
 <pre><code class="language-ts"
-		>// src/routes/(auth)/register/+page.server.ts
-const passwordHash = await hash(password, &#123;
-  memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1,
-&#125;);
-
-const userId = generateId(10);
-
-try &#123;
-  await db.insert(users).values(&#123;
-    id: userId,
-    email: email.toLowerCase(),
-    username: username.toLowerCase(),
-    passwordHash,
-    name,
-    role: "admin", // First user gets admin role
-  &#125;);
-&#125; catch &#123;
-  return fail(400, &#123; message: "Username or email already taken" &#125;);
-&#125;</code
-	></pre>
+		>// Registration insert (after validation and password hashing)
+		try &#123;
+			// Serialize the first-user check and insert, including concurrent registrations.
+			db.transaction(
+				(tx) =&gt; &#123;
+					tx.insert(users)
+						.values(&#123;
+							id: userId,
+							email: email.toLowerCase(),
+							username: username.toLowerCase(),
+							passwordHash,
+							name,
+							role: tx.select(&#123; id: users.id &#125;).from(users).limit(1).get() ? "viewer" : "admin",
+						&#125;)
+						.run();
+				&#125;,
+				&#123; behavior: "immediate" &#125;
+			);
+		&#125; catch &#123;
+			return fail(400, &#123; message: "Username or email already taken" &#125;);
+		&#125;
+</code></pre>
 
 <p>
 	<strong>First user privilege:</strong> The first registered user automatically receives the
 	<code>admin</code> role. This bootstraps the application without requiring database seeding or manual
-	role assignment.
+	role assignment. Later registrations receive viewer access; the first-user check and insert run in an
+	immediate SQLite transaction.
 </p>
 
 <h2>OAuth (Google + GitHub)</h2>
@@ -447,26 +452,26 @@ try &#123;
 <pre><code class="language-ts"
 		>// src/lib/server/oauth.ts
 import * as arctic from "arctic";
-import &#123; env &#125; from "$env/dynamic/private";
+import &#123; ORIGIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET &#125; from "$app/env/private";
 
 function getBaseUrl(): string &#123;
-  return env.ORIGIN || "http://localhost:5173";
+  return ORIGIN || "http://localhost:5173";
 &#125;
 
 export const google =
-  env.GOOGLE_CLIENT_ID &amp;&amp; env.GOOGLE_CLIENT_SECRET
+  GOOGLE_CLIENT_ID &amp;&amp; GOOGLE_CLIENT_SECRET
     ? new arctic.Google(
-        env.GOOGLE_CLIENT_ID,
-        env.GOOGLE_CLIENT_SECRET,
+        GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET,
         `$&#123;getBaseUrl()&#125;/login/google/callback`
       )
     : null;
 
 export const github =
-  env.GITHUB_CLIENT_ID &amp;&amp; env.GITHUB_CLIENT_SECRET
+  GITHUB_CLIENT_ID &amp;&amp; GITHUB_CLIENT_SECRET
     ? new arctic.GitHub(
-        env.GITHUB_CLIENT_ID,
-        env.GITHUB_CLIENT_SECRET,
+        GITHUB_CLIENT_ID,
+        GITHUB_CLIENT_SECRET,
         `$&#123;getBaseUrl()&#125;/login/github/callback`
       )
     : null;

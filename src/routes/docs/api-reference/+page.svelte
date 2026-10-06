@@ -43,21 +43,13 @@ const token = generateSessionToken();
 // => "4bv7h2xk9qm3np6wr8yta5cj2dfs7g"</code
 	></pre>
 
-<h3><code>hashToken(token: string): string</code></h3>
-
 <p>
-	Computes the SHA-256 hash of a session token. The hash is stored in the database as the session ID
-	— the raw token is never persisted.
+	Token hashing is an internal implementation detail: sessions use Node’s SHA-256 implementation.
+	Call <code>createSession()</code> and <code>validateSession()</code> rather than importing the private
+	hash helper.
 </p>
 
-<pre><code class="language-typescript"
-		>import &#123; hashToken &#125; from "#lib/server/auth.js";
-
-const sessionId = hashToken(token);
-// => hex-encoded SHA-256 hash</code
-	></pre>
-
-<h3><code>createSession(token, userId, metadata): Session</code></h3>
+<h3><code>createSession(token, userId, metadata): Promise&lt;Session&gt;</code></h3>
 
 <p>
 	Creates a new session in the database. The token is hashed before storage. Metadata (user agent
@@ -68,7 +60,7 @@ const sessionId = hashToken(token);
 		>import &#123; generateSessionToken, createSession &#125; from "#lib/server/auth.js";
 
 const token = generateSessionToken();
-const session = createSession(token, user.id, &#123;
+const session = await createSession(token, user.id, &#123;
   userAgent: event.request.headers.get("user-agent") || "",
   ipAddress: event.getClientAddress(),
 &#125;);
@@ -91,7 +83,7 @@ const session = createSession(token, user.id, &#123;
 <pre><code class="language-typescript"
 		>import &#123; validateSession &#125; from "#lib/server/auth.js";
 
-const result = validateSession(token);
+const result = await validateSession(token);
 if (result.session) &#123;
   // Authenticated — result.user has the SessionUser data
   console.log(result.user.email, result.user.role);
@@ -100,52 +92,50 @@ if (result.session) &#123;
 &#125;</code
 	></pre>
 
-<h3><code>invalidateSession(sessionId: string): void</code></h3>
+<h3><code>invalidateSession(sessionId: string): Promise&lt;void&gt;</code></h3>
 
 <p>Deletes a single session from the database. Used during logout.</p>
 
 <pre><code class="language-typescript"
 		>import &#123; invalidateSession &#125; from "#lib/server/auth.js";
 
-invalidateSession(session.id);</code
+await invalidateSession(session.id);</code
 	></pre>
-
-<h3><code>invalidateAllSessions(userId: string): void</code></h3>
 
 <p>
-	Deletes all sessions for a specific user. Useful for "log out everywhere" or after a password
-	change.
+	To revoke every session for a user, delete their rows with Drizzle. There is no exported <code
+		>invalidateAllSessions()</code
+	> helper.
 </p>
+<pre><code class="language-ts"
+		>import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; sessions &#125; from "#lib/server/db/schema.js";
+import &#123; eq &#125; from "drizzle-orm";
 
-<pre><code class="language-typescript"
-		>import &#123; invalidateAllSessions &#125; from "#lib/server/auth.js";
-
-// Force logout on all devices
-invalidateAllSessions(user.id);</code
+await db.delete(sessions).where(eq(sessions.userId, user.id));</code
 	></pre>
-
-<h3><code>setSessionCookie(event, token, expiresAt): void</code></h3>
+<h3><code>setSessionCookie(cookies, token, expiresAt): void</code></h3>
 
 <p>
 	Sets the session cookie on the response. The cookie is <code>httpOnly</code>,
-	<code>sameSite=lax</code>, <code>path=/</code>, and <code>secure</code> in production (when
-	<code>NODE_ENV=production</code>).
+	<code>sameSite=lax</code>, <code>path=/</code>, and <code>secure</code> in production (outside development
+	mode).
 </p>
 
 <pre><code class="language-typescript"
 		>import &#123; setSessionCookie &#125; from "#lib/server/auth.js";
 
-setSessionCookie(event, token, session.expiresAt);</code
+setSessionCookie(event.cookies, token, session.expiresAt);</code
 	></pre>
 
-<h3><code>deleteSessionCookie(event): void</code></h3>
+<h3><code>deleteSessionCookie(cookies): void</code></h3>
 
 <p>Clears the session cookie by setting it to an empty value with an immediate expiry.</p>
 
 <pre><code class="language-typescript"
 		>import &#123; deleteSessionCookie &#125; from "#lib/server/auth.js";
 
-deleteSessionCookie(event);</code
+deleteSessionCookie(event.cookies);</code
 	></pre>
 
 <h3>Type: <code>SessionUser</code></h3>
@@ -202,9 +192,7 @@ if (google) &#123;
 		>import &#123; github &#125; from "#lib/server/oauth.js";
 
 if (github) &#123;
-  const url = github.createAuthorizationURL(state, &#123;
-    scopes: ["user:email"],
-  &#125;);
+  const url = github.createAuthorizationURL(state, ["user:email", "read:user"]);
 &#125;</code
 	></pre>
 
@@ -617,3 +605,9 @@ export const load = async (event) =&gt; &#123;
 		</div>
 	</div>
 </div>
+
+<h2>Release Health</h2>
+<p>
+	<code>GET /api/health</code> returns the status, package version, and build commit. It is public
+	and uses <code>Cache-Control: no-store</code>; deployment checks its commit against GitHub.
+</p>

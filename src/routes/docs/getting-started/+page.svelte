@@ -176,7 +176,7 @@ GITHUB_CLIENT_SECRET=</code
 		<tr>
 			<td><code>ORIGIN</code></td>
 			<td>Yes</td>
-			<td>Application URL (used for CSRF protection and OAuth callbacks)</td>
+			<td>Public URL: set before building for CSRF checks, and at runtime for OAuth callbacks</td>
 		</tr>
 		<tr>
 			<td><code>GOOGLE_CLIENT_ID</code></td>
@@ -203,7 +203,7 @@ GITHUB_CLIENT_SECRET=</code
 
 <p>
 	OAuth providers are configured in <code>#lib/server/oauth.ts</code> using SvelteKit's
-	<code>$env/dynamic/private</code>. When the environment variables are missing, the corresponding
+	<code>$app/env/private</code>. When the environment variables are missing, the corresponding
 	social login buttons are automatically hidden from the login page. See the
 	<a href="/docs/authentication">Authentication docs</a> for full OAuth setup instructions.
 </p>

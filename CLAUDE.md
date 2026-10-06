@@ -18,7 +18,7 @@ pnpm check:watch      # Type-check in watch mode
 pnpm db:generate      # Generate Drizzle migrations from schema
 pnpm db:push          # Push schema changes directly to database
 pnpm db:studio        # Open Drizzle Studio GUI
-pnpm db:seed          # Seed database with sample data (npx tsx)
+pnpm db:seed          # Seed database with sample data (local tsx)
 
 pnpm test             # Run all unit tests (Vitest)
 pnpm test:watch       # Run tests in watch mode

@@ -2,6 +2,11 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## Documentation update -- October 2026
+
+- Add the v1.4 migration guide and align OAuth, registration, test helpers, async session APIs, and Docker examples with the shipped code.
+- Remove examples for private or nonexistent auth exports.
+
 ## v1.4.0 -- October 2026
 
 ### Changed

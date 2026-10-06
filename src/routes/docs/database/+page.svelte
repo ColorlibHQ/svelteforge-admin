@@ -830,9 +830,10 @@ export default defineConfig(&#123;
 		across the past 12 months.
 	</li>
 	<li>
-		<strong>Runs outside SvelteKit:</strong> The seed script is executed via
-		<code>npx tsx</code>, not through <strong>SvelteKit's</strong> Vite server. This means it uses
-		relative imports (<code>./index.js</code>, <code>../id.js</code>) instead of
+		<strong>Runs outside SvelteKit:</strong> The seed script is executed via the locally installed
+		<code>tsx</code>, not through <strong>SvelteKit's</strong>
+		Vite server. This means it uses relative imports (<code>./index.js</code>,
+		<code>../id.js</code>) instead of
 		<code>#lib/</code> aliases.
 	</li>
 </ul>
