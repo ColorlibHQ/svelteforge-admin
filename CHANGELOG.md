@@ -2,6 +2,44 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v1.4.0 -- October 2026
+
+### Changed
+
+- Migrate to SvelteKit 3.0.0 and adapter-node 6: Vite-based configuration,
+  `#lib` subpath imports, explicit environment variables, and external OAuth redirects.
+- Refresh dependencies, including Svelte 5.57.1, Vite 8.3.2, Vitest 5, and LayerChart 2.5.1.
+  Retain TypeScript 6.0.3 because SvelteKit, svelte-check, and typescript-eslint do not support 7 yet.
+- Upgrade pnpm to 12.9.1 and move build permissions to `pnpm-workspace.yaml`.
+- Set Node's minimum version to 22.17; production origin must be configured before building.
+- Replace deprecated Oslo SHA-256 implementation with Node's built-in crypto.
+
+### Fixed
+
+- Grant admin access only to the first registration using an immediate SQLite transaction.
+- Restrict role changes to administrators and content mutations to editors/admins;
+  editors may delete only their own pages.
+- Honor `DATABASE_URL` in Drizzle configuration and database size reporting.
+- Use local tsx for seeding and keep environment files out of Docker images.
+
+### Testing
+
+- Add regression tests for registration and role/content authorization.
+- Automatically seed a dedicated browser-test database before starting the preview server.
+- Add CI type, lint, formatting, unit, build, and browser checks before deployment.
+- Verify the live demo commit through the public `/api/health` endpoint.
+- Verified locally: 40 unit tests, 38 Chromium tests, type checking, lint, formatting, and production build.
+
+### Compatibility
+
+- Keep pnpm’s release-age safeguard enabled. SvelteKit 3.0.1, Vite 8.3.3,
+  and typescript-eslint 8.71.1 are too recent under its 24-hour window at upgrade time.
+- Runed (through Bits UI and LayerChart) still declares a SvelteKit 2 peer range;
+  the application passes runtime browser tests with SvelteKit 3.
+- Arctic is deprecated upstream; replacing its OAuth integration remains follow-up work.
+
+---
+
 ## v1.3.0 -- August 2026
 
 Dependency refresh plus a mobile layout fix and a green, reliable E2E suite. No public API changes -- existing code continues to work.

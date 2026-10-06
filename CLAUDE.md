@@ -38,8 +38,8 @@ pnpm format:check     # Prettier (check only)
 
 - **Svelte 5** with runes API (`$props`, `$state`, `$derived`, `{@render}`)
 - **Tailwind CSS v4** — native CSS with `@theme` directive in `src/app.css`, no JS config file. OKLCH color system
-- **shadcn-svelte** — UI components in `$lib/components/ui/`, added via `npx shadcn-svelte@latest add <component>`
-- **Custom session auth** — SHA-256 hashed tokens with @oslojs/crypto, Argon2id password hashing, optional OAuth via Arctic (Google, GitHub)
+- **shadcn-svelte** — UI components in `#lib/components/ui/`, added via `npx shadcn-svelte@latest add <component>`
+- **Custom session auth** — SHA-256 hashed tokens with node:crypto, Argon2id password hashing, optional OAuth via Arctic (Google, GitHub)
 - **Drizzle ORM** — SQLite with better-sqlite3, WAL mode. Schema in `src/lib/server/db/schema.ts`
 - **LayerChart v2** — D3-based charts. Marked `noExternal` in `vite.config.ts` alongside `svelte-ux` for SSR compatibility
 - **Package manager:** pnpm
@@ -70,7 +70,7 @@ The `(app)/+layout.server.ts` guard also enforces **maintenance mode**: when `ap
 - `src/lib/server/auth.ts` — Session management (create, validate, invalidate, cookies)
 - `src/lib/server/oauth.ts` — Arctic OAuth providers (conditional on env vars)
 - `src/lib/server/db/schema.ts` — Drizzle schema (users, sessions, pages, notifications, oauthAccounts, appSettings, passwordResetTokens)
-- `src/lib/server/db/seed.ts` — Database seeder (run via `pnpm db:seed`, uses `npx tsx` not SvelteKit aliases)
+- `src/lib/server/db/seed.ts` — Database seeder (run via `pnpm db:seed`, uses local `tsx` not SvelteKit aliases)
 - `src/lib/server/id.ts` — Crypto ID generator (`generateId()`)
 - `src/lib/components/ui/` — shadcn-svelte components (don't edit directly, re-add to update)
 - `src/lib/components/` — App-level components (sidebar, theme toggle, command palette, notification bell)
@@ -97,10 +97,10 @@ Leave it unset on real deployments. For a hands-off public demo, an hourly cron 
 
 Tests co-locate with their route: e.g., `src/routes/(app)/users/users.test.ts` tests the `users/+page.server.ts` load and actions.
 
-**Test DB pattern:** Tests mock `$lib/server/db/index.js` with a getter that returns an in-memory SQLite database created via `createTestDb()` from `test-utils.ts`. The mock must be set up before dynamically importing the server module:
+**Test DB pattern:** Tests mock `#lib/server/db/index.js` with a getter that returns an in-memory SQLite database created via `createTestDb()` from `test-utils.ts`. The mock must be set up before dynamically importing the server module:
 
 ```ts
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return testDb;
 	},
@@ -118,7 +118,7 @@ After modifying `schema.ts`, also update the `SCHEMA_SQL` in `test-utils.ts` and
 - Dark/light mode via `mode-watcher` — use `mode.current` (runes object), NOT `$mode`
 - App shell layout: sidebar (`app-sidebar.svelte`) + topbar with breadcrumbs (generated from URL pathname)
 - `App.Locals` typed in `src/app.d.ts` — `user: SessionUser | null`, `session: Session | null`
-- `seed.ts` runs outside SvelteKit context — use relative imports (not `$lib/`) and `generateId()` from `$lib/server/id.js`
+- `seed.ts` runs outside SvelteKit context — use relative imports (not `#lib/`) and `generateId()` from `#lib/server/id.js`
 - LayerChart and `svelte-ux` must stay in `ssr.noExternal` in `vite.config.ts` — without it, SSR breaks on chart pages
 
 ### Free vs Premium split
@@ -134,6 +134,6 @@ If a feature request sounds premium-tier (multi-tenancy, billing, 2FA, passkeys,
 
 ### Deployment
 
-Builds with `@sveltejs/adapter-node`. `.github/workflows/deploy.yml` deploys on push to `main`: rebuilds the `better-sqlite3` native module, runs `pnpm build`, then rsyncs `build/` **and** `src/` to a Hetzner box and `pm2 restart`s. `src/` is synced (not just `build/`) so the demo-reset cron can run `seed.ts` against the latest schema. Set `DEMO_MODE` via a PM2 ecosystem file (not `pm2 start build/index.js`) so it survives restarts.
+Builds with `@sveltejs/adapter-node`. SvelteKit configuration lives in `vite.config.ts`; set `ORIGIN` before building (`paths.origin` is compiled into the server). `.github/workflows/deploy.yml` deploys on push to `main` only after the reusable CI workflow passes. It builds for the demo origin, syncs `build/`, `src/`, and dependency/configuration files to Hetzner, installs dependencies there, and restarts PM2. `/api/health` exposes the app version and build commit; deployment verifies it matches the pushed commit. Keep `DEMO_MODE` in the server's PM2 ecosystem configuration so it survives restarts. The deployment does not seed or reset the live database.
 
 `scripts/` holds Playwright tooling for marketing screenshots (`screenshot.ts`, `add-browser-frame.ts`) — outputs to `screenshots/`, unrelated to the app runtime.

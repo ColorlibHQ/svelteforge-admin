@@ -53,7 +53,7 @@
 		<li>
 			<strong>CSV and JSON export</strong> — Export visible or all user data using utility functions
 			from
-			<code>$lib/utils/export.ts</code>.
+			<code>#lib/utils/export.ts</code>.
 		</li>
 	</ul>
 
@@ -278,7 +278,7 @@ export const load: PageServerLoad = async () => {
 
 	<p>
 		User data can be exported in two formats using shared utility functions from
-		<code>$lib/utils/export.ts</code>:
+		<code>#lib/utils/export.ts</code>:
 	</p>
 
 	<ul>

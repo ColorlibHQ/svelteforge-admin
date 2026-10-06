@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { pages } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { pages } from "#lib/server/db/schema.js";
 import { fail, redirect, error } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
@@ -24,7 +24,9 @@ function slugify(text: string): string {
 }
 
 export const actions: Actions = {
-	default: async ({ request, params }) => {
+	default: async ({ request, params, locals }) => {
+		if (!locals.user || locals.user.role === "viewer")
+			return fail(403, { message: "Content editing access required" });
 		const formData = await request.formData();
 		const title = formData.get("title");
 		const slug = formData.get("slug");

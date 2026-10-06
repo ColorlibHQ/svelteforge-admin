@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as Table from "$lib/components/ui/table/index.js";
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Input } from "$lib/components/ui/input/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
-	import DataTablePagination from "$lib/components/data-table-pagination.svelte";
-	import DeleteConfirmDialog from "$lib/components/delete-confirm-dialog.svelte";
+	import * as Table from "#lib/components/ui/table/index.js";
+	import * as DropdownMenu from "#lib/components/ui/dropdown-menu/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Input } from "#lib/components/ui/input/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
+	import DataTablePagination from "#lib/components/data-table-pagination.svelte";
+	import DeleteConfirmDialog from "#lib/components/delete-confirm-dialog.svelte";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import TrashIcon from "@lucide/svelte/icons/trash-2";
 	import PencilIcon from "@lucide/svelte/icons/pencil";
@@ -16,9 +16,13 @@
 	import DownloadIcon from "@lucide/svelte/icons/download";
 	import { toast } from "svelte-sonner";
 	import { enhance } from "$app/forms";
-	import { exportToCSV, exportToJSON } from "$lib/utils/export.js";
+	import { exportToCSV, exportToJSON } from "#lib/utils/export.js";
 
 	let { data, form } = $props();
+	const canEdit = $derived(data.user.role !== "viewer");
+	function canDelete(authorId: string) {
+		return data.user.role === "admin" || (data.user.role === "editor" && authorId === data.user.id);
+	}
 
 	let search = $state("");
 	let deleteOpen = $state(false);
@@ -85,10 +89,11 @@
 	}
 
 	function toggleSelectAll() {
-		if (selectedIds.size === paginated.length) {
+		const selectable = paginated.filter((page) => canDelete(page.authorId));
+		if (selectable.every((page) => selectedIds.has(page.id))) {
 			selectedIds = new Set();
 		} else {
-			selectedIds = new Set(paginated.map((p) => p.id));
+			selectedIds = new Set(selectable.map((p) => p.id));
 		}
 	}
 
@@ -150,10 +155,12 @@
 			<h1 class="text-3xl font-bold tracking-tight">Content</h1>
 			<p class="text-muted-foreground">Create and manage your platform content.</p>
 		</div>
-		<Button href="/content/new">
-			<PlusIcon class="mr-2 size-4" />
-			New Page
-		</Button>
+		{#if canEdit}
+			<Button href="/content/new">
+				<PlusIcon class="mr-2 size-4" />
+				New Page
+			</Button>
+		{/if}
 	</div>
 
 	<!-- Toolbar -->
@@ -166,7 +173,7 @@
 			{filtered.length} page{filtered.length !== 1 ? "s" : ""}
 		</p>
 		<div class="ml-auto flex items-center gap-2">
-			{#if selectedIds.size > 0}
+			{#if canEdit && selectedIds.size > 0}
 				<form method="POST" action="?/bulkDelete" use:enhance>
 					<input type="hidden" name="ids" value={[...selectedIds].join(",")} />
 					<Button variant="destructive" size="sm" type="submit">
@@ -226,6 +233,7 @@
 						<Table.Cell>
 							<input
 								type="checkbox"
+								disabled={!canDelete(p.authorId)}
 								checked={selectedIds.has(p.id)}
 								onchange={() => toggleSelect(p.id)}
 								class="accent-primary size-4"
@@ -241,13 +249,16 @@
 						<Table.Cell class="text-muted-foreground">{formatDate(p.updatedAt)}</Table.Cell>
 						<Table.Cell>
 							<div class="flex items-center gap-1">
-								<Button variant="ghost" size="icon" class="size-8" href="/content/{p.id}/edit">
-									<PencilIcon class="size-4" />
-								</Button>
+								{#if canEdit}
+									<Button variant="ghost" size="icon" class="size-8" href="/content/{p.id}/edit">
+										<PencilIcon class="size-4" />
+									</Button>
+								{/if}
 								<Button
 									variant="ghost"
 									size="icon"
 									class="text-destructive size-8"
+									disabled={!canDelete(p.authorId)}
 									onclick={() => openDelete(p.id)}
 								>
 									<TrashIcon class="size-4" />

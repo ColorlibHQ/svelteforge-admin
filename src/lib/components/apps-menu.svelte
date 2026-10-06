@@ -1,6 +1,6 @@
 <script lang="ts">
-	import * as Popover from "$lib/components/ui/popover/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
+	import * as Popover from "#lib/components/ui/popover/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
 	import LayoutGridIcon from "@lucide/svelte/icons/layout-grid";
 	import LayoutDashboardIcon from "@lucide/svelte/icons/layout-dashboard";
 	import BarChart3Icon from "@lucide/svelte/icons/bar-chart-3";

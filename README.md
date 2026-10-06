@@ -1,10 +1,10 @@
 # SvelteForge - SvelteKit Admin Dashboard Template
 
-A production-ready admin dashboard template built with **SvelteKit 2**, **Svelte 5**, **Tailwind CSS 4**, and **Drizzle ORM**. Features custom session-based authentication, optional OAuth (Google & GitHub), role-based access control, and a full suite of admin tools -- all with zero external auth dependencies.
+A production-ready admin dashboard template built with **SvelteKit 3**, **Svelte 5**, **Tailwind CSS 4**, and **Drizzle ORM**. Features custom session-based authentication, optional OAuth (Google & GitHub), role-based access control, and a full suite of admin tools -- all with zero external auth dependencies.
 
-![SvelteKit](https://img.shields.io/badge/SvelteKit-2-FF3E00?logo=svelte)
+![SvelteKit](https://img.shields.io/badge/SvelteKit-3-FF3E00?logo=svelte)
 ![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -192,16 +192,16 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
 
 ## Tech Stack
 
-| Layer         | Technology                                                   |
-| ------------- | ------------------------------------------------------------ |
-| **Framework** | SvelteKit 2.68 + Svelte 5 (runes API)                        |
-| **Styling**   | Tailwind CSS 4 + shadcn-svelte                               |
-| **Database**  | SQLite via Drizzle ORM + better-sqlite3 (WAL mode)           |
-| **Auth**      | Custom sessions (@oslojs/crypto) + Argon2id password hashing |
-| **OAuth**     | Arctic (Google + GitHub) -- optional, environment-driven     |
-| **Charts**    | LayerChart v2 (D3-based)                                     |
-| **Testing**   | Vitest (unit) + Playwright (E2E)                             |
-| **Linting**   | ESLint 10 + Prettier                                         |
+| Layer         | Technology                                                 |
+| ------------- | ---------------------------------------------------------- |
+| **Framework** | SvelteKit 3 + Svelte 5 (runes API)                         |
+| **Styling**   | Tailwind CSS 4 + shadcn-svelte                             |
+| **Database**  | SQLite via Drizzle ORM + better-sqlite3 (WAL mode)         |
+| **Auth**      | Custom sessions (Node SHA-256) + Argon2id password hashing |
+| **OAuth**     | Arctic (Google + GitHub) -- optional, environment-driven   |
+| **Charts**    | LayerChart v2 (D3-based)                                   |
+| **Testing**   | Vitest (unit) + Playwright (E2E)                           |
+| **Linting**   | ESLint 10 + Prettier                                       |
 
 ---
 
@@ -312,7 +312,7 @@ Three built-in roles with different permission levels:
 
 ### Prerequisites
 
-- **Node.js** 18+ (20+ recommended)
+- **Node.js** 22.17+ (24 LTS recommended)
 - **pnpm** (install via `npm install -g pnpm`)
 
 ### Installation
@@ -381,7 +381,8 @@ GITHUB_CLIENT_SECRET=your-client-secret
 
 ### Production
 
-For production, update the `ORIGIN` environment variable to match your deployed URL:
+For production, set `ORIGIN` before building to match your deployed URL.
+`vite.config.ts` passes it to SvelteKit 3’s `paths.origin`; rebuild when it changes:
 
 ```env
 ORIGIN=https://yourdomain.com
@@ -645,9 +646,11 @@ pnpm test
 # Run tests in watch mode
 pnpm test:watch
 
-# Run E2E tests
+# Run E2E tests (creates and seeds a separate .svelte-kit/e2e.db)
 pnpm test:e2e
 ```
+
+Browser tests automatically prepare a disposable database; they never use `svelteforge.db`.
 
 Unit tests use an **in-memory SQLite database** created via `test-utils.ts`, so they don't touch your development database.
 

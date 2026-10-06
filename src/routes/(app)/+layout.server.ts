@@ -1,6 +1,6 @@
 import { redirect, error } from "@sveltejs/kit";
-import { db } from "$lib/server/db/index.js";
-import { notifications, appSettings } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { notifications, appSettings } from "#lib/server/db/schema.js";
 import { eq, and, or, isNull, sql, desc } from "drizzle-orm";
 import type { LayoutServerLoad } from "./$types.js";
 

@@ -1,8 +1,8 @@
-import { db } from "$lib/server/db/index.js";
-import { users } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { hash } from "@node-rs/argon2";
-import { generateId } from "$lib/server/auth.js";
+import { generateId } from "#lib/server/auth.js";
 import { eq, sql, inArray } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
 

@@ -1,13 +1,14 @@
+import type { Handle } from "@sveltejs/kit/hooks";
+
 import {
 	validateSession,
 	setSessionCookie,
 	deleteSessionCookie,
 	SESSION_COOKIE_NAME,
-} from "$lib/server/auth.js";
-import { db } from "$lib/server/db/index.js";
-import { sessions } from "$lib/server/db/schema.js";
+} from "#lib/server/auth.js";
+import { db } from "#lib/server/db/index.js";
+import { sessions } from "#lib/server/db/schema.js";
 import { eq } from "drizzle-orm";
-import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const token = event.cookies.get(SESSION_COOKIE_NAME);

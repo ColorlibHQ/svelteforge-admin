@@ -146,7 +146,7 @@
 <p>
 	The notification bell lives in the top navigation bar of the app layout (the header area of the
 	sidebar shell). It is implemented as a Svelte 5 component at
-	<code>$lib/components/notification-bell.svelte</code>.
+	<code>#lib/components/notification-bell.svelte</code>.
 </p>
 
 <h3>Props</h3>
@@ -303,8 +303,8 @@
 
 <pre><code class="language-typescript"
 		>// src/routes/(app)/notifications/+page.server.ts
-import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; notifications &#125; from "$lib/server/db/schema.js";
+import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; notifications &#125; from "#lib/server/db/schema.js";
 import &#123; eq, or, isNull, desc &#125; from "drizzle-orm";
 
 export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
@@ -336,9 +336,9 @@ export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; notifications &#125; from "$lib/server/db/schema.js";
-import &#123; generateId &#125; from "$lib/server/id.js";
+		>import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; notifications &#125; from "#lib/server/db/schema.js";
+import &#123; generateId &#125; from "#lib/server/id.js";
 
 // User-specific notification
 await db.insert(notifications).values(&#123;

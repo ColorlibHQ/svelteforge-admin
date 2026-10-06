@@ -1,12 +1,12 @@
 <script lang="ts">
-	import * as Table from "$lib/components/ui/table/index.js";
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Input } from "$lib/components/ui/input/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
-	import DataTablePagination from "$lib/components/data-table-pagination.svelte";
-	import UserFormDialog from "$lib/components/user-form-dialog.svelte";
-	import DeleteConfirmDialog from "$lib/components/delete-confirm-dialog.svelte";
+	import * as Table from "#lib/components/ui/table/index.js";
+	import * as DropdownMenu from "#lib/components/ui/dropdown-menu/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Input } from "#lib/components/ui/input/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
+	import DataTablePagination from "#lib/components/data-table-pagination.svelte";
+	import UserFormDialog from "#lib/components/user-form-dialog.svelte";
+	import DeleteConfirmDialog from "#lib/components/delete-confirm-dialog.svelte";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import PencilIcon from "@lucide/svelte/icons/pencil";
 	import TrashIcon from "@lucide/svelte/icons/trash-2";
@@ -17,7 +17,7 @@
 	import DownloadIcon from "@lucide/svelte/icons/download";
 	import { toast } from "svelte-sonner";
 	import { enhance } from "$app/forms";
-	import { exportToCSV, exportToJSON } from "$lib/utils/export.js";
+	import { exportToCSV, exportToJSON } from "#lib/utils/export.js";
 
 	let { data, form } = $props();
 

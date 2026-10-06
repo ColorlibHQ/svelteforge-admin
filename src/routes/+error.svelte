@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import * as Card from "$lib/components/ui/card/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import * as Card from "#lib/components/ui/card/index.js";
 	import FileQuestionIcon from "@lucide/svelte/icons/file-question";
 	import ShieldAlertIcon from "@lucide/svelte/icons/shield-alert";
 	import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";

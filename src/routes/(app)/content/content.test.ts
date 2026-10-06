@@ -5,11 +5,11 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
-} from "$lib/server/db/test-utils.js";
-import { pages } from "$lib/server/db/schema.js";
-import { generateId } from "$lib/server/id.js";
+} from "#lib/server/db/test-utils.js";
+import { pages } from "#lib/server/db/schema.js";
+import { generateId } from "#lib/server/id.js";
 
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return (globalThis as any).__testDb;
 	},
@@ -32,6 +32,56 @@ async function seedPage(db: any, authorId: string, overrides: Partial<any> = {})
 }
 
 describe("Content page server", () => {
+	it("prevents viewers from creating, editing, or deleting content", async () => {
+		const db = createTestDb();
+		(globalThis as any).__testDb = db;
+		const userId = await createTestUser(db, { role: "viewer" });
+		const pageId = await seedPage(db, userId);
+		const event = {
+			locals: createMockLocals(userId, "viewer"),
+			params: { id: pageId },
+			request: createMockRequest(createFormData({ id: pageId, ids: pageId })),
+		} as any;
+		const { actions } = await import("./+page.server.js");
+		const create = (await import("./new/+page.server.js")).actions.default;
+		const edit = (await import("./[id]/edit/+page.server.js")).actions.default;
+		for (const action of [actions.delete, actions.bulkDelete, create, edit]) {
+			expect(await action(event)).toHaveProperty("status", 403);
+		}
+		expect(db.select().from(pages).all()).toHaveLength(1);
+	});
+
+	it("allows editors to delete only their own pages, including bulk requests", async () => {
+		const db = createTestDb();
+		(globalThis as any).__testDb = db;
+		const editorId = await createTestUser(db, { role: "editor" });
+		const otherId = await createTestUser(db);
+		const ownPage = await seedPage(db, editorId);
+		const otherPage = await seedPage(db, otherId);
+		const { actions } = await import("./+page.server.js");
+		const locals = createMockLocals(editorId, "editor");
+		expect(
+			await actions.delete({
+				locals,
+				request: createMockRequest(createFormData({ id: otherPage })),
+			} as any)
+		).toHaveProperty("status", 403);
+		expect(
+			await actions.bulkDelete({
+				locals,
+				request: createMockRequest(createFormData({ ids: `${ownPage},${otherPage}` })),
+			} as any)
+		).toHaveProperty("status", 403);
+		expect(db.select().from(pages).all()).toHaveLength(2);
+		expect(
+			await actions.delete({
+				locals,
+				request: createMockRequest(createFormData({ id: ownPage })),
+			} as any)
+		).toEqual({ success: true });
+		expect(db.select().from(pages).all()).toHaveLength(1);
+	});
+
 	it("loads pages for authenticated user", async () => {
 		const db = createTestDb();
 		(globalThis as any).__testDb = db;

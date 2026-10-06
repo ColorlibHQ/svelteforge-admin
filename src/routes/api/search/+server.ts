@@ -1,6 +1,6 @@
-import { json, error } from "@sveltejs/kit";
-import { db } from "$lib/server/db/index.js";
-import { users, pages, notifications } from "$lib/server/db/schema.js";
+import { error } from "@sveltejs/kit";
+import { db } from "#lib/server/db/index.js";
+import { users, pages, notifications } from "#lib/server/db/schema.js";
 import { sql, or, and, eq, isNull } from "drizzle-orm";
 import type { RequestHandler } from "./$types.js";
 
@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 
 	const q = url.searchParams.get("q")?.trim() ?? "";
 	if (q.length < 2) {
-		return json([]);
+		return Response.json([]);
 	}
 
 	const pattern = `%${q}%`;
@@ -63,5 +63,5 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		})),
 	];
 
-	return json(results);
+	return Response.json(results);
 };

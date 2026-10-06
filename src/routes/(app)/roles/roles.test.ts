@@ -5,12 +5,12 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
-} from "$lib/server/db/test-utils.js";
+} from "#lib/server/db/test-utils.js";
 
 let testDb: ReturnType<typeof createTestDb>;
 let adminId: string;
 
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return testDb;
 	},
@@ -52,6 +52,16 @@ describe("Roles page", () => {
 	});
 
 	describe("actions.changeRole", () => {
+		it.each(["viewer", "editor", null])("rejects role escalation by %s", async (role) => {
+			const result = await actions.changeRole({
+				request: createMockRequest(createFormData({ userId: adminId, newRole: "viewer" })),
+				locals: role ? createMockLocals(adminId, role) : { user: null, session: null },
+			} as any);
+			expect(result).toHaveProperty("status", 403);
+			const { users } = await import("#lib/server/db/schema.js");
+			expect(testDb.select({ role: users.role }).from(users).get()?.role).toBe("admin");
+		});
+
 		it("prevents demotion of last admin", async () => {
 			const formData = createFormData({
 				userId: adminId,

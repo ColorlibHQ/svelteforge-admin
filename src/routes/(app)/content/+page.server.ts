@@ -1,13 +1,14 @@
-import { db } from "$lib/server/db/index.js";
-import { pages, users } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { pages, users } from "#lib/server/db/schema.js";
 import { fail } from "@sveltejs/kit";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, and } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async () => {
 	const allPages = await db
 		.select({
 			id: pages.id,
+			authorId: pages.authorId,
 			title: pages.title,
 			slug: pages.slug,
 			template: pages.template,
@@ -25,7 +26,9 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	delete: async ({ request }) => {
+	delete: async ({ request, locals }) => {
+		if (!locals.user || locals.user.role === "viewer")
+			return fail(403, { message: "Content editing access required" });
 		const formData = await request.formData();
 		const id = formData.get("id");
 
@@ -33,12 +36,30 @@ export const actions: Actions = {
 			return fail(400, { message: "Page ID is required" });
 		}
 
-		await db.delete(pages).where(eq(pages.id, id));
+		if (locals.user.role === "editor") {
+			const target = db
+				.select({ authorId: pages.authorId })
+				.from(pages)
+				.where(eq(pages.id, id))
+				.get();
+			if (target && target.authorId !== locals.user.id)
+				return fail(403, { message: "Editors can only delete their own content" });
+		}
+		await db
+			.delete(pages)
+			.where(
+				and(
+					eq(pages.id, id),
+					locals.user.role === "editor" ? eq(pages.authorId, locals.user.id) : undefined
+				)
+			);
 
 		return { success: true };
 	},
 
-	bulkDelete: async ({ request }) => {
+	bulkDelete: async ({ request, locals }) => {
+		if (!locals.user || locals.user.role === "viewer")
+			return fail(403, { message: "Content editing access required" });
 		const formData = await request.formData();
 		const idsRaw = formData.get("ids");
 
@@ -47,7 +68,23 @@ export const actions: Actions = {
 		}
 
 		const ids = idsRaw.split(",").filter(Boolean);
-		await db.delete(pages).where(inArray(pages.id, ids));
+		if (locals.user.role === "editor") {
+			const targets = db
+				.select({ authorId: pages.authorId })
+				.from(pages)
+				.where(inArray(pages.id, ids))
+				.all();
+			if (targets.some((page) => page.authorId !== locals.user!.id))
+				return fail(403, { message: "Editors can only delete their own content" });
+		}
+		await db
+			.delete(pages)
+			.where(
+				and(
+					inArray(pages.id, ids),
+					locals.user.role === "editor" ? eq(pages.authorId, locals.user.id) : undefined
+				)
+			);
 
 		return { success: true };
 	},

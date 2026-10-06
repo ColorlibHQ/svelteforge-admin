@@ -5,6 +5,6 @@ export default defineConfig({
 	out: "./drizzle",
 	dialect: "sqlite",
 	dbCredentials: {
-		url: "svelteforge.db",
+		url: process.env.DATABASE_URL || "svelteforge.db",
 	},
 });

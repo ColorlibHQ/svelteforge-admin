@@ -1,9 +1,9 @@
-import { sha256 } from "@oslojs/crypto/sha2";
-import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
+import { createHash } from "node:crypto";
+import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
 import { db } from "./db/index.js";
 import { sessions, users } from "./db/schema.js";
 import { eq } from "drizzle-orm";
-import { dev } from "$app/environment";
+import { dev } from "$app/env";
 import type { Cookies } from "@sveltejs/kit";
 import type { User, Session } from "./db/schema.js";
 
@@ -26,7 +26,7 @@ export function generateSessionToken(): string {
 }
 
 function hashToken(token: string): string {
-	return encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+	return createHash("sha256").update(token).digest("hex");
 }
 
 export async function createSession(

@@ -194,7 +194,7 @@ export const load: PageServerLoad = async () => {
 			If the status is set to "published" on creation, <code>publishedAt</code> is populated automatically
 		</li>
 		<li>
-			The page ID is generated using <code>generateId()</code> from <code>$lib/server/id.ts</code>
+			The page ID is generated using <code>generateId()</code> from <code>#lib/server/id.ts</code>
 		</li>
 	</ul>
 
@@ -259,7 +259,7 @@ bulkDelete: async ({ request }) => {
 
 	<p>
 		Content data can be exported using the shared utility functions from
-		<code>$lib/utils/export.ts</code>:
+		<code>#lib/utils/export.ts</code>:
 	</p>
 
 	<ul>

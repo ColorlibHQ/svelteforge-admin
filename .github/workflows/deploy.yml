@@ -5,8 +5,15 @@ on:
     branches: [main]
 
 jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    needs: validate
     runs-on: ubuntu-latest
+    env:
+      ORIGIN: https://svelteforge.dashboardpack.com
+      GITHUB_SHA: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -19,9 +26,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Build native modules
-        run: cd node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 && npx node-gyp rebuild --release
-
       - run: pnpm build
 
       - name: Rsync build to server
@@ -33,12 +37,29 @@ jobs:
           rsync -azP --delete -e "ssh -i ~/.ssh/deploy_key" build/ deploy@${{ secrets.REMOTE_HOST }}:/var/www/svelteforge/build/
           # Also sync src/ so the demo-reset cron runs the latest seed script.
           rsync -azP --delete -e "ssh -i ~/.ssh/deploy_key" src/ deploy@${{ secrets.REMOTE_HOST }}:/var/www/svelteforge/src/
+          rsync -azP -e "ssh -i ~/.ssh/deploy_key" package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc vite.config.ts tsconfig.json drizzle.config.ts deploy@${{ secrets.REMOTE_HOST }}:/var/www/svelteforge/
           rm ~/.ssh/deploy_key
 
-      - name: Restart PM2
+      - name: Install runtime dependencies and restart PM2
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: deploy
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: pm2 restart svelteforge
+          script: |
+            set -eu
+            cd /var/www/svelteforge
+            rm -f svelte.config.js
+            pnpm install --frozen-lockfile
+            pm2 restart svelteforge --update-env
+
+      - name: Verify deployed release
+        run: |
+          for attempt in $(seq 1 12); do
+            if curl --fail --silent https://svelteforge.dashboardpack.com/api/health | jq -e --arg commit "$GITHUB_SHA" '.status == "ok" and .commit == $commit'; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "The live demo is not serving the expected commit"
+          exit 1

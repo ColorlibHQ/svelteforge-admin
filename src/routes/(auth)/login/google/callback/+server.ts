@@ -1,13 +1,13 @@
 import { redirect } from "@sveltejs/kit";
-import { google } from "$lib/server/oauth.js";
-import { db } from "$lib/server/db/index.js";
-import { users, oauthAccounts } from "$lib/server/db/schema.js";
+import { google } from "#lib/server/oauth.js";
+import { db } from "#lib/server/db/index.js";
+import { users, oauthAccounts } from "#lib/server/db/schema.js";
 import {
 	generateSessionToken,
 	createSession,
 	setSessionCookie,
 	generateId,
-} from "$lib/server/auth.js";
+} from "#lib/server/auth.js";
 import { eq, and } from "drizzle-orm";
 import { hash } from "@node-rs/argon2";
 import type { RequestHandler } from "./$types.js";

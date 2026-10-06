@@ -1,11 +1,11 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import * as Chart from "$lib/components/ui/chart/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
-	import { Separator } from "$lib/components/ui/separator/index.js";
-	import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
-	import { Skeleton } from "$lib/components/ui/skeleton/index.js";
-	import AnimatedCounter from "$lib/components/animated-counter.svelte";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import * as Chart from "#lib/components/ui/chart/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
+	import { Separator } from "#lib/components/ui/separator/index.js";
+	import { ScrollArea } from "#lib/components/ui/scroll-area/index.js";
+	import { Skeleton } from "#lib/components/ui/skeleton/index.js";
+	import AnimatedCounter from "#lib/components/animated-counter.svelte";
 	import { AreaChart, PieChart, BarChart } from "layerchart";
 	import { scaleUtc, scaleBand } from "d3-scale";
 	import { mode } from "mode-watcher";

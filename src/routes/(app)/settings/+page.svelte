@@ -1,16 +1,16 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import * as Tabs from "$lib/components/ui/tabs/index.js";
-	import * as Select from "$lib/components/ui/select/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Input } from "$lib/components/ui/input/index.js";
-	import { Label } from "$lib/components/ui/label/index.js";
-	import { Switch } from "$lib/components/ui/switch/index.js";
-	import { Separator } from "$lib/components/ui/separator/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import * as Tabs from "#lib/components/ui/tabs/index.js";
+	import * as Select from "#lib/components/ui/select/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Input } from "#lib/components/ui/input/index.js";
+	import { Label } from "#lib/components/ui/label/index.js";
+	import { Switch } from "#lib/components/ui/switch/index.js";
+	import { Separator } from "#lib/components/ui/separator/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
 	import { enhance } from "$app/forms";
 	import { toast } from "svelte-sonner";
-	import { parseUserAgent } from "$lib/utils/user-agent.js";
+	import { parseUserAgent } from "#lib/utils/user-agent.js";
 	import MonitorIcon from "@lucide/svelte/icons/monitor";
 	import SmartphoneIcon from "@lucide/svelte/icons/smartphone";
 	import TabletIcon from "@lucide/svelte/icons/tablet";

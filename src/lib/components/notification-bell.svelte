@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Popover from "$lib/components/ui/popover/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
+	import * as Popover from "#lib/components/ui/popover/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
 	import BellIcon from "@lucide/svelte/icons/bell";
 	import InfoIcon from "@lucide/svelte/icons/info";
 	import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";

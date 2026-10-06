@@ -27,7 +27,7 @@
 <p>
 	Vitest is configured in <code>vite.config.ts</code> under the <code>test</code> key, inheriting
 	<strong>SvelteKit's</strong> Vite configuration automatically. This means path aliases like
-	<code>$lib</code> work in test files without additional configuration.
+	<code>#lib</code> work in test files without additional configuration.
 </p>
 
 <pre><code class="language-ts"
@@ -147,18 +147,18 @@ export function createTestDb() &#123;
 
 <p>
 	<strong>SvelteKit</strong> server modules import the database from
-	<code>$lib/server/db/index.js</code>. Tests must intercept this import and redirect it to the
+	<code>#lib/server/db/index.js</code>. Tests must intercept this import and redirect it to the
 	in-memory test database. This requires a specific two-step pattern:
 </p>
 
 <pre><code class="language-ts"
 		>import &#123; describe, it, expect, vi, beforeEach &#125; from "vitest";
-import &#123; createTestDb, createTestUser, createMockLocals &#125; from "$lib/test-utils.js";
+import &#123; createTestDb, createTestUser, createMockLocals &#125; from "#lib/server/db/test-utils.js";
 
 let testDb: ReturnType&lt;typeof createTestDb&gt;;
 
 // Step 1: Set up the mock BEFORE importing the server module
-vi.mock("$lib/server/db/index.js", () =&gt; (&#123;
+vi.mock("#lib/server/db/index.js", () =&gt; (&#123;
   get db() &#123;
     return testDb;
   &#125;,
@@ -609,7 +609,7 @@ expect(updatedUser.role).toBe("editor"); // Verify DB state</code
 		</tr>
 		<tr>
 			<td>Path alias errors in tests</td>
-			<td>Vitest inherits SvelteKit's Vite config — <code>$lib</code> works automatically</td>
+			<td>Vitest inherits SvelteKit's Vite config — <code>#lib</code> works automatically</td>
 		</tr>
 	</tbody>
 </table>

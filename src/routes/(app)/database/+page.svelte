@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import * as Table from "$lib/components/ui/table/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import * as Table from "#lib/components/ui/table/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
 	import DatabaseIcon from "@lucide/svelte/icons/database";
 	import HardDriveIcon from "@lucide/svelte/icons/hard-drive";
 	import TableIcon from "@lucide/svelte/icons/table-2";

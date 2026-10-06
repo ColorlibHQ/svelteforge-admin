@@ -5,15 +5,15 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
-} from "$lib/server/db/test-utils.js";
+} from "#lib/server/db/test-utils.js";
 
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return (globalThis as any).__testDb;
 	},
 }));
 
-vi.mock("$lib/server/auth.js", () => ({
+vi.mock("#lib/server/auth.js", () => ({
 	lucia: {
 		invalidateSession: vi.fn(),
 	},

@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { notifications } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { notifications } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { eq, and, or, isNull, desc } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";

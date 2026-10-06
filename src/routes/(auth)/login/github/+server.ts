@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import * as arctic from "arctic";
-import { github } from "$lib/server/oauth.js";
+import { github } from "#lib/server/oauth.js";
 import type { RequestHandler } from "./$types.js";
 
 export const GET: RequestHandler = async ({ cookies }) => {
@@ -20,5 +20,5 @@ export const GET: RequestHandler = async ({ cookies }) => {
 		maxAge: 60 * 10,
 	});
 
-	redirect(302, url.toString());
+	redirect(302, url.toString(), { external: [url.origin] });
 };

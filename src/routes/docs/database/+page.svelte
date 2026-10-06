@@ -45,7 +45,7 @@
 
 <p>
 	The database connection is established in <code>src/lib/server/db/index.ts</code>. Because this
-	file lives inside <strong>SvelteKit's</strong> <code>$lib/server/</code> directory, it is
+	file lives inside <strong>SvelteKit's</strong> <code>#lib/server/</code> directory, it is
 	guaranteed to never leak to the client bundle — a key security feature of
 	<strong>SvelteKit's</strong> module system.
 </p>
@@ -833,7 +833,7 @@ export default defineConfig(&#123;
 		<strong>Runs outside SvelteKit:</strong> The seed script is executed via
 		<code>npx tsx</code>, not through <strong>SvelteKit's</strong> Vite server. This means it uses
 		relative imports (<code>./index.js</code>, <code>../id.js</code>) instead of
-		<code>$lib/</code> aliases.
+		<code>#lib/</code> aliases.
 	</li>
 </ul>
 
@@ -862,8 +862,8 @@ export default defineConfig(&#123;
 <h3>Select All Records</h3>
 
 <pre><code class="language-typescript"
-		>import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; users &#125; from "$lib/server/db/schema.js";
+		>import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; users &#125; from "#lib/server/db/schema.js";
 
 // Select specific columns
 const allUsers = await db
@@ -892,7 +892,7 @@ const user = await db.query.users.findFirst(&#123;
 <h3>Insert a Record</h3>
 
 <pre><code class="language-typescript"
-		>import &#123; generateId &#125; from "$lib/server/id.js";
+		>import &#123; generateId &#125; from "#lib/server/id.js";
 
 await db.insert(users).values(&#123;
   id: generateId(10),

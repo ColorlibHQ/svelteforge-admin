@@ -2,7 +2,7 @@
 	<title>Project Structure - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Understand the complete file and directory structure of SvelteForge Admin, a SvelteKit 2 + Svelte 5 admin dashboard with session-based auth, Drizzle ORM, and Tailwind CSS 4."
+		content="Understand the complete file and directory structure of SvelteForge Admin, a SvelteKit 3 + Svelte 5 admin dashboard with session-based auth, Drizzle ORM, and Tailwind CSS 4."
 	/>
 </svelte:head>
 
@@ -121,7 +121,6 @@
 ├── svelteforge.db                   # SQLite database (gitignored)
 ├── drizzle.config.ts                # Drizzle ORM configuration
 ├── vite.config.ts                   # Vite + SvelteKit configuration
-├── svelte.config.js                 # Svelte compiler configuration
 ├── tailwind.config.ts               # Tailwind CSS configuration
 ├── tsconfig.json                    # TypeScript configuration
 ├── package.json                     # Dependencies and scripts
@@ -209,7 +208,7 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	<strong>SvelteKit</strong> enforces a strict server boundary. Any module inside
-	<code>$lib/server/</code> is guaranteed to never be bundled into client-side JavaScript. If you
+	<code>#lib/server/</code> is guaranteed to never be bundled into client-side JavaScript. If you
 	accidentally import a server module from a <code>.svelte</code> component, the build will fail with
 	a clear error. This is critical for SvelteForge because sensitive code lives here:
 </p>
@@ -260,7 +259,7 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	<li>
 		<strong><code>seed.ts</code></strong> — Populates the database with sample data. Runs via
 		<code>pnpm db:seed</code> using <code>npx tsx</code> (not SvelteKit's runtime), so it uses
-		relative imports instead of <code>$lib/</code> aliases.
+		relative imports instead of <code>#lib/</code> aliases.
 	</li>
 </ul>
 
@@ -484,9 +483,8 @@ export function cn(...inputs: ClassValue[]) &#123;
 			>
 		</tr>
 		<tr>
-			<td><code>svelte.config.js</code></td>
-			<td>Svelte compiler configuration with the Vite adapter and <code>$lib</code> alias setup.</td
-			>
+			<td><code>vite.config.ts</code></td>
+			<td>SvelteKit configuration, Node adapter, Tailwind, and Vitest.</td>
 		</tr>
 		<tr>
 			<td><code>package.json</code></td>

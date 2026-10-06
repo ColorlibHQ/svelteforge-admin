@@ -1,4 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolve } from "node:path";
+
+// Browser tests mutate data: always use a dedicated, freshly seeded database.
+process.env.DATABASE_URL = resolve(".svelte-kit/e2e.db");
+process.env.ORIGIN = "http://localhost:4173";
+process.env.DEMO_MODE = "false";
 
 export default defineConfig({
 	testDir: "e2e",
@@ -22,9 +28,9 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "pnpm build && pnpm preview",
+		command: "pnpm exec tsx e2e/setup.ts && pnpm build && pnpm preview",
 		port: 4173,
-		reuseExistingServer: !process.env.CI,
+		reuseExistingServer: false,
 		// A cold production build has to finish before the server binds the port.
 		timeout: 180_000,
 	},

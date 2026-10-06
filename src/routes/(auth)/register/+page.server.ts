@@ -3,9 +3,9 @@ import {
 	createSession,
 	setSessionCookie,
 	generateId,
-} from "$lib/server/auth.js";
-import { db } from "$lib/server/db/index.js";
-import { users } from "$lib/server/db/schema.js";
+} from "#lib/server/auth.js";
+import { db } from "#lib/server/db/index.js";
+import { users } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { hash } from "@node-rs/argon2";
 import type { Actions, PageServerLoad } from "./$types.js";
@@ -53,14 +53,22 @@ export const actions: Actions = {
 		const userId = generateId(10);
 
 		try {
-			await db.insert(users).values({
-				id: userId,
-				email: email.toLowerCase(),
-				username: username.toLowerCase(),
-				passwordHash,
-				name,
-				role: "admin", // First user gets admin role
-			});
+			// Serialize the first-user check and insert, including concurrent registrations.
+			db.transaction(
+				(tx) => {
+					tx.insert(users)
+						.values({
+							id: userId,
+							email: email.toLowerCase(),
+							username: username.toLowerCase(),
+							passwordHash,
+							name,
+							role: tx.select({ id: users.id }).from(users).limit(1).get() ? "viewer" : "admin",
+						})
+						.run();
+				},
+				{ behavior: "immediate" }
+			);
 		} catch {
 			return fail(400, { message: "Username or email already taken" });
 		}

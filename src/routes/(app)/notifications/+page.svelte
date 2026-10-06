@@ -1,7 +1,7 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
 	import { enhance } from "$app/forms";
 	import InfoIcon from "@lucide/svelte/icons/info";
 	import AlertTriangleIcon from "@lucide/svelte/icons/alert-triangle";

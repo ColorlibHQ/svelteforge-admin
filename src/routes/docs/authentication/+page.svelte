@@ -771,7 +771,7 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 		<tr>
 			<td>Server boundary</td>
 			<td
-				>All auth code in <code>$lib/server/</code> — <strong>SvelteKit</strong> prevents client-side
+				>All auth code in <code>#lib/server/</code> — <strong>SvelteKit</strong> prevents client-side
 				import</td
 			>
 		</tr>

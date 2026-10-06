@@ -1,4 +1,4 @@
-import { invalidateSession, deleteSessionCookie } from "$lib/server/auth.js";
+import { invalidateSession, deleteSessionCookie } from "#lib/server/auth.js";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types.js";
 

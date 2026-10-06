@@ -2,7 +2,7 @@
 	<title>Getting Started - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Install and set up SvelteForge Admin — a SvelteKit 2 + Svelte 5 admin dashboard with auth, RBAC, and database seeding."
+		content="Install and set up SvelteForge Admin — a SvelteKit 3 + Svelte 5 admin dashboard with auth, RBAC, and database seeding."
 	/>
 </svelte:head>
 
@@ -17,7 +17,7 @@
 <h2>Prerequisites</h2>
 
 <ul>
-	<li><strong>Node.js 18+</strong> (LTS recommended)</li>
+	<li><strong>Node.js 22.17+</strong> (LTS recommended)</li>
 	<li>
 		<strong>pnpm</strong> — Install globally with <code>npm install -g pnpm</code> if you don't have it
 	</li>
@@ -202,7 +202,7 @@ GITHUB_CLIENT_SECRET=</code
 </table>
 
 <p>
-	OAuth providers are configured in <code>$lib/server/oauth.ts</code> using SvelteKit's
+	OAuth providers are configured in <code>#lib/server/oauth.ts</code> using SvelteKit's
 	<code>$env/dynamic/private</code>. When the environment variables are missing, the corresponding
 	social login buttons are automatically hidden from the login page. See the
 	<a href="/docs/authentication">Authentication docs</a> for full OAuth setup instructions.

@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { users, sessions, pages, notifications, appSettings } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users, sessions, pages, notifications, appSettings } from "#lib/server/db/schema.js";
 import { sql } from "drizzle-orm";
 import { error, redirect } from "@sveltejs/kit";
 import { statSync } from "fs";
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Get DB file size
 	let dbSizeBytes = 0;
 	try {
-		const dbPath = resolve("svelteforge.db");
+		const dbPath = resolve(process.env.DATABASE_URL || "svelteforge.db");
 		const stats = statSync(dbPath);
 		dbSizeBytes = stats.size;
 	} catch {

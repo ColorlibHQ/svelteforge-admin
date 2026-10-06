@@ -2,7 +2,7 @@
 	<title>Introduction - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="SvelteForge Admin is a production-ready admin dashboard built with SvelteKit 2 and Svelte 5's runes API. Explore the docs to get started."
+		content="SvelteForge Admin is a production-ready admin dashboard built with SvelteKit 3 and Svelte 5's runes API. Explore the docs to get started."
 	/>
 </svelte:head>
 
@@ -10,7 +10,7 @@
 
 <p>
 	SvelteForge Admin is a <strong>production-ready admin dashboard</strong> built entirely with
-	<strong>SvelteKit 2</strong> and <strong>Svelte 5's runes API</strong>. It provides everything you
+	<strong>SvelteKit 3</strong> and <strong>Svelte 5's runes API</strong>. It provides everything you
 	need to build internal tools, back-office applications, and content management systems — with
 	authentication, role-based access control, a CMS, analytics dashboards, and more out of the box.
 </p>
@@ -103,7 +103,7 @@
 	</li>
 	<li>
 		<strong>Server-only modules</strong> — Sensitive code (auth, database, OAuth) lives in
-		<code>$lib/server/</code> and is guaranteed never to leak to the client bundle.
+		<code>#lib/server/</code> and is guaranteed never to leak to the client bundle.
 	</li>
 </ul>
 
@@ -179,7 +179,7 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><strong>SvelteKit 2.50 + Svelte 5</strong></td>
+			<td><strong>SvelteKit 3 + Svelte 5</strong></td>
 			<td>Application framework with runes-based reactivity</td>
 		</tr>
 		<tr>

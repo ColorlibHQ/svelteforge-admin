@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { users, passwordResetTokens } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users, passwordResetTokens } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 import { hash } from "@node-rs/argon2";

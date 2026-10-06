@@ -275,8 +275,8 @@
 <pre><code class="language-typescript"
 		>// src/routes/(app)/+layout.server.ts
 import &#123; redirect, error &#125; from "@sveltejs/kit";
-import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; notifications, appSettings &#125; from "$lib/server/db/schema.js";
+import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; notifications, appSettings &#125; from "#lib/server/db/schema.js";
 import &#123; eq, and, or, isNull, sql, desc &#125; from "drizzle-orm";
 import type &#123; LayoutServerLoad &#125; from "./$types.js";
 
@@ -360,7 +360,7 @@ import &#123;
   setSessionCookie,
   deleteSessionCookie,
   SESSION_COOKIE_NAME,
-&#125; from "$lib/server/auth.js";
+&#125; from "#lib/server/auth.js";
 import type &#123; Handle &#125; from "@sveltejs/kit";
 
 export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
@@ -507,8 +507,8 @@ declare global &#123;
 
 <pre><code class="language-typescript"
 		>// src/routes/(app)/reports/+page.server.ts
-import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; pages &#125; from "$lib/server/db/schema.js";
+import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; pages &#125; from "#lib/server/db/schema.js";
 import &#123; sql &#125; from "drizzle-orm";
 import type &#123; PageServerLoad &#125; from "./$types.js";
 
@@ -668,7 +668,7 @@ export const actions: Actions = &#123;
 
 <pre><code class="language-typescript"
 		>// src/routes/api/search/+server.ts
-import &#123; json, error &#125; from "@sveltejs/kit";
+import &#123; error &#125; from "@sveltejs/kit";
 import type &#123; RequestHandler &#125; from "./$types.js";
 
 export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123;
@@ -677,7 +677,7 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
   &#125;
 
   const q = url.searchParams.get("q")?.trim() ?? "";
-  if (q.length &lt; 2) return json([]);
+  if (q.length &lt; 2) return Response.json([]);
 
   const pattern = `%$&#123;q&#125;%`;
 
@@ -694,7 +694,7 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
       // ... notifications query
     ]);
 
-  return json(results);
+  return Response.json(results);
 &#125;;</code
 	></pre>
 

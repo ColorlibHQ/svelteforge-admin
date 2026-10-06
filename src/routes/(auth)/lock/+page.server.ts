@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { users } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { verify } from "@node-rs/argon2";
 import { eq } from "drizzle-orm";

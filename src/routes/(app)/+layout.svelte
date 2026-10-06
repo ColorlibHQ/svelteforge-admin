@@ -1,14 +1,14 @@
 <script lang="ts">
-	import AppSidebar from "$lib/components/app-sidebar.svelte";
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import * as Breadcrumb from "$lib/components/ui/breadcrumb/index.js";
-	import { Separator } from "$lib/components/ui/separator/index.js";
+	import AppSidebar from "#lib/components/app-sidebar.svelte";
+	import * as Sidebar from "#lib/components/ui/sidebar/index.js";
+	import * as Breadcrumb from "#lib/components/ui/breadcrumb/index.js";
+	import { Separator } from "#lib/components/ui/separator/index.js";
 	import { page } from "$app/state";
-	import { Toaster } from "$lib/components/ui/sonner/index.js";
-	import ThemeToggle from "$lib/components/theme-toggle.svelte";
-	import CommandPalette from "$lib/components/command-palette.svelte";
-	import NotificationBell from "$lib/components/notification-bell.svelte";
-	import AppsMenu from "$lib/components/apps-menu.svelte";
+	import { Toaster } from "#lib/components/ui/sonner/index.js";
+	import ThemeToggle from "#lib/components/theme-toggle.svelte";
+	import CommandPalette from "#lib/components/command-palette.svelte";
+	import NotificationBell from "#lib/components/notification-bell.svelte";
+	import AppsMenu from "#lib/components/apps-menu.svelte";
 
 	let { children, data } = $props();
 

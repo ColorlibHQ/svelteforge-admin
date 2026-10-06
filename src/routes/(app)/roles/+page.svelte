@@ -1,9 +1,9 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import * as Avatar from "$lib/components/ui/avatar/index.js";
-	import RoleChangeDialog from "$lib/components/role-change-dialog.svelte";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import * as Avatar from "#lib/components/ui/avatar/index.js";
+	import RoleChangeDialog from "#lib/components/role-change-dialog.svelte";
 	import ShieldIcon from "@lucide/svelte/icons/shield";
 	import PencilIcon from "@lucide/svelte/icons/pencil";
 	import UsersIcon from "@lucide/svelte/icons/users";
@@ -112,6 +112,7 @@
 										</div>
 										<Button
 											variant="ghost"
+											disabled={data.user.role !== "admin"}
 											size="sm"
 											onclick={() =>
 												openRoleChange({ id: user.id, name: user.name, role: role.name })}

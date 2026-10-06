@@ -1,6 +1,6 @@
 <script lang="ts">
-	import * as Card from "$lib/components/ui/card/index.js";
-	import * as Chart from "$lib/components/ui/chart/index.js";
+	import * as Card from "#lib/components/ui/card/index.js";
+	import * as Chart from "#lib/components/ui/chart/index.js";
 	import { AreaChart, LineChart, PieChart, BarChart } from "layerchart";
 	import { scaleUtc, scaleBand } from "d3-scale";
 	import { mode } from "mode-watcher";

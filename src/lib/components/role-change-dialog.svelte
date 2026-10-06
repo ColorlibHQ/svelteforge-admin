@@ -1,8 +1,8 @@
 <script lang="ts">
-	import * as Dialog from "$lib/components/ui/dialog/index.js";
-	import * as Select from "$lib/components/ui/select/index.js";
-	import { Button } from "$lib/components/ui/button/index.js";
-	import { Label } from "$lib/components/ui/label/index.js";
+	import * as Dialog from "#lib/components/ui/dialog/index.js";
+	import * as Select from "#lib/components/ui/select/index.js";
+	import { Button } from "#lib/components/ui/button/index.js";
+	import { Label } from "#lib/components/ui/label/index.js";
 	import { enhance } from "$app/forms";
 
 	type Props = {

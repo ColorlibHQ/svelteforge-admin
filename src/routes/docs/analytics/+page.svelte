@@ -324,8 +324,8 @@ export default defineConfig(&#123;
 
 <pre><code class="language-typescript"
 		>// src/routes/(app)/analytics/+page.server.ts
-import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; users, pages, notifications &#125; from "$lib/server/db/schema.js";
+import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; users, pages, notifications &#125; from "#lib/server/db/schema.js";
 import &#123; sql, eq &#125; from "drizzle-orm";
 
 export const load: PageServerLoad = async () =&gt; &#123;
@@ -368,13 +368,13 @@ export const load: PageServerLoad = async () =&gt; &#123;
 
 <p>
 	KPI cards on the dashboard use the <code>AnimatedCounter</code> component located at
-	<code>$lib/components/animated-counter.svelte</code>. It animates from zero to the target value
+	<code>#lib/components/animated-counter.svelte</code>. It animates from zero to the target value
 	using <strong>easeOutExpo</strong> easing for a satisfying deceleration effect.
 </p>
 
 <pre><code class="language-svelte"
 		>&lt;script lang="ts"&gt;
-  import AnimatedCounter from "$lib/components/animated-counter.svelte";
+  import AnimatedCounter from "#lib/components/animated-counter.svelte";
 &lt;/script&gt;
 
 &lt;!-- Basic usage --&gt;

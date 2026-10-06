@@ -1,5 +1,5 @@
 <script lang="ts">
-	import * as AlertDialog from "$lib/components/ui/alert-dialog/index.js";
+	import * as AlertDialog from "#lib/components/ui/alert-dialog/index.js";
 	import { enhance } from "$app/forms";
 
 	type Props = {

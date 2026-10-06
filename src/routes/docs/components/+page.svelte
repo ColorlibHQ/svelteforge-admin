@@ -474,7 +474,7 @@
 
 <pre><code class="language-svelte"
 		>&lt;script lang="ts"&gt;
-  import &#123; IsMobile &#125; from "$lib/hooks/is-mobile.svelte";
+  import &#123; IsMobile &#125; from "#lib/hooks/is-mobile.svelte.js";
 
   const isMobile = new IsMobile();
 &lt;/script&gt;
@@ -503,7 +503,7 @@
 </p>
 
 <pre><code class="language-ts"
-		>import &#123; cn &#125; from "$lib/utils";
+		>import &#123; cn &#125; from "#lib/utils.js";
 
 // Merge base classes with conditional and override classes
 cn("px-4 py-2 bg-primary", isActive && "bg-primary/90", className);
@@ -511,7 +511,7 @@ cn("px-4 py-2 bg-primary", isActive && "bg-primary/90", className);
 	></pre>
 
 <p>
-	Import it from <code>$lib/utils</code> — this is the standard pattern across all
+	Import it from <code>#lib/utils</code> — this is the standard pattern across all
 	<strong>SvelteKit</strong> components in the project.
 </p>
 

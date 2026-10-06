@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Command } from "bits-ui";
-	import * as Dialog from "$lib/components/ui/dialog/index.js";
+	import * as Dialog from "#lib/components/ui/dialog/index.js";
 	import { goto } from "$app/navigation";
 	import { toggleMode } from "mode-watcher";
 	import SearchIcon from "@lucide/svelte/icons/search";

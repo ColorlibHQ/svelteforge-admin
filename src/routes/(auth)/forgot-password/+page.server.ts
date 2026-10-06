@@ -1,8 +1,8 @@
-import { db } from "$lib/server/db/index.js";
-import { users, passwordResetTokens } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users, passwordResetTokens } from "#lib/server/db/schema.js";
 import { fail } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
-import { generateId } from "$lib/server/auth.js";
+import { generateId } from "#lib/server/auth.js";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async ({ locals }) => {

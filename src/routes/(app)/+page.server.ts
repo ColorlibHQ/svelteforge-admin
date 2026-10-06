@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
-import { db } from "$lib/server/db/index.js";
-import { users, sessions, pages, notifications, appSettings } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users, sessions, pages, notifications, appSettings } from "#lib/server/db/schema.js";
 import { sql, eq, gt, desc, or, isNull } from "drizzle-orm";
 import type { PageServerLoad } from "./$types.js";
 

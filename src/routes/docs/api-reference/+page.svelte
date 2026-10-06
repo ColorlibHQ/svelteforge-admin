@@ -16,15 +16,15 @@
 </p>
 
 <p>
-	All server-side modules live in <code>$lib/server/</code>, which
+	All server-side modules live in <code>#lib/server/</code>, which
 	<strong>SvelteKit</strong> guarantees will never be included in client-side bundles. Client-safe
-	utilities are in <code>$lib/utils/</code> and <code>$lib/utils.ts</code>.
+	utilities are in <code>#lib/utils/</code> and <code>#lib/utils.ts</code>.
 </p>
 
 <h2>Auth Module</h2>
 
 <p>
-	<code>$lib/server/auth.ts</code> — Session management with SHA-256 hashed tokens, automatic
+	<code>#lib/server/auth.ts</code> — Session management with SHA-256 hashed tokens, automatic
 	session extension, and secure cookie handling. This is the core authentication layer for your
 	<strong>SvelteKit</strong> application.
 </p>
@@ -37,7 +37,7 @@
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; generateSessionToken &#125; from "$lib/server/auth.js";
+		>import &#123; generateSessionToken &#125; from "#lib/server/auth.js";
 
 const token = generateSessionToken();
 // => "4bv7h2xk9qm3np6wr8yta5cj2dfs7g"</code
@@ -51,7 +51,7 @@ const token = generateSessionToken();
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; hashToken &#125; from "$lib/server/auth.js";
+		>import &#123; hashToken &#125; from "#lib/server/auth.js";
 
 const sessionId = hashToken(token);
 // => hex-encoded SHA-256 hash</code
@@ -65,7 +65,7 @@ const sessionId = hashToken(token);
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; generateSessionToken, createSession &#125; from "$lib/server/auth.js";
+		>import &#123; generateSessionToken, createSession &#125; from "#lib/server/auth.js";
 
 const token = generateSessionToken();
 const session = createSession(token, user.id, &#123;
@@ -89,7 +89,7 @@ const session = createSession(token, user.id, &#123;
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; validateSession &#125; from "$lib/server/auth.js";
+		>import &#123; validateSession &#125; from "#lib/server/auth.js";
 
 const result = validateSession(token);
 if (result.session) &#123;
@@ -105,7 +105,7 @@ if (result.session) &#123;
 <p>Deletes a single session from the database. Used during logout.</p>
 
 <pre><code class="language-typescript"
-		>import &#123; invalidateSession &#125; from "$lib/server/auth.js";
+		>import &#123; invalidateSession &#125; from "#lib/server/auth.js";
 
 invalidateSession(session.id);</code
 	></pre>
@@ -118,7 +118,7 @@ invalidateSession(session.id);</code
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; invalidateAllSessions &#125; from "$lib/server/auth.js";
+		>import &#123; invalidateAllSessions &#125; from "#lib/server/auth.js";
 
 // Force logout on all devices
 invalidateAllSessions(user.id);</code
@@ -133,7 +133,7 @@ invalidateAllSessions(user.id);</code
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; setSessionCookie &#125; from "$lib/server/auth.js";
+		>import &#123; setSessionCookie &#125; from "#lib/server/auth.js";
 
 setSessionCookie(event, token, session.expiresAt);</code
 	></pre>
@@ -143,7 +143,7 @@ setSessionCookie(event, token, session.expiresAt);</code
 <p>Clears the session cookie by setting it to an empty value with an immediate expiry.</p>
 
 <pre><code class="language-typescript"
-		>import &#123; deleteSessionCookie &#125; from "$lib/server/auth.js";
+		>import &#123; deleteSessionCookie &#125; from "#lib/server/auth.js";
 
 deleteSessionCookie(event);</code
 	></pre>
@@ -169,7 +169,7 @@ deleteSessionCookie(event);</code
 <h2>OAuth Module</h2>
 
 <p>
-	<code>$lib/server/oauth.ts</code> — Arctic OAuth providers for Google and GitHub. Providers are
+	<code>#lib/server/oauth.ts</code> — Arctic OAuth providers for Google and GitHub. Providers are
 	conditionally initialized based on environment variables, making OAuth entirely optional in your
 	<strong>SvelteKit</strong> deployment.
 </p>
@@ -182,7 +182,7 @@ deleteSessionCookie(event);</code
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; google &#125; from "$lib/server/oauth.js";
+		>import &#123; google &#125; from "#lib/server/oauth.js";
 
 if (google) &#123;
   const url = google.createAuthorizationURL(state, codeVerifier, &#123;
@@ -199,7 +199,7 @@ if (google) &#123;
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; github &#125; from "$lib/server/oauth.js";
+		>import &#123; github &#125; from "#lib/server/oauth.js";
 
 if (github) &#123;
   const url = github.createAuthorizationURL(state, &#123;
@@ -216,7 +216,7 @@ if (github) &#123;
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; getEnabledProviders &#125; from "$lib/server/oauth.js";
+		>import &#123; getEnabledProviders &#125; from "#lib/server/oauth.js";
 
 const providers = getEnabledProviders();
 // => ["google", "github"] or ["google"] or []</code
@@ -225,7 +225,7 @@ const providers = getEnabledProviders();
 <h2>Database</h2>
 
 <p>
-	<code>$lib/server/db/index.ts</code> — Drizzle ORM instance configured with SQLite
+	<code>#lib/server/db/index.ts</code> — Drizzle ORM instance configured with SQLite
 	(better-sqlite3) in WAL mode. Provides full type inference from the schema for use in
 	<strong>SvelteKit</strong> server routes and form actions.
 </p>
@@ -238,8 +238,8 @@ const providers = getEnabledProviders();
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; db &#125; from "$lib/server/db/index.js";
-import &#123; users &#125; from "$lib/server/db/schema.js";
+		>import &#123; db &#125; from "#lib/server/db/index.js";
+import &#123; users &#125; from "#lib/server/db/schema.js";
 import &#123; eq &#125; from "drizzle-orm";
 
 // SQL-like query builder
@@ -254,7 +254,7 @@ const user = await db.query.users.findFirst(&#123;
 <h3>Schema Tables</h3>
 
 <p>
-	All tables are exported from <code>$lib/server/db/schema.ts</code> and available through the
+	All tables are exported from <code>#lib/server/db/schema.ts</code> and available through the
 	<code>db</code> instance:
 </p>
 
@@ -313,13 +313,13 @@ const user = await db.query.users.findFirst(&#123;
   OAuthAccount,
   AppSetting,
   PasswordResetToken,
-&#125; from "$lib/server/db/schema.js";</code
+&#125; from "#lib/server/db/schema.js";</code
 	></pre>
 
 <h2>ID Generator</h2>
 
 <p>
-	<code>$lib/server/id.ts</code> — Cryptographic random ID generation used for all entity
+	<code>#lib/server/id.ts</code> — Cryptographic random ID generation used for all entity
 	identifiers throughout the <strong>SvelteKit</strong> application.
 </p>
 
@@ -332,7 +332,7 @@ const user = await db.query.users.findFirst(&#123;
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; generateId &#125; from "$lib/server/id.js";
+		>import &#123; generateId &#125; from "#lib/server/id.js";
 
 const userId = generateId();       // 24 chars, 120 bits of entropy
 const shortId = generateId(10);    // 16 chars, 80 bits of entropy</code
@@ -346,7 +346,7 @@ const shortId = generateId(10);    // 16 chars, 80 bits of entropy</code
 <h2>Export Utilities</h2>
 
 <p>
-	<code>$lib/utils/export.ts</code> — Client-side data export functions that trigger browser
+	<code>#lib/utils/export.ts</code> — Client-side data export functions that trigger browser
 	downloads. Used by the user management and content management pages in the
 	<strong>Svelte 5</strong> application.
 </p>
@@ -359,7 +359,7 @@ const shortId = generateId(10);    // 16 chars, 80 bits of entropy</code
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; exportToCSV &#125; from "$lib/utils/export.js";
+		>import &#123; exportToCSV &#125; from "#lib/utils/export.js";
 
 // Triggers download of "users.csv"
 exportToCSV(users, "users.csv");</code
@@ -373,7 +373,7 @@ exportToCSV(users, "users.csv");</code
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; exportToJSON &#125; from "$lib/utils/export.js";
+		>import &#123; exportToJSON &#125; from "#lib/utils/export.js";
 
 // Triggers download of "users.json"
 exportToJSON(users, "users.json");</code
@@ -387,7 +387,7 @@ exportToJSON(users, "users.json");</code
 <h2>User-Agent Parser</h2>
 
 <p>
-	<code>$lib/utils/user-agent.ts</code> — Lightweight user-agent string parser used by the session management
+	<code>#lib/utils/user-agent.ts</code> — Lightweight user-agent string parser used by the session management
 	UI to display readable browser, OS, and device information.
 </p>
 
@@ -396,7 +396,7 @@ exportToJSON(users, "users.json");</code
 <p>Parses a user-agent string and returns structured information about the client.</p>
 
 <pre><code class="language-typescript"
-		>import &#123; parseUserAgent &#125; from "$lib/utils/user-agent.js";
+		>import &#123; parseUserAgent &#125; from "#lib/utils/user-agent.js";
 
 const info = parseUserAgent(
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -430,7 +430,7 @@ const info = parseUserAgent(
 <h2>Utility Helpers</h2>
 
 <p>
-	<code>$lib/utils.ts</code> — Shared utility functions used across the
+	<code>#lib/utils.ts</code> — Shared utility functions used across the
 	<strong>Svelte 5</strong> application.
 </p>
 
@@ -442,7 +442,7 @@ const info = parseUserAgent(
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; cn &#125; from "$lib/utils.js";
+		>import &#123; cn &#125; from "#lib/utils.js";
 
 // Conditional classes with Tailwind deduplication
 const classes = cn(
@@ -461,7 +461,7 @@ const classes = cn(
 </p>
 
 <pre><code class="language-typescript"
-		>import type &#123; WithoutChild, WithoutChildren, WithElementRef &#125; from "$lib/utils.js";
+		>import type &#123; WithoutChild, WithoutChildren, WithElementRef &#125; from "#lib/utils.js";
 
 // WithoutChild&lt;T&gt; — removes the "child" snippet prop
 // WithoutChildren&lt;T&gt; — removes the "children" snippet prop

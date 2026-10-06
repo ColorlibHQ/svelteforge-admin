@@ -5,11 +5,11 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
-} from "$lib/server/db/test-utils.js";
-import { notifications } from "$lib/server/db/schema.js";
-import { generateId } from "$lib/server/id.js";
+} from "#lib/server/db/test-utils.js";
+import { notifications } from "#lib/server/db/schema.js";
+import { generateId } from "#lib/server/id.js";
 
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return (globalThis as any).__testDb;
 	},

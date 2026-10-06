@@ -5,12 +5,12 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
-} from "$lib/server/db/test-utils.js";
+} from "#lib/server/db/test-utils.js";
 
 let testDb: ReturnType<typeof createTestDb>;
 let adminId: string;
 
-vi.mock("$lib/server/db/index.js", () => ({
+vi.mock("#lib/server/db/index.js", () => ({
 	get db() {
 		return testDb;
 	},

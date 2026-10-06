@@ -19,10 +19,10 @@
 	import KeyboardIcon from "@lucide/svelte/icons/keyboard";
 	import HelpCircleIcon from "@lucide/svelte/icons/help-circle";
 
-	import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-	import * as DropdownMenu from "$lib/components/ui/dropdown-menu/index.js";
-	import * as Avatar from "$lib/components/ui/avatar/index.js";
-	import { Badge } from "$lib/components/ui/badge/index.js";
+	import * as Sidebar from "#lib/components/ui/sidebar/index.js";
+	import * as DropdownMenu from "#lib/components/ui/dropdown-menu/index.js";
+	import * as Avatar from "#lib/components/ui/avatar/index.js";
+	import { Badge } from "#lib/components/ui/badge/index.js";
 
 	type Props = {
 		user: {

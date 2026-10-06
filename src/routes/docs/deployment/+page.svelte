@@ -31,7 +31,7 @@
 	</thead>
 	<tbody>
 		<tr>
-			<td><strong>Node.js 18+</strong></td>
+			<td><strong>Node.js 22.17+</strong></td>
 			<td>LTS recommended. The production server runs as a standard Node.js process.</td>
 		</tr>
 		<tr>
@@ -92,25 +92,24 @@ node build/index.js</code
 <p>
 	The <code>pnpm build</code> command creates a <code>build/</code> directory containing the
 	compiled <strong>SvelteKit</strong> application. The adapter-node configuration in
-	<code>svelte.config.js</code> handles the output format:
+	<code>vite.config.ts</code> handles the output format:
 </p>
 
 <pre><code class="language-javascript"
-		>// svelte.config.js
+		>// vite.config.ts
 import adapter from "@sveltejs/adapter-node";
+import &#123; sveltekit &#125; from "@sveltejs/kit/vite";
+import &#123; defineConfig, loadEnv &#125; from "vite";
 
-export default &#123;
-  kit: &#123;
-    adapter: adapter(&#123;
-      // Output directory (default: "build")
-      out: "build",
-      // Precompress static assets with gzip and brotli
-      precompress: false,
-      // Environment variable for port (default: "PORT")
-      envPrefix: "",
-    &#125;),
-  &#125;,
-&#125;;</code
+export default defineConfig((&#123; mode &#125;) =&gt; &#123;
+  const env = loadEnv(mode, process.cwd(), "");
+  return &#123;
+    plugins: [sveltekit(&#123;
+      adapter: adapter(&#123; out: "build" &#125;),
+      paths: &#123; origin: env.ORIGIN || undefined &#125;,
+    &#125;)],
+  &#125;;
+&#125;);</code
 	></pre>
 
 <p>
@@ -202,7 +201,7 @@ export default &#123;
 </table>
 
 <p>
-	OAuth providers are loaded dynamically in <code>$lib/server/oauth.ts</code> using
+	OAuth providers are loaded dynamically in <code>#lib/server/oauth.ts</code> using
 	<strong>SvelteKit's</strong> <code>$env/dynamic/private</code>. When environment variables are
 	missing, the provider is <code>null</code> and the corresponding social login button is automatically
 	hidden from the login page.
@@ -219,7 +218,7 @@ export default &#123;
 
 <pre><code class="language-dockerfile"
 		># Stage 1: Install dependencies
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 RUN corepack enable pnpm
@@ -227,7 +226,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # Stage 2: Build the SvelteKit application
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 RUN corepack enable pnpm
 COPY --from=deps /app/node_modules ./node_modules
@@ -235,7 +234,7 @@ COPY . .
 RUN pnpm build
 
 # Stage 3: Production image
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 RUN corepack enable pnpm
@@ -468,9 +467,10 @@ pm2 startup</code
 </ol>
 
 <p>
-	<strong>Important:</strong> Set the <code>ORIGIN</code> environment variable to match your
-	deployed URL exactly (including the protocol, no trailing slash). <strong>SvelteKit</strong> uses this
-	for CSRF protection — if it does not match, form submissions will fail with a 403 error.
+	<strong>Important:</strong> Set the <code>ORIGIN</code> environment variable before building
+	(rebuild when it changes) to match your deployed URL exactly (including the protocol, no trailing
+	slash). <strong>SvelteKit</strong> uses this for CSRF protection — if it does not match, form submissions
+	will fail with a 403 error.
 </p>
 
 <h2>Database Backup</h2>

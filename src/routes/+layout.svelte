@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from "$lib/assets/favicon.svg";
+	import favicon from "#lib/assets/favicon.svg";
 	import { ModeWatcher } from "mode-watcher";
 	import { MetaTags } from "svelte-meta-tags";
 	import { onNavigate } from "$app/navigation";
@@ -8,6 +8,7 @@
 	let { children } = $props();
 
 	onNavigate((navigation) => {
+		if (navigation.shallow) return;
 		if (!document.startViewTransition) return;
 		return new Promise((resolve) => {
 			const transition = document.startViewTransition(async () => {

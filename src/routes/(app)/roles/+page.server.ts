@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { users } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users } from "#lib/server/db/schema.js";
 import { fail } from "@sveltejs/kit";
 import { eq, sql } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
@@ -49,7 +49,8 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	changeRole: async ({ request }) => {
+	changeRole: async ({ request, locals }) => {
+		if (locals.user?.role !== "admin") return fail(403, { message: "Admin access required" });
 		const formData = await request.formData();
 		const userId = formData.get("userId");
 		const newRole = formData.get("newRole");

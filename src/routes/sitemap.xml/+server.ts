@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { pages } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { pages } from "#lib/server/db/schema.js";
 import { eq } from "drizzle-orm";
 import type { RequestHandler } from "./$types.js";
 

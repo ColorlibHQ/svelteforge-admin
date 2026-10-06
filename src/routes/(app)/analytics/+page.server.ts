@@ -1,5 +1,5 @@
-import { db } from "$lib/server/db/index.js";
-import { users, pages, notifications } from "$lib/server/db/schema.js";
+import { db } from "#lib/server/db/index.js";
+import { users, pages, notifications } from "#lib/server/db/schema.js";
 import { sql, eq } from "drizzle-orm";
 import type { PageServerLoad } from "./$types.js";
 

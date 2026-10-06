@@ -1,24 +1,31 @@
 import * as arctic from "arctic";
-import { env } from "$env/dynamic/private";
+
+import {
+	ORIGIN,
+	GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET,
+	GITHUB_CLIENT_ID,
+	GITHUB_CLIENT_SECRET,
+} from "$app/env/private";
 
 function getBaseUrl(): string {
-	return env.ORIGIN || "http://localhost:5173";
+	return ORIGIN || "http://localhost:5173";
 }
 
 export const google =
-	env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+	GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET
 		? new arctic.Google(
-				env.GOOGLE_CLIENT_ID,
-				env.GOOGLE_CLIENT_SECRET,
+				GOOGLE_CLIENT_ID,
+				GOOGLE_CLIENT_SECRET,
 				`${getBaseUrl()}/login/google/callback`
 			)
 		: null;
 
 export const github =
-	env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET
+	GITHUB_CLIENT_ID && GITHUB_CLIENT_SECRET
 		? new arctic.GitHub(
-				env.GITHUB_CLIENT_ID,
-				env.GITHUB_CLIENT_SECRET,
+				GITHUB_CLIENT_ID,
+				GITHUB_CLIENT_SECRET,
 				`${getBaseUrl()}/login/github/callback`
 			)
 		: null;

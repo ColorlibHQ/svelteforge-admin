@@ -1,7 +1,7 @@
-import { invalidateSession } from "$lib/server/auth.js";
-import { db } from "$lib/server/db/index.js";
-import { users, sessions, appSettings } from "$lib/server/db/schema.js";
-import { seedDemo } from "$lib/server/db/seed.js";
+import { invalidateSession } from "#lib/server/auth.js";
+import { db } from "#lib/server/db/index.js";
+import { users, sessions, appSettings } from "#lib/server/db/schema.js";
+import { seedDemo } from "#lib/server/db/seed.js";
 import { fail, redirect } from "@sveltejs/kit";
 import { hash, verify } from "@node-rs/argon2";
 import { eq, and, ne } from "drizzle-orm";
