@@ -596,6 +596,7 @@ module.exports = {
 			name: "svelteforge",
 			script: "build/index.js",
 			cwd: "/var/www/svelteforge",
+			node_args: "--env-file=.env",
 			env: { NODE_ENV: "production", PORT: 3000, DEMO_MODE: "true" },
 		},
 	],

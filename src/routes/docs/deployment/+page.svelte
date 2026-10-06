@@ -75,6 +75,11 @@
 </ul>
 
 <h2>Building for Production</h2>
+<p>
+	When configuration lives in <code>.env</code>, load it explicitly with Node’s
+	<code>--env-file</code> option. The Node adapter does not load dotenv files automatically. Hosting platforms
+	can supply environment variables directly instead.
+</p>
 
 <p>
 	<strong>SvelteKit</strong> compiles your <strong>Svelte 5</strong> components, server routes, and hooks
@@ -86,7 +91,7 @@
 pnpm build
 
 # Run the production server
-node build/index.js</code
+node --env-file=.env build/index.js</code
 	></pre>
 
 <p>
@@ -371,7 +376,7 @@ fly deploy</code
 <pre><code class="language-bash"
 		># Example: PM2 process manager on a VPS
 npm install -g pm2
-pm2 start build/index.js --name svelteforge
+pm2 start build/index.js --name svelteforge --node-args="--env-file=.env"
 pm2 save
 pm2 startup</code
 	></pre>

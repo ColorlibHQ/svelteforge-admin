@@ -51,7 +51,7 @@ jobs:
             cd /var/www/svelteforge
             rm -f svelte.config.js
             pnpm install --frozen-lockfile
-            pm2 restart svelteforge --update-env
+            pm2 restart svelteforge --node-args="--env-file=.env" --update-env
 
       - name: Verify deployed release
         run: |
