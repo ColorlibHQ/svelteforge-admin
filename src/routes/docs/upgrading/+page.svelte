@@ -49,7 +49,7 @@ import &#123; GOOGLE_CLIENT_ID &#125; from "$app/env/private";</code
 </p>
 <pre><code class="language-bash"
 		>ORIGIN=https://admin.example.com pnpm build
-ORIGIN=https://admin.example.com node build/index.js
+node --env-file=.env build/index.js
 
 # Docker: bake the public origin into the build
 docker build --build-arg ORIGIN=https://admin.example.com -t svelteforge-admin .</code

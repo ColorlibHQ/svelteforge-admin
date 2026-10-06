@@ -51,7 +51,7 @@ Routes use SvelteKit route groups for layout separation:
 - `(app)/` — Protected routes behind the app shell. Auth guard in `(app)/+layout.server.ts` redirects unauthenticated users to `/login`. Features: dashboard (`+page`), `users/`, `roles/`, `content/` (CMS — list, `new/`, `[id]/edit/`), `analytics/`, `notifications/`, `database/`, `settings/`
 - `(auth)/` — Public auth routes: `login/` (+ OAuth callbacks at `login/google/`, `login/github/`), `register/`, `forgot-password/`, `reset-password/`, `lock/` (re-auth screen, requires an existing session)
 - `(public)/` — Public pages (pricing)
-- `docs/` — **Ungrouped, so NOT auth-guarded** — a public, statically-rendered documentation site (its own `+layout.svelte`, ~16 pages). Anything placed outside a `(group)/` is reachable without a session
+- `docs/` — **Ungrouped, so NOT auth-guarded** — a public, statically-rendered documentation site (its own `+layout.svelte`, ~17 pages). Anything placed outside a `(group)/` is reachable without a session
 - `logout/` — Standalone logout action (server-only)
 - `api/search/` — Search endpoint for command palette
 - `sitemap.xml/` — Auto-generated sitemap

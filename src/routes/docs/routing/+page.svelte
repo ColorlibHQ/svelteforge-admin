@@ -784,7 +784,7 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — 36 pages with 6 dashboards, CRUD modules, and SvelteKit file-based
+					<strong>Apex (Svelte)</strong> — 39 pages with 6 dashboards, CRUD modules, and SvelteKit file-based
 					routing patterns
 				</li>
 				<li>

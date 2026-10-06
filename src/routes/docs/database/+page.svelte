@@ -27,8 +27,8 @@
 		Just a single file (<code>svelteforge.db</code>) in your project root.
 	</li>
 	<li>
-		<strong>Lightning fast</strong> — Reads are faster than PostgreSQL or MySQL for typical admin workloads.
-		With WAL mode enabled, concurrent reads never block each other.
+		<strong>Simple local setup</strong> — Embedded SQLite needs no separate database service. With WAL
+		mode enabled, concurrent reads never block each other.
 	</li>
 	<li>
 		<strong>Perfect for deployment</strong> — Deploy your <strong>SvelteKit</strong> app with its database

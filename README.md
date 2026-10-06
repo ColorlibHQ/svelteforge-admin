@@ -94,7 +94,7 @@ SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + c
 | **Theme customizer** — brand color + typography picker                          |          —           |                                                                                               ✅                                                                                               |
 | **Form wizard** + **Data table** + **CSV importer** components                  |          —           |                                                                                               ✅                                                                                               |
 | **Email** — Resend + Cloudflare Email Sending adapters (free has console only)  |    console (dev)     |                                                                                     + Resend + Cloudflare                                                                                      |
-| **Documentation** — `/docs` developer reference                                 |       16 pages       |                                                                                            16 pages                                                                                            |
+| **Documentation** — `/docs` developer reference                                 |       17 pages       |                                                                                            17 pages                                                                                            |
 | **User guide** at `/guide` — workspaces, billing, AI, every premium app         |          —           |                                                                                          30+ chapters                                                                                          |
 | **Database tables**                                                             |          7           |                                                                                       7 + **49 premium**                                                                                       |
 | **Demo seeder** — Acme workspace + 30 tenant orgs for SaaS analytics            |          —           |                                                                                               ✅                                                                                               |
@@ -105,17 +105,17 @@ SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + c
 
 ## More Svelte dashboards from DashboardPack
 
-Building on Svelte? **[Apex Dashboard — Svelte Edition](https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-intro&utm_campaign=svelteforge)** is our flagship premium SvelteKit template — the **same Svelte 5 + Tailwind CSS v4 stack as this repo**, with a completely different design system and 36 production-ready pages. If SvelteForge got you shipping, Apex takes the polish further.
+Building on Svelte? **[Apex Dashboard — Svelte Edition](https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-intro&utm_campaign=svelteforge)** is our flagship premium SvelteKit template — the **same Svelte 5 + Tailwind CSS v4 stack as this repo**, with a completely different design system and 39 demo pages. If SvelteForge got you shipping, Apex takes the polish further.
 
 <p align="center">
   <a href="https://dashboardpack.com/theme-details/apex-dashboard-svelte/?utm_source=github&utm_medium=readme&utm_content=apex-svelte-featured&utm_campaign=svelteforge">
-    <img src="screenshots/apex-svelte.webp" alt="Apex Dashboard — Svelte Edition: premium SvelteKit 2 + Svelte 5 admin template with 36 pages, command palette, and live theme customizer" width="100%">
+    <img src="screenshots/apex-svelte.webp" alt="Apex Dashboard — Svelte Edition: premium SvelteKit 3 + Svelte 5 admin template with 39 pages, command palette, and live theme customizer" width="100%">
   </a>
 </p>
 
 <p align="center">
   <strong>Apex Dashboard — Svelte Edition</strong><br>
-  <sub>SvelteKit 2 + Svelte 5 (runes) + Tailwind CSS v4 · 36 pages · 6 dashboards · ⌘K command palette · LayerChart data viz · live theme customizer · runtime i18n (en/de/fr) · drag-and-drop Kanban · Storybook component library.</sub>
+  <sub>SvelteKit 3 + Svelte 5 (runes) + Tailwind CSS v4 · 39 pages · 6 dashboards · ⌘K command palette · LayerChart data viz · live theme customizer · runtime i18n (en/de/fr) · drag-and-drop Kanban · Storybook component library.</sub>
 </p>
 
 <p align="center">

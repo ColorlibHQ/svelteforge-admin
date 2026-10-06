@@ -646,15 +646,13 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 				Production-Ready with DashboardPack
 			</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
-				Need a production-ready deployment with PostgreSQL, Redis, and horizontal scaling?
-				DashboardPack premium templates include production-grade infrastructure configurations,
-				multi-database support, caching layers, and deployment automation that scales from startup
-				to enterprise.
+				Choose a template that matches your backend and deployment needs. SvelteForge Premium
+				includes workspace-scoped SaaS modules on SQLite; Apex Svelte provides a prerendered
+				interface ready for your API integration.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
 					<strong>Apex (Svelte)</strong> — static-deploy ready for any host, at the root or a subpath
-					production configs
 				</li>
 				<li>
 					<strong>Zenith</strong> — Horizontally scalable architecture with database connection pooling

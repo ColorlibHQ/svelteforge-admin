@@ -29,20 +29,20 @@
 <MetaTags
 	title="SvelteForge Admin"
 	titleTemplate="%s | SvelteForge Admin"
-	description="A full-featured admin dashboard built with SvelteKit 2, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth."
+	description="A full-featured admin dashboard built with SvelteKit 3, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth."
 	openGraph={{
 		type: "website",
 		url: "https://svelteforge-admin.dev",
 		title: "SvelteForge Admin",
 		description:
-			"A full-featured admin dashboard built with SvelteKit 2, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth.",
+			"A full-featured admin dashboard built with SvelteKit 3, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth.",
 		siteName: "SvelteForge Admin",
 	}}
 	twitter={{
 		cardType: "summary",
 		title: "SvelteForge Admin",
 		description:
-			"A full-featured admin dashboard built with SvelteKit 2, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth.",
+			"A full-featured admin dashboard built with SvelteKit 3, Svelte 5, Tailwind CSS 4, Drizzle ORM, and session-based auth.",
 	}}
 />
 

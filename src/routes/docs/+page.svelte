@@ -197,7 +197,7 @@
 			<td>Type-safe database access with better-sqlite3 in WAL mode</td>
 		</tr>
 		<tr>
-			<td><strong>Custom Auth (@oslojs/crypto + Argon2)</strong></td>
+			<td><strong>Custom Auth (node:crypto + Argon2)</strong></td>
 			<td>Session-based authentication with secure password hashing</td>
 		</tr>
 		<tr>
@@ -234,7 +234,7 @@
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards and 36 production-ready pages
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards and 39 demo pages
 				</li>
 				<li>
 					<strong>Zenith</strong> — Modern analytics dashboard with advanced data visualization

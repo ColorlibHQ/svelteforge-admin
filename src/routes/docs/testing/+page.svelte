@@ -7,7 +7,7 @@
 <h1>Testing</h1>
 <p>
 	Vitest covers server loads, form actions, and authorization. Playwright exercises the application
-	in Chromium. The current release has 40 unit tests and 38 browser tests; there is no numeric
+	in Chromium. The current release has 40 unit tests and 39 browser tests; there is no numeric
 	coverage threshold.
 </p>
 <h2>Commands</h2>

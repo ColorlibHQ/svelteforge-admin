@@ -217,8 +217,8 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	The core authentication module. Generates session tokens, hashes them with SHA-256, creates and
-	validates sessions, and manages httpOnly cookies. Uses <code>@oslojs/crypto</code> for
-	cryptographic operations — no external auth framework needed. See the
+	validates sessions, and manages httpOnly cookies. Uses <code>node:crypto</code> for cryptographic
+	operations — no external auth framework needed. See the
 	<a href="/docs/authentication">Authentication</a> page for a deep dive.
 </p>
 
@@ -536,7 +536,7 @@ export function cn(...inputs: ClassValue[]) &#123;
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>
-					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards and 36 production-ready pages
+					<strong>Apex (Svelte)</strong> — SvelteKit admin with 6 dashboards and 39 demo pages
 				</li>
 				<li>
 					<strong>Zenith</strong> — Modern analytics dashboard with advanced data visualization
