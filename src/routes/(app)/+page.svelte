@@ -481,7 +481,7 @@
 			<Card.Content>
 				{#if data.recentActivity.length > 0}
 					<div class="space-y-4">
-						{#each data.recentActivity as activity (activity.time)}
+						{#each data.recentActivity as activity (activity.key)}
 							<div class="flex items-center gap-3">
 								<div
 									class="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-medium"

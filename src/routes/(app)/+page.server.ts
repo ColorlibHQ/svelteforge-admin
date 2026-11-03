@@ -75,13 +75,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	// Recent activity: newest users and pages
 	const recentUsers = await db
-		.select({ name: users.name, createdAt: users.createdAt })
+		.select({ id: users.id, name: users.name, createdAt: users.createdAt })
 		.from(users)
 		.orderBy(desc(users.createdAt))
 		.limit(5);
 
 	const recentPages = await db
 		.select({
+			id: pages.id,
 			title: pages.title,
 			authorName: users.name,
 			createdAt: pages.createdAt,
@@ -91,15 +92,18 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.orderBy(desc(pages.createdAt))
 		.limit(5);
 
-	type ActivityItem = { label: string; description: string; time: Date };
+	// `key` is unique even when two events share a timestamp (second precision).
+	type ActivityItem = { key: string; label: string; description: string; time: Date };
 
 	const activity: ActivityItem[] = [
 		...recentUsers.map((u) => ({
+			key: `user:${u.id}`,
 			label: u.name,
 			description: "Joined the platform",
 			time: u.createdAt,
 		})),
 		...recentPages.map((p) => ({
+			key: `page:${p.id}`,
 			label: p.authorName ?? "Unknown",
 			description: `Created "${p.title}"`,
 			time: p.createdAt,
