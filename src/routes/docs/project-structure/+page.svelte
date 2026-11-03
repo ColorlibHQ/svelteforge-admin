@@ -2,7 +2,7 @@
 	<title>Project Structure - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Understand the complete file and directory structure of SvelteForge Admin, a SvelteKit 3 + Svelte 5 admin dashboard with session-based auth, Drizzle ORM, and Tailwind CSS 4."
+		content="Understand the complete file and directory structure of SvelteForge Admin, a SvelteKit 3 + Svelte 5 admin dashboard with Better Auth, Drizzle ORM, and Tailwind CSS 4."
 	/>
 </svelte:head>
 
@@ -44,13 +44,11 @@
 │   │   │   ├── +layout.svelte       # Auth layout (centered card)
 │   │   │   ├── login/               # Login page
 │   │   │   │   ├── +page.svelte     # Login form
-│   │   │   │   ├── +page.server.ts  # Login action (Argon2 verify)
+│   │   │   │   ├── +page.server.ts  # Login action (auth.api.signInUsername)
 │   │   │   │   ├── google/          # Google OAuth initiation
-│   │   │   │   │   ├── +server.ts   # Redirect to Google
-│   │   │   │   │   └── callback/    # Google OAuth callback
+│   │   │   │   │   └── +server.ts   # Starts the flow (callback: /api/auth/callback/google)
 │   │   │   │   └── github/          # GitHub OAuth initiation
-│   │   │   │       ├── +server.ts   # Redirect to GitHub
-│   │   │   │       └── callback/    # GitHub OAuth callback
+│   │   │   │       └── +server.ts   # Starts the flow (callback: /api/auth/callback/github)
 │   │   │   ├── register/            # Registration page
 │   │   │   ├── forgot-password/     # Password reset request
 │   │   │   ├── reset-password/      # Password reset form
@@ -71,12 +69,15 @@
 │   │
 │   ├── lib/
 │   │   ├── server/                  # Server-only code (never sent to client)
-│   │   │   ├── auth.ts              # Session management functions
-│   │   │   ├── oauth.ts             # Arctic OAuth provider setup
+│   │   │   ├── auth.ts              # Better Auth configuration
+│   │   │   ├── auth-errors.ts       # authFailure() helper for form actions
+│   │   │   ├── password.ts          # Argon2id hashing (used by Better Auth)
+│   │   │   ├── email.ts             # sendAuthEmail() stub for auth emails
 │   │   │   ├── id.ts                # Cryptographic ID generator
 │   │   │   └── db/
 │   │   │       ├── index.ts         # Database connection (better-sqlite3)
 │   │   │       ├── schema.ts        # Drizzle ORM schema definitions
+│   │   │       ├── migrate-v2-auth.ts  # One-time v1 to v2 auth migration
 │   │   │       └── seed.ts          # Database seeder script
 │   │   │
 │   │   ├── components/              # App-level Svelte 5 components
@@ -100,6 +101,8 @@
 │   │   │   ├── table/
 │   │   │   └── ...                  # More shadcn-svelte components
 │   │   │
+│   │   ├── permissions.ts           # Access control (admin/editor/viewer)
+│   │   │
 │   │   ├── hooks/                   # Svelte 5 reactive utilities
 │   │   │   └── is-mobile.svelte.ts  # Responsive breakpoint detection
 │   │   │
@@ -116,7 +119,7 @@
 │
 ├── drizzle/                         # Generated Drizzle migration files
 ├── static/                          # Static assets (favicon, images)
-├── tests/                           # Playwright E2E test files
+├── e2e/                             # Playwright E2E test files
 │
 ├── svelteforge.db                   # SQLite database (gitignored)
 ├── drizzle.config.ts                # Drizzle ORM configuration
@@ -183,9 +186,10 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 </p>
 
 <p>
-	OAuth callback routes nest under <code>login/</code> as
-	<code>login/google/callback/</code> and <code>login/github/callback/</code>, keeping OAuth flow
-	URLs clean and organized within <strong>SvelteKit's</strong> file-based router.
+	OAuth start routes nest under <code>login/</code> as <code>login/google/</code> and
+	<code>login/github/</code>. They only begin the flow; Better Auth handles the provider's redirect
+	at <code>/api/auth/callback/google</code> and <code>/api/auth/callback/github</code> through the server
+	hook, so there are no callback routes in the file tree.
 </p>
 
 <h3><code>(public)/</code> — Marketing Pages</h3>
@@ -213,34 +217,32 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	a clear error. This is critical for SvelteForge because sensitive code lives here:
 </p>
 
-<h3><code>auth.ts</code> — Session Management</h3>
+<h3><code>auth.ts</code> — Better Auth Configuration</h3>
 
 <p>
-	The core authentication module. Generates session tokens, hashes them with SHA-256, creates and
-	validates sessions, and manages httpOnly cookies. Uses <code>node:crypto</code> for cryptographic
-	operations — no external auth framework needed. See the
+	The core authentication module. It exports the configured <strong>Better Auth</strong> instance (<code
+		>auth</code
+	>), which owns sessions, httpOnly cookies, password sign-in, OAuth, and password resets. It also
+	holds the guards that must apply to every entry point (demo account, last admin) and exports
+	<code>getEnabledProviders()</code>
+	for the login page. See the
 	<a href="/docs/authentication">Authentication</a> page for a deep dive.
 </p>
 
-<h3><code>oauth.ts</code> — Arctic OAuth Providers</h3>
+<h3><code>auth-errors.ts</code>, <code>password.ts</code>, <code>email.ts</code></h3>
 
 <p>
-	Configures Google and GitHub OAuth via the Arctic library. Providers are <strong
-		>environment-driven</strong
-	>
-	— they are <code>null</code> when env vars are missing, and the login page conditionally renders social
-	login buttons. This means OAuth is entirely optional; the dashboard works with password-only auth out
-	of the box.
+	<code>authFailure()</code> turns a Better Auth error into a SvelteKit form-action failure.
+	<code>password.ts</code> keeps the Argon2id hashing from v1. <code>email.ts</code> exports
+	<code>sendAuthEmail()</code>, the single place to connect an email provider. The sibling
+	<code>src/lib/permissions.ts</code> defines the admin, editor, and viewer roles.
 </p>
 
 <h3><code>id.ts</code> — Cryptographic ID Generator</h3>
 
 <p>
-	A simple utility that generates cryptographically random IDs using <code
-		>crypto.getRandomValues()</code
-	>
-	and base32 encoding. Used for user IDs, OAuth account IDs, and password reset tokens throughout the
-	application.
+	A simple utility that generates cryptographically random IDs using <code>node:crypto</code> and base32
+	encoding. Used for pages, notifications, and seed data. Better Auth generates its own IDs for auth tables.
 </p>
 
 <h3><code>db/</code> — Database Layer</h3>
@@ -252,9 +254,10 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 	</li>
 	<li>
 		<strong><code>schema.ts</code></strong> — Defines all database tables using Drizzle's type-safe
-		schema builder: <code>users</code>, <code>sessions</code>, <code>pages</code>,
-		<code>notifications</code>, <code>oauthAccounts</code>, <code>appSettings</code>, and
-		<code>passwordResetTokens</code>. Each table export includes inferred TypeScript types.
+		schema builder: <code>users</code>, <code>sessions</code>, <code>accounts</code>,
+		<code>verifications</code>, <code>pages</code>, <code>notifications</code>, and
+		<code>appSettings</code>. The first four are Better Auth's tables. Each table export includes
+		inferred TypeScript types.
 	</li>
 	<li>
 		<strong><code>seed.ts</code></strong> — Populates the database with sample data. Runs via
@@ -451,9 +454,9 @@ export function cn(...inputs: ClassValue[]) &#123;
 
 <p>
 	<strong>SvelteKit</strong> server hooks run on <strong>every single request</strong>. SvelteForge
-	uses this to validate the session cookie, populate <code>event.locals.user</code> and
-	<code>event.locals.session</code>, auto-extend session cookies, and update session metadata (user
-	agent and IP address). This is the foundation of the authentication system — see
+	uses this to look up the Better Auth session, populate <code>event.locals.user</code> and
+	<code>event.locals.session</code>, and serve Better Auth's <code>/api/auth/*</code> endpoints
+	(OAuth callbacks, password-reset links). This is the foundation of the authentication system — see
 	<a href="/docs/authentication">Authentication</a> for details.
 </p>
 

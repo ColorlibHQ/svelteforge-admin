@@ -2,286 +2,113 @@
 	<title>Authentication - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Deep dive into SvelteForge Admin's custom session-based authentication built with Svelte 5, SvelteKit server hooks, node:crypto, Argon2id, and Arctic OAuth."
+		content="How SvelteForge Admin authenticates users with Better Auth: sessions, Argon2id passwords, Google and GitHub OAuth, password reset, roles and permissions, and route protection in SvelteKit."
 	/>
 </svelte:head>
 
 <h1>Authentication</h1>
 
 <p>
-	SvelteForge Admin implements authentication from scratch using <strong>SvelteKit's</strong> server infrastructure
-	— no Lucia, no Auth.js, no external auth framework. The entire system is built on three low-level libraries:
+	SvelteForge Admin uses <a href="https://better-auth.com" target="_blank" rel="noopener noreferrer"
+		>Better Auth</a
+	>
+	for authentication, wired into <strong>SvelteKit</strong> through server hooks, form actions, and server-only
+	modules. Better Auth handles sessions, cookies, OAuth, password reset tokens, and the user-management
+	API; SvelteForge adds username sign-in, three roles, Argon2id password hashing, and a few safety guards
+	on top.
 </p>
 
 <ul>
 	<li>
-		<strong>node:crypto</strong> — SHA-256 hashing for session tokens
+		<strong>better-auth</strong> with the <code>username</code> and <code>admin</code> plugins and
+		the
+		<code>sveltekitCookies</code> plugin
 	</li>
 	<li>
-		<strong>@oslojs/encoding</strong> — Base32 encoding
+		<strong>@node-rs/argon2</strong> — Argon2id password hashing (memory-hard, GPU-resistant), kept from
+		v1 so existing hashes keep working
 	</li>
 	<li>
-		<strong>@node-rs/argon2</strong> — Argon2id password hashing (memory-hard, GPU-resistant)
+		<strong>Drizzle ORM</strong> — Better Auth's tables are ordinary Drizzle tables in
+		<code>schema.ts</code>
 	</li>
 </ul>
 
 <p>
-	By owning the auth code, you get full control over session lifetimes, cookie settings, metadata
-	tracking, and token rotation — with zero dependency on third-party auth services. This approach
-	leverages <strong>SvelteKit's</strong> server hooks, form actions, and server-only modules to keep sensitive
-	logic completely off the client.
+	Coming from v1.x? The hand-rolled session code and Arctic are gone; see
+	<a href="/docs/upgrading">Upgrading</a> for the migration steps.
 </p>
 
-<h2>Session Management</h2>
+<h2>Architecture</h2>
 
-<p>
-	All session logic lives in <code>src/lib/server/auth.ts</code> — a server-only module that
-	<strong>SvelteKit</strong> guarantees will never leak to the client bundle. The module exports five
-	core functions:
-</p>
-
-<h3><code>generateSessionToken()</code></h3>
-
-<p>
-	Creates a cryptographically secure session token using 20 bytes of randomness, encoded as base32
-	(no padding). This token is what gets stored in the user's cookie:
-</p>
-
-<pre><code class="language-ts"
-		>export function generateSessionToken(): string &#123;
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  return encodeBase32LowerCaseNoPadding(bytes);
-&#125;</code
-	></pre>
-
-<p>
-	The Web Crypto API (<code>crypto.getRandomValues</code>) provides the randomness — it is available
-	in both Node.js and all modern runtimes that <strong>SvelteKit</strong> deploys to.
-</p>
-
-<h3><code>hashToken()</code></h3>
-
-<p>
-	Hashes the raw session token with SHA-256 before storing it in the database. This is a critical
-	security measure: the raw token lives only in the user's httpOnly cookie, while the database
-	stores only the hash. If the database is compromised, attackers cannot recover valid session
-	tokens.
-</p>
-
-<pre><code class="language-ts"
-		>import &#123; createHash &#125; from "node:crypto";
-
-function hashToken(token: string): string &#123;
-  return createHash("sha256").update(token).digest("hex");
-&#125;</code
-	></pre>
-
-<p>
-	SHA-256 is intentionally used here instead of Argon2. Session tokens are already high-entropy
-	random values — they do not need the slow, memory-hard hashing that passwords require. SHA-256 is
-	fast, deterministic, and perfectly secure for this use case.
-</p>
-
-<h3><code>createSession()</code></h3>
-
-<p>
-	Creates a new session in the database. The token is hashed to produce the session ID, and metadata
-	(user agent, IP address) is stored alongside it for security auditing:
-</p>
-
-<pre><code class="language-ts"
-		>export async function createSession(
-  token: string,
-  userId: string,
-  metadata?: &#123; userAgent?: string | null; ipAddress?: string | null &#125;
-): Promise&lt;Session&gt; &#123;
-  const sessionId = hashToken(token);
-  const expiresAt = Date.now() + SESSION_LIFETIME_MS; // 30 days
-
-  const session: Session = &#123;
-    id: sessionId,
-    userId,
-    expiresAt,
-    userAgent: metadata?.userAgent ?? null,
-    ipAddress: metadata?.ipAddress ?? null,
-    createdAt: new Date(),
-  &#125;;
-
-  await db.insert(sessions).values(session);
-  return session;
-&#125;</code
-	></pre>
-
-<p>
-	Sessions have a <strong>30-day lifetime</strong> by default, configurable via the
-	<code>SESSION_LIFETIME_MS</code> constant.
-</p>
-
-<h3><code>validateSession()</code></h3>
-
-<p>
-	Validates a session token by hashing it and looking up the result in the database. Handles two key
-	scenarios:
-</p>
+<p>Four pieces work together:</p>
 
 <ol>
 	<li>
-		<strong>Expired session</strong> — Deletes the session from the database and returns
-		<code>null</code>
+		<strong><code>src/lib/server/auth.ts</code></strong> — Creates the <code>auth</code> instance with
+		all configuration, hooks, and plugins.
 	</li>
 	<li>
-		<strong>Session nearing expiry</strong> — If less than 15 days remain, the session is automatically
-		extended to a fresh 30-day window (sliding expiration)
+		<strong><code>src/hooks.server.ts</code></strong> — On every request, resolves the session into
+		<code>event.locals</code> and lets Better Auth serve <code>/api/auth/*</code>.
+	</li>
+	<li>
+		<strong>Form actions</strong> — Login, register, settings, and user management call
+		<code>auth.api.*</code> methods directly on the server, passing <code>request.headers</code>.
+	</li>
+	<li>
+		<strong>Drizzle tables</strong> — <code>users</code>, <code>sessions</code>,
+		<code>accounts</code>, and <code>verifications</code> store everything.
 	</li>
 </ol>
-
-<pre><code class="language-ts"
-		>export async function validateSession(token: string): Promise&lt;SessionValidationResult&gt; &#123;
-  const sessionId = hashToken(token);
-
-  const result = await db
-    .select(&#123;
-      session: sessions,
-      user: &#123;
-        id: users.id,
-        email: users.email,
-        username: users.username,
-        name: users.name,
-        role: users.role,
-        avatarUrl: users.avatarUrl,
-      &#125;,
-    &#125;)
-    .from(sessions)
-    .innerJoin(users, eq(sessions.userId, users.id))
-    .where(eq(sessions.id, sessionId));
-
-  if (result.length === 0) &#123;
-    return &#123; session: null, user: null &#125;;
-  &#125;
-
-  const &#123; session, user &#125; = result[0];
-
-  // Expired — clean up and reject
-  if (session.expiresAt &lt;= Date.now()) &#123;
-    await db.delete(sessions).where(eq(sessions.id, sessionId));
-    return &#123; session: null, user: null &#125;;
-  &#125;
-
-  // Auto-extend if within refresh threshold (15 days)
-  if (session.expiresAt - Date.now() &lt; SESSION_REFRESH_THRESHOLD_MS) &#123;
-    session.expiresAt = Date.now() + SESSION_LIFETIME_MS;
-    await db
-      .update(sessions)
-      .set(&#123; expiresAt: session.expiresAt &#125;)
-      .where(eq(sessions.id, sessionId));
-  &#125;
-
-  return &#123; session, user &#125;;
-&#125;</code
-	></pre>
-
-<p>
-	The join with the <code>users</code> table returns a <code>SessionUser</code> object containing
-	only the fields needed for the UI: <code>id</code>, <code>email</code>, <code>username</code>,
-	<code>name</code>, <code>role</code>, and <code>avatarUrl</code>. Password hashes never leave the
-	server.
-</p>
-
-<h3><code>setSessionCookie()</code> / <code>deleteSessionCookie()</code></h3>
-
-<p>
-	Manage the <code>auth_session</code> cookie with security-hardened defaults:
-</p>
-
-<pre><code class="language-ts"
-		>export function setSessionCookie(cookies: Cookies, token: string, expiresAt: number): void &#123;
-  cookies.set(SESSION_COOKIE_NAME, token, &#123;
-    httpOnly: true,     // Not accessible via JavaScript
-    sameSite: "lax",    // Sent with top-level navigations
-    secure: !dev,       // HTTPS-only in production
-    path: "/",
-    expires: new Date(expiresAt),
-  &#125;);
-&#125;
-
-export function deleteSessionCookie(cookies: Cookies): void &#123;
-  cookies.set(SESSION_COOKIE_NAME, "", &#123;
-    httpOnly: true,
-    sameSite: "lax",
-    secure: !dev,
-    path: "/",
-    maxAge: 0,          // Immediately expire
-  &#125;);
-&#125;</code
-	></pre>
-
-<p>
-	The cookie name <code>auth_session</code> is exported as a constant so it can be referenced
-	consistently across the codebase. The <code>secure</code> flag is automatically disabled in
-	development (via <strong>SvelteKit's</strong> <code>dev</code> variable) to allow HTTP on localhost.
-</p>
 
 <h2>Server Hooks</h2>
 
 <p>
-	<strong>SvelteKit</strong> server hooks run on <strong>every single request</strong> — page loads,
-	form submissions, API calls, everything. SvelteForge's <code>hooks.server.ts</code> is the backbone
-	of the auth system:
+	<strong>SvelteKit</strong> server hooks run on <strong>every request</strong>. SvelteForge's hook
+	does two things:
 </p>
 
 <pre><code class="language-ts"
 		>// src/hooks.server.ts
 export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
-  const token = event.cookies.get(SESSION_COOKIE_NAME);
-  if (!token) &#123;
-    event.locals.user = null;
-    event.locals.session = null;
-    return resolve(event);
+  event.locals.user = null;
+  event.locals.session = null;
+
+  if (!building) &#123;
+    try &#123;
+      const result = await auth.api.getSession(&#123; headers: event.request.headers &#125;);
+      if (result) &#123;
+        event.locals.user = result.user as SessionUser;
+        event.locals.session = result.session;
+      &#125;
+    &#125; catch (err) &#123;
+      // DB error or corrupt cookie: continue as unauthenticated.
+      console.error("Session lookup failed:", err);
+    &#125;
   &#125;
 
-  const &#123; session, user &#125; = await validateSession(token);
-
-  if (session) &#123;
-    // Refresh cookie with current expiresAt (handles auto-extension)
-    setSessionCookie(event.cookies, token, session.expiresAt);
-
-    // Update session metadata on every request
-    const ua = event.request.headers.get("user-agent");
-    const ip = event.getClientAddress();
-    await db
-      .update(sessions)
-      .set(&#123; userAgent: ua, ipAddress: ip &#125;)
-      .where(eq(sessions.id, session.id));
-  &#125; else &#123;
-    deleteSessionCookie(event.cookies);
-  &#125;
-
-  event.locals.user = user;
-  event.locals.session = session;
-  return resolve(event);
+  // Serves /api/auth/* (OAuth callbacks, reset links, ...) and passes
+  // every other request on to SvelteKit.
+  return svelteKitHandler(&#123; event, resolve, auth, building &#125;);
 &#125;;</code
 	></pre>
 
-<p>This hook performs four operations on every request:</p>
-
 <ol>
-	<li><strong>Read</strong> the <code>auth_session</code> cookie</li>
-	<li><strong>Validate</strong> the session token (checks expiry, auto-extends if needed)</li>
 	<li>
-		<strong>Populate</strong> <code>event.locals.user</code> and <code>event.locals.session</code> so
-		every server load function and form action can access the authenticated user
+		<strong>Populates</strong> <code>event.locals.user</code> and <code>event.locals.session</code> so
+		every load function and form action can read the signed-in user. Any failure results in an unauthenticated
+		request rather than an error page.
 	</li>
 	<li>
-		<strong>Update metadata</strong> — the user agent and IP address are refreshed on every request, giving
-		you an accurate audit trail in Settings &gt; Sessions
+		<strong>Serves Better Auth's HTTP endpoints</strong> under <code>/api/auth/*</code> through
+		<code>svelteKitHandler</code>. This is where OAuth providers redirect back to and where password
+		reset links land.
 	</li>
 </ol>
 
 <p>
-	The <code>App.Locals</code> interface is typed in <code>src/app.d.ts</code>, ensuring TypeScript
-	knows about <code>locals.user</code> and <code>locals.session</code> throughout the entire
-	<strong>SvelteKit</strong> application:
+	The <code>App.Locals</code> interface in <code>src/app.d.ts</code> types both values:
 </p>
 
 <pre><code class="language-ts"
@@ -291,88 +118,204 @@ export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
 &#125;</code
 	></pre>
 
-<h2>Password Hashing</h2>
-
 <p>
-	SvelteForge uses <strong>Argon2id</strong> via <code>@node-rs/argon2</code> — the winner of the Password
-	Hashing Competition and the recommended algorithm for new applications. The parameters are tuned for
-	security:
+	<code>SessionUser</code> and <code>Session</code> are derived from the Better Auth instance (<code
+		>auth.$Infer.Session</code
+	>). <code>SessionUser</code> narrows <code>username</code> and
+	<code>role</code> to <code>string</code> and the <code>admin | editor | viewer</code> union,
+	because the
+	<code>users</code> table guarantees both.
 </p>
 
+<h2>Better Auth Configuration</h2>
+
+<p>
+	Everything lives in <code>src/lib/server/auth.ts</code>, a server-only module that
+	<strong>SvelteKit</strong> will never include in the client bundle. A condensed walkthrough:
+</p>
+
+<h3>Secret and base URL</h3>
+
 <pre><code class="language-ts"
-		>import &#123; hash, verify &#125; from "@node-rs/argon2";
-
-// Hashing (registration, password reset)
-const passwordHash = await hash(password, &#123;
-  memoryCost: 19456,   // ~19 MB memory
-  timeCost: 2,         // 2 iterations
-  outputLen: 32,       // 256-bit output
-  parallelism: 1,      // Single-threaded
-&#125;);
-
-// Verification (login, screen lock)
-const valid = await verify(existingUser.passwordHash, password, &#123;
-  memoryCost: 19456,
-  timeCost: 2,
-  outputLen: 32,
-  parallelism: 1,
+		>export const auth = betterAuth(&#123;
+  appName: "SvelteForge Admin",
+  baseURL: ORIGIN || "http://localhost:5173",
+  secret: BETTER_AUTH_SECRET || undefined,
+  database: drizzleAdapter(db, &#123; provider: "sqlite", schema, usePlural: true &#125;),
+  // ...
 &#125;);</code
 	></pre>
 
 <p>
-	These parameters ensure that each hash operation requires ~19 MB of memory and two passes, making
-	brute-force and GPU attacks impractical. The <code>@node-rs/argon2</code> package uses native Rust bindings
-	for performance — significantly faster than pure JavaScript implementations.
+	<code>BETTER_AUTH_SECRET</code> signs the session cookie and is required in production: the module
+	throws at startup if it is missing (outside development, the build step, and tests). Generate one
+	with <code>openssl rand -base64 32</code>. <code>ORIGIN</code> doubles as Better Auth's base URL, so
+	it controls OAuth callback URLs and the links in emails.
 </p>
 
-<h2>Login Flow</h2>
+<h3>Sessions</h3>
+
+<pre><code class="language-ts"
+		>session: &#123;
+  // 30-day sessions that slide forward once less than 15 days remain.
+  expiresIn: 30 * DAY_SECONDS,
+  updateAge: 15 * DAY_SECONDS,
+&#125;,</code
+	></pre>
+
+<ul>
+	<li>
+		<strong>Lifetime:</strong> 30 days. Once a session has less than 15 days left, the next request extends
+		it (sliding expiration).
+	</li>
+	<li>
+		<strong>Cookie:</strong> <code>better-auth.session_token</code>, httpOnly and SameSite=Lax, and
+		secure over HTTPS. The value is the session token <strong>signed with HMAC</strong> using
+		<code>BETTER_AUTH_SECRET</code>.
+	</li>
+	<li>
+		<strong>Storage:</strong> The <code>sessions</code> table holds the raw token, expiry, user agent,
+		and IP address (recorded when the session is created). A leaked database alone cannot be turned into
+		a valid cookie, because forging one requires the secret.
+	</li>
+	<li>
+		<strong>Every request</strong> looks the session up in the database; there is no cookie cache, so
+		revoking a session takes effect immediately.
+	</li>
+</ul>
+
+<h3>Passwords: Argon2id</h3>
 
 <p>
-	The login form is a standard <strong>SvelteKit</strong> form action with progressive enhancement. The
-	entire flow happens server-side:
+	Better Auth defaults to scrypt. SvelteForge replaces it with the Argon2id functions in
+	<code>src/lib/server/password.ts</code>, which are plain functions with no SvelteKit imports so
+	the seed script and the v2 migration can use them too:
 </p>
 
-<ol>
-	<li><strong>Validate inputs</strong> — username (3-31 chars) and password (6-255 chars)</li>
-	<li><strong>Look up user</strong> — query by lowercase username using Drizzle ORM</li>
-	<li><strong>Verify password</strong> — Argon2id comparison against stored hash</li>
-	<li><strong>Create session</strong> — generate token, hash it, store in DB with metadata</li>
-	<li><strong>Set cookie</strong> — httpOnly, sameSite=lax, secure in production</li>
-	<li><strong>Redirect</strong> — send user to the dashboard</li>
-</ol>
+<pre><code class="language-ts"
+		>// src/lib/server/password.ts
+const ARGON2_OPTIONS = &#123;
+  memoryCost: 19456,   // ~19 MB memory
+  timeCost: 2,         // 2 iterations
+  outputLen: 32,       // 256-bit output
+  parallelism: 1,      // Single-threaded
+&#125; as const;
+
+export const hashPassword = (password: string) =&gt; hash(password, ARGON2_OPTIONS);
+export async function verifyPassword(&#123; hash, password &#125;) &#123;
+  try &#123; return await verify(hash, password, ARGON2_OPTIONS); &#125;
+  catch &#123; return false; &#125;  // malformed hash = mismatch
+&#125;
+
+// auth.ts
+emailAndPassword: &#123;
+  enabled: true,
+  minPasswordLength: PASSWORD_MIN,   // 8
+  maxPasswordLength: PASSWORD_MAX,   // 255
+  password: &#123; hash: hashPassword, verify: verifyPassword &#125;,
+  resetPasswordTokenExpiresIn: 60 * 60,
+  revokeSessionsOnPasswordReset: true,
+  sendResetPassword: async (&#123; user, url &#125;) =&gt; &#123; /* sendAuthEmail(...) */ &#125;,
+&#125;,</code
+	></pre>
+
+<p>
+	Hashes are stored in <code>accounts.password</code> for the <code>credential</code> account of
+	each user. The minimum length is <strong>8</strong> characters (v1 allowed 6). Usernames are 3-31
+	characters of lowercase letters, numbers, hyphens, and underscores. These limits are exported as
+	<code>USERNAME_MIN</code>, <code>USERNAME_MAX</code>, <code>USERNAME_PATTERN</code>,
+	<code>PASSWORD_MIN</code>, and <code>PASSWORD_MAX</code> so forms and tests share one source of truth.
+</p>
+
+<h3>Plugins</h3>
+
+<pre><code class="language-ts"
+		>plugins: [
+  username(&#123;
+    minUsernameLength: USERNAME_MIN,
+    maxUsernameLength: USERNAME_MAX,
+    usernameValidator: (value) =&gt; USERNAME_PATTERN.test(value),
+    validationOrder: &#123; username: "post-normalization" &#125;,
+  &#125;),
+  admin(&#123; ac, roles, defaultRole: "viewer", adminRoles: ["admin"] &#125;),
+  // Must stay last: forwards Set-Cookie from auth.api calls to SvelteKit.
+  sveltekitCookies(getRequestEvent),
+],</code
+	></pre>
+
+<ul>
+	<li>
+		<strong><code>username</code></strong> — Adds <code>username</code> and
+		<code>displayUsername</code>
+		columns and the <code>signInUsername</code> API. Login uses username, not email.
+	</li>
+	<li>
+		<strong><code>admin</code></strong> — Adds the <code>role</code> column, ban fields, and admin
+		APIs (<code>createUser</code>, <code>setRole</code>, <code>removeUser</code>, ...). New users
+		default to
+		<code>viewer</code>.
+	</li>
+	<li>
+		<strong><code>sveltekitCookies</code></strong> — When you call
+		<code>auth.api.signInUsername()</code>
+		inside a form action, Better Auth needs to set a cookie on SvelteKit's response. This plugin does
+		that through <code>getRequestEvent()</code>. It must be the <strong>last</strong> plugin.
+	</li>
+</ul>
+
+<h3>Other options</h3>
+
+<ul>
+	<li>
+		<code>user.fields: &#123; image: "avatarUrl" &#125;</code> — Better Auth's <code>image</code>
+		field is stored in the existing <code>avatar_url</code> column.
+	</li>
+	<li>
+		<code>verification.storeIdentifier: "hashed"</code> — Password-reset and confirmation tokens are stored
+		as SHA-256 hashes, so a leaked database cannot be used to reset anyone's password (Better Auth's default
+		is plain text).
+	</li>
+	<li>
+		<code>user.changeEmail</code> — Enabled. Accounts with an unverified email switch immediately (<code
+			>updateEmailWithoutVerification</code
+		>); verified accounts, such as OAuth sign-ups, get a confirmation link.
+	</li>
+</ul>
+
+<h2>Calling Better Auth from Form Actions</h2>
+
+<p>
+	SvelteForge's forms are ordinary <strong>SvelteKit</strong> form actions with progressive
+	enhancement. They validate input, then call a server-side <code>auth.api.*</code> method. Always
+	pass
+	<code>request.headers</code> so Better Auth can identify the caller from the session cookie.
+</p>
 
 <pre><code class="language-ts"
 		>// src/routes/(auth)/login/+page.server.ts
 export const actions: Actions = &#123;
-  default: async (&#123; request, cookies, getClientAddress &#125;) =&gt; &#123;
+  default: async (&#123; request &#125;) =&gt; &#123;
     const formData = await request.formData();
     const username = formData.get("username");
     const password = formData.get("password");
 
-    // ... validation ...
+    // ... validate types and lengths ...
 
-    const existingUser = await db.query.users.findFirst(&#123;
-      where: eq(users.username, username.toLowerCase()),
-    &#125;);
-
-    if (!existingUser) &#123;
-      return fail(400, &#123; message: "Incorrect username or password" &#125;);
+    try &#123;
+      // Sets the session cookie through the sveltekitCookies plugin.
+      await auth.api.signInUsername(&#123;
+        body: &#123; username, password &#125;,
+        headers: request.headers,
+      &#125;);
+    &#125; catch (err) &#123;
+      if (isAPIError(err) &amp;&amp; (err.statusCode === 401 || err.statusCode === 400)) &#123;
+        return fail(400, &#123; message: "Incorrect username or password" &#125;);
+      &#125;
+      if (isAPIError(err)) &#123;
+        return fail(err.statusCode, &#123; message: err.body?.message ?? "Sign-in failed" &#125;);
+      &#125;
+      throw err;
     &#125;
-
-    const validPassword = await verify(existingUser.passwordHash, password, &#123;
-      memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1,
-    &#125;);
-
-    if (!validPassword) &#123;
-      return fail(400, &#123; message: "Incorrect username or password" &#125;);
-    &#125;
-
-    const token = generateSessionToken();
-    const session = await createSession(token, existingUser.id, &#123;
-      userAgent: request.headers.get("user-agent"),
-      ipAddress: getClientAddress(),
-    &#125;);
-    setSessionCookie(cookies, token, session.expiresAt);
 
     redirect(302, "/");
   &#125;,
@@ -380,272 +323,412 @@ export const actions: Actions = &#123;
 	></pre>
 
 <p>
-	Notice the deliberate use of a generic error message (<em>"Incorrect username or password"</em>)
-	for both missing users and wrong passwords — this prevents username enumeration attacks.
+	Login deliberately returns the same message for unknown users and wrong passwords, which prevents
+	username enumeration. Banned accounts and similar cases keep Better Auth's own message.
 </p>
+
+<h3><code>authFailure()</code></h3>
 
 <p>
-	The login page uses <strong>SvelteKit's</strong> <code>use:enhance</code> directive for progressive
-	enhancement. The form works without JavaScript and upgrades seamlessly when JS is available, avoiding
-	full page reloads on submission.
+	Better Auth throws an <code>APIError</code> when something is wrong. Most actions turn that into a
+	form failure with one helper from <code>src/lib/server/auth-errors.ts</code>:
 </p>
-
-<h2>Registration Flow</h2>
-
-<ol>
-	<li>
-		<strong>Validate inputs</strong> — name, email, username (lowercase alphanumeric + hyphens/underscores),
-		password
-	</li>
-	<li><strong>Hash password</strong> — Argon2id with the same parameters as login</li>
-	<li>
-		<strong>Generate user ID</strong> — cryptographic random ID via <code>generateId(10)</code>
-	</li>
-	<li>
-		<strong>Insert user</strong> — Drizzle ORM insert with unique constraint on email and username
-	</li>
-	<li><strong>Create session</strong> — immediately log the user in</li>
-	<li><strong>Redirect</strong> — send to dashboard</li>
-</ol>
 
 <pre><code class="language-ts"
-		>// Registration insert (after validation and password hashing)
-		try &#123;
-			// Serialize the first-user check and insert, including concurrent registrations.
-			db.transaction(
-				(tx) =&gt; &#123;
-					tx.insert(users)
-						.values(&#123;
-							id: userId,
-							email: email.toLowerCase(),
-							username: username.toLowerCase(),
-							passwordHash,
-							name,
-							role: tx.select(&#123; id: users.id &#125;).from(users).limit(1).get() ? "viewer" : "admin",
-						&#125;)
-						.run();
-				&#125;,
-				&#123; behavior: "immediate" &#125;
-			);
-		&#125; catch &#123;
-			return fail(400, &#123; message: "Username or email already taken" &#125;);
-		&#125;
-</code></pre>
+		>export function authFailure(err: unknown, fallback = "Something went wrong. Please try again.") &#123;
+  if (isAPIError(err)) &#123;
+    const status = typeof err.statusCode === "number" &amp;&amp; err.statusCode &gt;= 400 ? err.statusCode : 400;
+    return fail(status, &#123; message: err.body?.message || err.message || fallback &#125;);
+  &#125;
+  throw err;   // redirects and unexpected errors pass through
+&#125;
+
+// Usage
+try &#123;
+  await auth.api.changePassword(&#123; body: &#123; currentPassword, newPassword &#125;, headers: request.headers &#125;);
+&#125; catch (err) &#123;
+  return authFailure(err);
+&#125;</code
+	></pre>
+
+<h3>Which routes call what</h3>
+
+<table>
+	<thead>
+		<tr>
+			<th>Route</th>
+			<th>Better Auth call</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>/login</code></td>
+			<td><code>auth.api.signInUsername()</code></td>
+		</tr>
+		<tr>
+			<td><code>/register</code></td>
+			<td><code>auth.api.signUpEmail()</code> (signs the user in)</td>
+		</tr>
+		<tr>
+			<td><code>/logout</code></td>
+			<td><code>auth.api.signOut()</code> (deletes the session row, clears the cookie)</td>
+		</tr>
+		<tr>
+			<td><code>/forgot-password</code></td>
+			<td><code>auth.api.requestPasswordReset()</code></td>
+		</tr>
+		<tr>
+			<td><code>/reset-password</code></td>
+			<td><code>auth.api.resetPassword()</code></td>
+		</tr>
+		<tr>
+			<td><code>/lock</code></td>
+			<td><code>auth.api.verifyPassword()</code></td>
+		</tr>
+		<tr>
+			<td><code>/login/google</code>, <code>/login/github</code></td>
+			<td><code>auth.api.signInSocial()</code></td>
+		</tr>
+		<tr>
+			<td>Settings</td>
+			<td>
+				<code>updateUser</code>, <code>changeEmail</code>, <code>changePassword</code>,
+				<code>revokeSession</code>, <code>revokeOtherSessions</code>
+			</td>
+		</tr>
+		<tr>
+			<td>Users and Roles</td>
+			<td
+				><code>createUser</code>, <code>adminUpdateUser</code>, <code>setRole</code>,
+				<code>removeUser</code></td
+			>
+		</tr>
+	</tbody>
+</table>
+
+<h2>Registration and the First Admin</h2>
 
 <p>
-	<strong>First user privilege:</strong> The first registered user automatically receives the
-	<code>admin</code> role. This bootstraps the application without requiring database seeding or manual
-	role assignment. Later registrations receive viewer access; the first-user check and insert run in an
-	immediate SQLite transaction.
+	The register action validates name, email, username, and password, then calls
+	<code>auth.api.signUpEmail()</code>. Better Auth creates the user and a <code>credential</code>
+	account and signs the user in.
+</p>
+
+<p>
+	<strong>First user privilege:</strong> The first registered user automatically becomes
+	<code>admin</code>. This is done in a Better Auth <code>databaseHooks.user.create.after</code>
+	hook with a single atomic <code>UPDATE</code> that promotes the user only if they are the oldest row
+	and no admin exists yet, so two people registering at the same moment cannot both become admin.
+</p>
+
+<pre><code class="language-ts"
+		>databaseHooks: &#123;
+  user: &#123;
+    create: &#123;
+      before: async (user) =&gt; &#123;
+        // validates name; derives a unique username for OAuth sign-ups
+      &#125;,
+      after: async (user) =&gt; &#123;
+        db.run(sql`
+          UPDATE users SET role = 'admin'
+          WHERE id = $&#123;user.id&#125;
+            AND id = (SELECT id FROM users ORDER BY rowid LIMIT 1)
+            AND NOT EXISTS (SELECT 1 FROM users WHERE role = 'admin')
+        `);
+      &#125;,
+    &#125;,
+  &#125;,
+&#125;,</code
+	></pre>
+
+<p>
+	Later registrations get the <code>viewer</code> role. OAuth sign-ups arrive without a username, so
+	the <code>before</code> hook derives a unique one from the email address.
 </p>
 
 <h2>OAuth (Google + GitHub)</h2>
 
 <p>
-	Social login is implemented using the <strong>Arctic</strong> library, which provides minimal,
-	type-safe OAuth 2.0 clients. OAuth is <strong>entirely optional</strong> — providers are configured
-	via environment variables, and the system degrades gracefully when they are not set.
+	Social login is built into Better Auth and is <strong>entirely optional</strong>. A provider is
+	enabled only when both its client ID and secret are set:
 </p>
 
-<h3>Provider Configuration</h3>
-
 <pre><code class="language-ts"
-		>// src/lib/server/oauth.ts
-import * as arctic from "arctic";
-import &#123; ORIGIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET &#125; from "$app/env/private";
+		>const socialProviders = &#123;
+  ...(GOOGLE_CLIENT_ID &amp;&amp; GOOGLE_CLIENT_SECRET
+    ? &#123; google: &#123; clientId: GOOGLE_CLIENT_ID, clientSecret: GOOGLE_CLIENT_SECRET &#125; &#125;
+    : &#123;&#125;),
+  ...(GITHUB_CLIENT_ID &amp;&amp; GITHUB_CLIENT_SECRET
+    ? &#123; github: &#123; clientId: GITHUB_CLIENT_ID, clientSecret: GITHUB_CLIENT_SECRET &#125; &#125;
+    : &#123;&#125;),
+&#125;;
 
-function getBaseUrl(): string &#123;
-  return ORIGIN || "http://localhost:5173";
-&#125;
-
-export const google =
-  GOOGLE_CLIENT_ID &amp;&amp; GOOGLE_CLIENT_SECRET
-    ? new arctic.Google(
-        GOOGLE_CLIENT_ID,
-        GOOGLE_CLIENT_SECRET,
-        `$&#123;getBaseUrl()&#125;/login/google/callback`
-      )
-    : null;
-
-export const github =
-  GITHUB_CLIENT_ID &amp;&amp; GITHUB_CLIENT_SECRET
-    ? new arctic.GitHub(
-        GITHUB_CLIENT_ID,
-        GITHUB_CLIENT_SECRET,
-        `$&#123;getBaseUrl()&#125;/login/github/callback`
-      )
-    : null;
-
-export function getEnabledProviders(): string[] &#123;
-  const providers: string[] = [];
-  if (google) providers.push("google");
-  if (github) providers.push("github");
-  return providers;
+export function getEnabledProviders(): ("google" | "github")[] &#123;
+  return Object.keys(socialProviders) as ("google" | "github")[];
 &#125;</code
 	></pre>
 
-<p>Key design decisions:</p>
+<p>
+	The login page loads <code>getEnabledProviders()</code> and only renders buttons for configured providers.
+</p>
 
-<ul>
-	<li>
-		<strong>Environment-driven:</strong> Providers are <code>null</code> when their env vars are missing.
-		No errors, no crashes — just graceful absence.
-	</li>
-	<li>
-		<strong>Dynamic callback URLs:</strong> The <code>ORIGIN</code> env var controls the base URL, so
-		callback URLs work across localhost, staging, and production without code changes.
-	</li>
-	<li>
-		<strong>Conditional UI:</strong> The login page calls <code>getEnabledProviders()</code> via its
-		<strong>SvelteKit</strong> load function and only renders social login buttons for configured providers.
-	</li>
-</ul>
+<h3>Setting up a provider</h3>
 
-<h3>Login Page Integration</h3>
+<ol>
+	<li>
+		Create the OAuth app in the <a
+			href="https://console.cloud.google.com/apis/credentials"
+			target="_blank"
+			rel="noopener noreferrer">Google Cloud Console</a
+		>
+		or
+		<a href="https://github.com/settings/developers" target="_blank" rel="noopener noreferrer"
+			>GitHub Developer Settings</a
+		>.
+	</li>
+	<li>
+		Register the redirect (callback) URL, replacing the origin with your own:
+		<ul>
+			<li><code>&#123;ORIGIN&#125;/api/auth/callback/google</code></li>
+			<li><code>&#123;ORIGIN&#125;/api/auth/callback/github</code></li>
+		</ul>
+	</li>
+	<li>
+		Add <code>GOOGLE_CLIENT_ID</code> / <code>GOOGLE_CLIENT_SECRET</code> and/or
+		<code>GITHUB_CLIENT_ID</code> / <code>GITHUB_CLIENT_SECRET</code> to your environment, then restart.
+	</li>
+</ol>
+
+<p>
+	For local development with the default origin, the Google URI is
+	<code>http://localhost:5173/api/auth/callback/google</code>. In v1 the callbacks were
+	<code>/login/google/callback</code> and <code>/login/github/callback</code>; update them when
+	upgrading.
+</p>
+
+<h3>The flow</h3>
+
+<ol>
+	<li>
+		<strong>Start</strong> — <code>/login/google</code> (or <code>/login/github</code>) calls
+		<code>auth.api.signInSocial()</code> and redirects the browser to the provider. Better Auth stores
+		the OAuth state and PKCE verifier.
+	</li>
+	<li>
+		<strong>Callback</strong> — The provider redirects to
+		<code>/api/auth/callback/&#123;provider&#125;</code>, handled by <code>svelteKitHandler</code>
+		in the hook. Better Auth validates state, exchanges the code, and creates or links the user and an
+		<code>accounts</code> row.
+	</li>
+	<li>
+		<strong>Finish</strong> — The user lands on <code>/</code>. On failure they return to
+		<code>/login?error=oauth</code> and see a "Social sign-in failed" message.
+	</li>
+</ol>
 
 <pre><code class="language-ts"
-		>// src/routes/(auth)/login/+page.server.ts
-export const load: PageServerLoad = async (&#123; locals &#125;) =&gt; &#123;
-  if (locals.user) redirect(302, "/");
-  return &#123;
-    enabledProviders: getEnabledProviders(),
-  &#125;;
+		>// src/routes/(auth)/login/google/+server.ts
+export const GET: RequestHandler = async (&#123; request &#125;) =&gt; &#123;
+  if (!getEnabledProviders().includes("google")) redirect(302, "/login");
+
+  const &#123; url &#125; = await auth.api.signInSocial(&#123;
+    body: &#123; provider: "google", callbackURL: "/", errorCallbackURL: "/login?error=oauth" &#125;,
+    headers: request.headers,
+  &#125;);
+  if (!url) redirect(302, "/login?error=oauth");
+
+  redirect(302, url, &#123; external: [new URL(url).origin] &#125;);
 &#125;;</code
 	></pre>
 
 <p>
-	The <strong>Svelte 5</strong> login component uses <code>$props()</code> to receive the enabled providers
-	and conditionally renders Google/GitHub buttons only when available.
+	OAuth users have no password. They get the <code>viewer</code> role unless they are the very first account
+	on a fresh install, and a unique username derived from their email. Their email is already verified
+	by the provider, so changing it later uses a confirmation link.
 </p>
 
-<h3>OAuth Flow</h3>
+<h2>Password Reset and Email</h2>
 
-<p>The OAuth flow uses two <strong>SvelteKit</strong> server routes per provider:</p>
-
-<ol>
-	<li>
-		<strong>Initiation</strong> (<code>/login/google/+server.ts</code>) — Generates a random state
-		and code verifier, stores them in short-lived httpOnly cookies (10 minutes), and redirects the
-		user to the provider's authorization URL.
-	</li>
-	<li>
-		<strong>Callback</strong> (<code>/login/google/callback/+server.ts</code>) — Validates the state
-		parameter against the stored cookie, exchanges the authorization code for tokens, fetches the
-		user's profile, and either logs in an existing user or creates a new account.
-	</li>
-</ol>
-
-<p>The callback handler implements account linking logic:</p>
-
-<ol>
-	<li>Check if an <code>oauthAccounts</code> record exists for this provider + provider user ID</li>
-	<li>If yes: create a session for the linked user and redirect to dashboard</li>
-	<li>If no: create a new user + OAuth account link + session</li>
-	<li>If user creation fails (email conflict): attempt to link to the existing user by email</li>
-</ol>
-
-<p>
-	OAuth users get a random, unusable password hash — they can only authenticate via their social
-	provider. The user role is set to <code>viewer</code> by default (unlike the first registered user
-	who gets <code>admin</code>).
-</p>
-
-<h2>Password Reset Flow</h2>
-
-<p>Password reset follows industry best practices with hashed tokens and time-limited validity:</p>
-
-<h3>Step 1: Request Reset (<code>/forgot-password</code>)</h3>
-
-<ol>
-	<li>User enters their email address</li>
-	<li>Server generates a 25-character random token via <code>generateId(25)</code></li>
-	<li>
-		Token is hashed with SHA-256 and stored in the <code>passwordResetTokens</code> table with a 1-hour
-		expiry
-	</li>
-	<li>The reset URL is logged to the console (no email service configured in development)</li>
-	<li>Response always returns success — never reveals whether the email exists</li>
-</ol>
+<p>Reset and confirmation emails all go through one function:</p>
 
 <pre><code class="language-ts"
-		>// Generate and store hashed token
-const token = generateId(25);
-const tokenHash = /* SHA-256 hash of token */;
-const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-await db.insert(passwordResetTokens).values(&#123;
-  id: tokenId,
-  userId: user.id,
-  tokenHash,
-  expiresAt,
-&#125;);
-
-console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</code
+		>// src/lib/server/email.ts
+export async function sendAuthEmail(email: &#123; to: string; subject: string; text: string; url: string &#125;) &#123;
+  console.log(`[Auth email] To: $&#123;email.to&#125;`);
+  console.log(`[Auth email] Subject: $&#123;email.subject&#125;`);
+  console.log(`[Auth email] Link: $&#123;email.url&#125;`);
+  // Optional: AUTH_EMAIL_OUTBOX=/path/to/outbox.jsonl also appends each message as a JSON line.
+&#125;</code
 	></pre>
 
-<h3>Step 2: Reset Password (<code>/reset-password</code>)</h3>
+<p>
+	<strong>SvelteForge ships without an email provider.</strong> The default implementation logs the
+	message and link to the server console, which is enough for development. Before production,
+	replace the body of <code>sendAuthEmail()</code> with your provider (Resend, Postmark, SES,
+	Nodemailer, ...). Setting <code>AUTH_EMAIL_OUTBOX</code> additionally appends every message to a JSONL
+	file; the E2E tests use it to read reset links.
+</p>
+
+<h3>Step 1: Request a reset (<code>/forgot-password</code>)</h3>
 
 <ol>
-	<li>User clicks the reset link containing the raw token</li>
-	<li>Server hashes the submitted token and looks up the matching record</li>
-	<li>Validates the token has not expired</li>
-	<li>Hashes the new password with Argon2id</li>
-	<li>Updates the user's password hash and deletes the used token</li>
-	<li>Redirects to the login page</li>
+	<li>The user enters their email address.</li>
+	<li>
+		The action calls
+		<code
+			>auth.api.requestPasswordReset(&#123; body: &#123; email, redirectTo: "/reset-password" &#125;
+			&#125;)</code
+		>.
+	</li>
+	<li>
+		Better Auth stores a hashed, one-hour token in <code>verifications</code> and calls
+		<code>sendResetPassword</code>, which calls <code>sendAuthEmail()</code>.
+	</li>
+	<li>The response is always success, so it never reveals whether the email exists.</li>
+</ol>
+
+<h3>Step 2: Choose a new password (<code>/reset-password</code>)</h3>
+
+<ol>
+	<li>
+		Better Auth validates the token and redirects to <code>/reset-password?token=...</code>, or with
+		<code>?error=INVALID_TOKEN</code> for a bad or expired link.
+	</li>
+	<li>
+		The action validates the new password and calls
+		<code>auth.api.resetPassword(&#123; body: &#123; newPassword, token &#125; &#125;)</code>.
+	</li>
+	<li>
+		<code>revokeSessionsOnPasswordReset</code> signs the user out everywhere, then the action
+		redirects to <code>/login</code>.
+	</li>
 </ol>
 
 <h2>Screen Lock</h2>
 
 <p>
-	The screen lock feature (<code>/lock</code>) allows authenticated users to lock their session and
-	require password re-entry to continue. This is useful for shared workstations or brief absences.
+	The screen lock feature (<code>/lock</code>) lets an authenticated user lock the screen and
+	re-enter their password to continue. The page requires an active session (otherwise it redirects
+	to
+	<code>/login</code>) and checks the password with <code>auth.api.verifyPassword()</code>; no new
+	session is created.
 </p>
 
+<h2>Roles and Permissions</h2>
+
 <p>
-	The lock page requires an active session (unauthenticated users are redirected to <code
-		>/login</code
-	>). It displays the user's name and avatar, and verifies the entered password against the stored
-	Argon2id hash before redirecting back to the dashboard.
+	Roles are a SQLite text enum: <code>admin</code>, <code>editor</code>, <code>viewer</code>. Access
+	control for Better Auth's admin APIs is defined in <code>src/lib/permissions.ts</code> and shared by
+	the server and the UI:
 </p>
 
-<h2>Session Metadata</h2>
+<pre><code class="language-ts"
+		>export const statements = &#123;
+  user: ["create", "list", "set-role", "ban", "impersonate", "impersonate-admins",
+         "delete", "set-password", "set-email", "get", "update"],
+  session: ["list", "revoke", "delete"],
+&#125; as const;
+
+export const ac = createAccessControl(statements);
+
+export const roles = &#123;
+  admin: ac.newRole(&#123; user: ["create", "list", "set-role", "ban", "delete",
+                          "set-password", "set-email", "get", "update"],
+                   session: ["list", "revoke", "delete"] &#125;),
+  editor: ac.newRole(&#123; user: [], session: [] &#125;),
+  viewer: ac.newRole(&#123; user: [], session: [] &#125;),
+&#125;;</code
+	></pre>
+
+<table>
+	<thead>
+		<tr>
+			<th>Role</th>
+			<th>Admin API (users, sessions)</th>
+			<th>App behavior</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td><code>admin</code></td>
+			<td>Full access except impersonation</td>
+			<td>Manages users, roles, and settings; bypasses maintenance mode</td>
+		</tr>
+		<tr>
+			<td><code>editor</code></td>
+			<td>None</td>
+			<td>Creates and edits content, deletes their own content</td>
+		</tr>
+		<tr>
+			<td><code>viewer</code></td>
+			<td>None</td>
+			<td>Read-only access to the dashboard</td>
+		</tr>
+	</tbody>
+</table>
 
 <p>
-	Every session stores the user agent and IP address, updated on <strong>every request</strong> via the
-	server hook. This metadata powers the Settings &gt; Sessions panel, where users can see:
+	<strong>Impersonation is granted to no role in the free edition.</strong> The statements exist so
+	the admin plugin's types line up, but neither <code>admin</code> nor any other role holds them. Two-factor
+	auth, passkeys, organizations, and impersonation are possible through Better Auth plugins in SvelteForge
+	Premium.
+</p>
+
+<h2>Safety Guards</h2>
+
+<p>
+	A <code>hooks.before</code> middleware in <code>auth.ts</code> runs before Better Auth executes
+	any endpoint. Because it lives in Better Auth rather than in the form actions, the rules apply
+	equally to SvelteForge's forms and to raw requests against <code>/api/auth/*</code>:
 </p>
 
 <ul>
 	<li>
-		Browser name and version (parsed from the user-agent string using <code
-			>src/lib/utils/user-agent.ts</code
-		>)
+		<strong>Demo account protection</strong> — When <code>DEMO_MODE=true</code>, the shared
+		<code>demo</code> user cannot call <code>/update-user</code>, <code>/change-email</code>,
+		<code>/change-password</code>, or <code>/delete-user</code>.
 	</li>
-	<li>Operating system</li>
-	<li>IP address</li>
-	<li>Session creation time</li>
-	<li>Last activity (based on metadata updates)</li>
+	<li>
+		<strong>Last-admin protection</strong> — <code>/admin/set-role</code>,
+		<code>/admin/update-user</code>, and <code>/admin/remove-user</code> are refused if they would demote
+		or delete the only remaining admin.
+	</li>
+	<li>
+		<strong>Authored content</strong> — <code>/admin/remove-user</code> is refused for users who authored
+		pages. Reassign or delete their content first.
+	</li>
 </ul>
 
-<p>
-	This provides a security audit trail — users can identify unfamiliar sessions and administrators
-	can monitor access patterns.
-</p>
+<pre><code class="language-ts"
+		>hooks: &#123;
+  before: createAuthMiddleware(async (ctx) =&gt; &#123;
+    if (isDemoMode() &amp;&amp; DEMO_PROTECTED_PATHS.has(ctx.path)) &#123;
+      const session = await getSessionFromCtx(ctx);
+      if (session?.user.username === "demo") &#123;
+        throw new APIError("FORBIDDEN", &#123; message: "The shared demo account cannot be modified" &#125;);
+      &#125;
+    &#125;
+    // ... last-admin and authored-content checks ...
+  &#125;),
+&#125;,</code
+	></pre>
 
-<h2>Auth Guard</h2>
+<h2>Protecting Routes</h2>
 
 <p>
-	Protected routes are guarded by a single <strong>SvelteKit</strong> layout server load function in
-	<code>src/routes/(app)/+layout.server.ts</code>:
+	Because the hook fills <code>event.locals</code> on every request, guarding a route is a check on
+	<code>locals.user</code>. Protected pages live in the <code>(app)</code> route group, whose layout server
+	load function guards all of them at once:
 </p>
 
 <pre><code class="language-ts"
-		>export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
+		>// src/routes/(app)/+layout.server.ts
+export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
   if (!locals.user) &#123;
     redirect(302, "/login");
   &#125;
 
-  // Check maintenance mode
+  // Maintenance mode: admins bypass it, everyone else gets a 503
   const maintenanceSetting = await db.query.appSettings.findFirst(&#123;
     where: eq(appSettings.key, "maintenanceMode"),
   &#125;);
@@ -658,30 +741,49 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 	></pre>
 
 <p>
-	Because this is a <strong>layout</strong> load function, it runs before every page inside the
-	<code>(app)</code> route group. No individual page needs to check authentication — it is handled once
-	at the layout level.
+	Because this is a <strong>layout</strong> load function, it runs before every page inside
+	<code>(app)</code>. For role-specific actions, check <code>locals.user.role</code> as well. Never rely
+	on hiding a button: every action must enforce its own rule on the server.
+</p>
+
+<pre><code class="language-ts"
+		>// In any +page.server.ts action
+if (locals.user?.role !== "admin") &#123;
+  return fail(403, &#123; message: "Admin access required" &#125;);
+&#125;</code
+	></pre>
+
+<p>
+	<strong>Public routes:</strong> the <code>docs/</code> directory and anything else outside a
+	<code>(group)/</code> is not covered by the <code>(app)</code> guard and is reachable without signing
+	in.
 </p>
 
 <h2>Maintenance Mode</h2>
 
 <p>
 	The auth guard also enforces maintenance mode. When the <code>maintenanceMode</code> app setting
-	is set to <code>"true"</code>, all non-admin users receive a
-	<strong>503 Service Unavailable</strong>
-	error. Admin users can still access the application to manage settings and bring it back online.
+	is
+	<code>"true"</code>, all non-admin users receive a <strong>503 Service Unavailable</strong> error. Admins
+	can still use the application to turn it back off from the Settings page, with no code changes or redeployment.
 </p>
 
+<h2>Session Management UI</h2>
+
 <p>
-	This is controlled via the Settings page in the admin dashboard — toggle it on/off without any
-	code changes or redeployment.
+	Settings &gt; Sessions lists the signed-in user's active sessions with browser, operating system,
+	IP address, and how long ago each began (parsed with <code>src/lib/utils/user-agent.ts</code>).
+	Users can revoke one session (<code>auth.api.revokeSession</code>) or all others (<code
+		>auth.api.revokeOtherSessions</code
+	>). The session <code>token</code> column is never sent to the browser; revocation looks it up on the
+	server by session id, scoped to the current user.
 </p>
 
 <h2>Database Schema</h2>
 
 <p>
-	The authentication system uses four tables defined with <strong>Drizzle ORM</strong> in
-	<code>src/lib/server/db/schema.ts</code>:
+	Four tables, defined with <strong>Drizzle ORM</strong> in
+	<code>src/lib/server/db/schema.ts</code>, belong to Better Auth:
 </p>
 
 <table>
@@ -697,38 +799,39 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 			<td><code>users</code></td>
 			<td>User accounts</td>
 			<td
-				><code>id</code>, <code>email</code>, <code>username</code>, <code>passwordHash</code>,
-				<code>role</code>, <code>avatarUrl</code></td
+				><code>id</code>, <code>name</code>, <code>email</code>, <code>emailVerified</code>,
+				<code>username</code>, <code>role</code>, <code>banned</code>, <code>avatarUrl</code></td
 			>
 		</tr>
 		<tr>
 			<td><code>sessions</code></td>
 			<td>Active sessions</td>
 			<td
-				><code>id</code> (hashed token), <code>userId</code>, <code>expiresAt</code>,
-				<code>userAgent</code>, <code>ipAddress</code></td
+				><code>token</code>, <code>userId</code>, <code>expiresAt</code>, <code>userAgent</code>,
+				<code>ipAddress</code></td
 			>
 		</tr>
 		<tr>
-			<td><code>oauthAccounts</code></td>
-			<td>OAuth provider links</td>
+			<td><code>accounts</code></td>
+			<td>Login methods</td>
 			<td
-				><code>userId</code>, <code>provider</code>, <code>providerUserId</code> (unique index on provider
-				+ providerUserId)</td
+				><code>userId</code>, <code>providerId</code> (<code>credential</code>, <code>google</code>,
+				<code>github</code>), <code>accountId</code>, <code>password</code> (Argon2id hash)</td
 			>
 		</tr>
 		<tr>
-			<td><code>passwordResetTokens</code></td>
-			<td>Password reset requests</td>
-			<td><code>userId</code>, <code>tokenHash</code>, <code>expiresAt</code></td>
+			<td><code>verifications</code></td>
+			<td>Reset and confirmation tokens, OAuth state</td>
+			<td><code>identifier</code> (hashed), <code>value</code>, <code>expiresAt</code></td>
 		</tr>
 	</tbody>
 </table>
 
 <p>
-	Roles are defined as a SQLite text enum: <code>admin</code>, <code>editor</code>,
-	<code>viewer</code>. The role determines access levels throughout the application — admin users
-	can manage other users, change settings, and bypass maintenance mode.
+	See the <a href="/docs/database">Database</a> guide for the full definitions. If you add Better
+	Auth plugins that need new columns, regenerate the schema with
+	<code>npx @better-auth/cli generate</code> and update <code>SCHEMA_SQL</code> in
+	<code>test-utils.ts</code>.
 </p>
 
 <h2>Security Summary</h2>
@@ -743,35 +846,43 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 	<tbody>
 		<tr>
 			<td>Password storage</td>
-			<td>Argon2id with 19 MB memory cost, 2 iterations</td>
+			<td>Argon2id with 19 MB memory cost, 2 iterations; minimum 8 characters</td>
 		</tr>
 		<tr>
-			<td>Session tokens</td>
-			<td>20 bytes of <code>crypto.getRandomValues()</code>, base32 encoded</td>
-		</tr>
-		<tr>
-			<td>Token storage</td>
-			<td>SHA-256 hash in DB; raw token only in httpOnly cookie</td>
-		</tr>
-		<tr>
-			<td>Cookie security</td>
-			<td><code>httpOnly</code>, <code>sameSite=lax</code>, <code>secure</code> in production</td>
+			<td>Session cookie</td>
+			<td>
+				<code>better-auth.session_token</code>, httpOnly, SameSite=Lax, secure over HTTPS, signed
+				with
+				<code>BETTER_AUTH_SECRET</code>
+			</td>
 		</tr>
 		<tr>
 			<td>Session lifetime</td>
-			<td>30 days with sliding expiration (auto-extends at 15 days)</td>
+			<td>30 days with sliding expiration (extends when less than 15 days remain)</td>
+		</tr>
+		<tr>
+			<td>Reset and verification tokens</td>
+			<td>Stored as SHA-256 hashes, one-hour expiry; resetting signs the user out everywhere</td>
 		</tr>
 		<tr>
 			<td>Username enumeration</td>
-			<td>Generic error messages on login; silent responses on password reset</td>
+			<td>Generic error on login; identical response on password-reset requests</td>
 		</tr>
 		<tr>
-			<td>Reset tokens</td>
-			<td>SHA-256 hashed, 1-hour expiry, single-use (deleted after use)</td>
+			<td>OAuth</td>
+			<td
+				>State and PKCE handled by Better Auth; redirect URIs fixed to <code
+					>/api/auth/callback/*</code
+				></td
+			>
 		</tr>
 		<tr>
-			<td>OAuth state</td>
-			<td>Random state parameter in httpOnly cookie, verified on callback</td>
+			<td>Privileged operations</td>
+			<td
+				>Admin plugin permission checks plus last-admin and demo-account guards in <code
+					>hooks.before</code
+				></td
+			>
 		</tr>
 		<tr>
 			<td>Server boundary</td>
@@ -781,8 +892,8 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 			>
 		</tr>
 		<tr>
-			<td>Metadata tracking</td>
-			<td>User agent and IP address updated on every request</td>
+			<td>Startup check</td>
+			<td>The app refuses to start in production without <code>BETTER_AUTH_SECRET</code></td>
 		</tr>
 	</tbody>
 </table>
@@ -797,9 +908,9 @@ console.log(`[Password Reset] URL: /reset-password?token=$&#123;token&#125;`);</
 			<h3 class="text-foreground text-lg font-bold sm:text-xl">Go Premium with DashboardPack</h3>
 			<p class="text-muted-foreground mt-2 text-sm leading-relaxed">
 				SvelteForge Admin gives you a solid <strong>Svelte 5</strong> +
-				<strong>SvelteKit</strong> authentication foundation. When you need enterprise-grade features
-				— multi-tenant auth, 2FA, API key management, audit logs, and advanced RBAC — check out the premium
-				templates at DashboardPack.
+				<strong>SvelteKit</strong> authentication foundation on Better Auth. When you need enterprise-grade
+				features — multi-tenant auth, 2FA, passkeys, impersonation, API key management, audit logs, and
+				advanced RBAC — check out the premium templates at DashboardPack.
 			</p>
 			<ul class="text-muted-foreground mt-3 space-y-1 text-sm">
 				<li>

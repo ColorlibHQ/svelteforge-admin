@@ -122,8 +122,8 @@
 		<tr>
 			<td><strong>Authentication</strong></td>
 			<td
-				>Custom session-based auth with Argon2id password hashing, SHA-256 token hashing, and
-				optional Google/GitHub OAuth via Arctic</td
+				>Better Auth with Argon2id password hashing, signed session cookies, and optional
+				Google/GitHub OAuth</td
 			>
 		</tr>
 		<tr>
@@ -197,12 +197,12 @@
 			<td>Type-safe database access with better-sqlite3 in WAL mode</td>
 		</tr>
 		<tr>
-			<td><strong>Custom Auth (node:crypto + Argon2)</strong></td>
-			<td>Session-based authentication with secure password hashing</td>
+			<td><strong>Better Auth</strong></td>
+			<td>Sessions, username/password sign-in, roles, and password reset, with Argon2id hashing</td>
 		</tr>
 		<tr>
-			<td><strong>Arctic OAuth</strong></td>
-			<td>Google and GitHub social login (environment-driven, optional)</td>
+			<td><strong>Google and GitHub OAuth</strong></td>
+			<td>Social login through Better Auth (environment-driven, optional)</td>
 		</tr>
 		<tr>
 			<td><strong>LayerChart v2</strong></td>

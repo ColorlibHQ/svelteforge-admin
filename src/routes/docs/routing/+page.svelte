@@ -201,12 +201,12 @@
 		<tr>
 			<td><code>(auth)/login/google/</code></td>
 			<td><code>/login/google</code></td>
-			<td>Google OAuth redirect + callback</td>
+			<td>Starts the Google OAuth flow (callback is <code>/api/auth/callback/google</code>)</td>
 		</tr>
 		<tr>
 			<td><code>(auth)/login/github/</code></td>
 			<td><code>/login/github</code></td>
-			<td>GitHub OAuth redirect + callback</td>
+			<td>Starts the GitHub OAuth flow (callback is <code>/api/auth/callback/github</code>)</td>
 		</tr>
 	</tbody>
 </table>
@@ -349,41 +349,29 @@ export const load: LayoutServerLoad = async (&#123; locals &#125;) =&gt; &#123;
 
 <p>
 	<strong>SvelteKit's</strong> <code>hooks.server.ts</code> runs on <em>every</em> request before
-	any route handler. SvelteForge uses it to validate sessions and populate
-	<code>event.locals</code>:
+	any route handler. SvelteForge uses it to look up the Better Auth session, populate
+	<code>event.locals</code>, and serve Better Auth's own <code>/api/auth/*</code> endpoints:
 </p>
 
 <pre><code class="language-typescript"
 		>// src/hooks.server.ts
-import &#123;
-  validateSession,
-  setSessionCookie,
-  deleteSessionCookie,
-  SESSION_COOKIE_NAME,
-&#125; from "#lib/server/auth.js";
+import &#123; svelteKitHandler &#125; from "better-auth/svelte-kit";
+import &#123; building &#125; from "$app/env";
+import &#123; auth, type SessionUser &#125; from "#lib/server/auth.js";
 import type &#123; Handle &#125; from "@sveltejs/kit";
 
 export const handle: Handle = async (&#123; event, resolve &#125;) =&gt; &#123;
-  const token = event.cookies.get(SESSION_COOKIE_NAME);
-  if (!token) &#123;
-    event.locals.user = null;
-    event.locals.session = null;
-    return resolve(event);
+  event.locals.user = null;
+  event.locals.session = null;
+
+  const result = await auth.api.getSession(&#123; headers: event.request.headers &#125;);
+  if (result) &#123;
+    event.locals.user = result.user as SessionUser;
+    event.locals.session = result.session;
   &#125;
 
-  const &#123; session, user &#125; = await validateSession(token);
-
-  if (session) &#123;
-    // Refresh cookie and update session metadata (UA, IP)
-    setSessionCookie(event.cookies, token, session.expiresAt);
-    // ... update userAgent and ipAddress in DB
-  &#125; else &#123;
-    deleteSessionCookie(event.cookies);
-  &#125;
-
-  event.locals.user = user;
-  event.locals.session = session;
-  return resolve(event);
+  // Serves /api/auth/* (OAuth callbacks, reset links) and passes everything else to SvelteKit
+  return svelteKitHandler(&#123; event, resolve, auth, building &#125;);
 &#125;;</code
 	></pre>
 
@@ -568,6 +556,8 @@ export const load: PageServerLoad = async () =&gt; &#123;
 <pre><code class="language-typescript"
 		>// src/routes/(app)/users/+page.server.ts
 import &#123; fail &#125; from "@sveltejs/kit";
+import &#123; auth &#125; from "#lib/server/auth.js";
+import &#123; authFailure &#125; from "#lib/server/auth-errors.js";
 import type &#123; Actions &#125; from "./$types.js";
 
 export const actions: Actions = &#123;
@@ -587,15 +577,21 @@ export const actions: Actions = &#123;
       return fail(400, &#123; message: "Valid email is required" &#125;);
     &#125;
 
-    // ... hash password, insert into database
-    await db.insert(users).values(&#123;
-      id: generateId(10),
-      email: email.toLowerCase(),
-      username: username.toLowerCase(),
-      passwordHash,
-      name,
-      role: role as "admin" | "editor" | "viewer",
-    &#125;);
+    // ... validate username, password, and role, then let Better Auth create the user
+    try &#123;
+      await auth.api.createUser(&#123;
+        body: &#123;
+          name,
+          email: email.toLowerCase(),
+          password,
+          role,
+          data: &#123; username: username.toLowerCase() &#125;,
+        &#125;,
+        headers: request.headers,
+      &#125;);
+    &#125; catch (err) &#123;
+      return authFailure(err);
+    &#125;
 
     return &#123; success: true &#125;;
   &#125;,
@@ -751,7 +747,8 @@ export const GET: RequestHandler = async (&#123; url, locals &#125;) =&gt; &#123
 		<strong>Svelte 5</strong> components.
 	</li>
 	<li>
-		<strong>Server hooks</strong> validate sessions on every request before any route handler runs.
+		<strong>Server hooks</strong> resolve the Better Auth session on every request before any route handler
+		runs.
 	</li>
 	<li>
 		<strong>Form actions</strong> handle mutations with progressive enhancement and server-side validation.

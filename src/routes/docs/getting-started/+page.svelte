@@ -47,7 +47,8 @@ cd svelteforge-admin</code
 
 <p>
 	This creates <code>svelteforge.db</code> in the project root with all tables: users, sessions, pages,
-	notifications, oauthAccounts, appSettings, and passwordResetTokens.
+	accounts, verifications, notifications, and appSettings (users, sessions, accounts, and verifications
+	are Better Auth's tables).
 </p>
 
 <h3>4. Seed with sample data</h3>
@@ -152,6 +153,10 @@ DATABASE_URL=svelteforge.db
 # Application
 ORIGIN=http://localhost:5173
 
+# Signs session cookies. Required in production.
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=
+
 # OAuth (optional — providers are disabled when not set)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -179,6 +184,14 @@ GITHUB_CLIENT_SECRET=</code
 			<td>Public URL: set before building for CSRF checks, and at runtime for OAuth callbacks</td>
 		</tr>
 		<tr>
+			<td><code>BETTER_AUTH_SECRET</code></td>
+			<td>Production</td>
+			<td>
+				Signs session cookies. Generate with <code>openssl rand -base64 32</code>. The app refuses
+				to start in production without it; it may stay empty in development
+			</td>
+		</tr>
+		<tr>
 			<td><code>GOOGLE_CLIENT_ID</code></td>
 			<td>No</td>
 			<td>Google OAuth 2.0 client ID</td>
@@ -202,7 +215,13 @@ GITHUB_CLIENT_SECRET=</code
 </table>
 
 <p>
-	OAuth providers are configured in <code>#lib/server/oauth.ts</code> using SvelteKit's
+	Auth emails (password reset links) are logged to the server console until you connect an email
+	provider in <code>src/lib/server/email.ts</code>. Set <code>AUTH_EMAIL_OUTBOX</code> to a file path
+	to also append each message there as a JSON line.
+</p>
+
+<p>
+	OAuth providers are configured in <code>#lib/server/auth.ts</code> using SvelteKit's
 	<code>$app/env/private</code>. When the environment variables are missing, the corresponding
 	social login buttons are automatically hidden from the login page. See the
 	<a href="/docs/authentication">Authentication docs</a> for full OAuth setup instructions.
@@ -303,7 +322,7 @@ GITHUB_CLIENT_SECRET=</code
     settings/
     roles/
     database/
-  (auth)/         # Public auth routes — login, register, OAuth callbacks
+  (auth)/         # Public auth routes — login, register, OAuth start routes
     login/
     register/
     forgot-password/

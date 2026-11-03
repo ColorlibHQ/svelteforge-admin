@@ -154,7 +154,18 @@ export default defineConfig((&#123; mode &#125;) =&gt; &#123;
 			<td>—</td>
 			<td
 				>Your production URL (e.g., <code>https://admin.example.com</code>). Required for CSRF
-				protection and OAuth callback URLs.</td
+				protection and as Better Auth's base URL (OAuth callbacks, reset links).</td
+			>
+		</tr>
+		<tr>
+			<td><code>BETTER_AUTH_SECRET</code></td>
+			<td>Yes</td>
+			<td>—</td>
+			<td
+				>Signs session cookies and secures Better Auth tokens. Generate with <code
+					>openssl rand -base64 32</code
+				>. The app refuses to start in production without it. Keep it stable: changing it signs
+				everyone out.</td
 			>
 		</tr>
 		<tr>
@@ -206,10 +217,10 @@ export default defineConfig((&#123; mode &#125;) =&gt; &#123;
 </table>
 
 <p>
-	OAuth providers are loaded dynamically in <code>#lib/server/oauth.ts</code> using
-	<strong>SvelteKit's</strong> <code>$app/env/private</code>. When environment variables are
-	missing, the provider is <code>null</code> and the corresponding social login button is automatically
-	hidden from the login page.
+	OAuth providers are configured in <code>#lib/server/auth.ts</code> using
+	<strong>SvelteKit's</strong> <code>$app/env/private</code>. When a provider's client ID or secret
+	is missing, it is not enabled and the corresponding social login button is automatically hidden
+	from the login page.
 </p>
 
 <h2>Docker Deployment</h2>
@@ -271,7 +282,8 @@ services:
       - ./data:/app/data
     environment:
       - DATABASE_URL=/app/data/svelteforge.db
-      - ORIGIN=https://admin.example.com # Runtime OAuth callback URL
+      - ORIGIN=https://admin.example.com # Runtime base URL for OAuth callbacks and reset links
+      - BETTER_AUTH_SECRET=$&#123;BETTER_AUTH_SECRET&#125;
       - GOOGLE_CLIENT_ID=$&#123;GOOGLE_CLIENT_ID&#125;
       - GOOGLE_CLIENT_SECRET=$&#123;GOOGLE_CLIENT_SECRET&#125;
       - GITHUB_CLIENT_ID=$&#123;GITHUB_CLIENT_ID&#125;
@@ -450,7 +462,7 @@ pm2 startup</code
 	</li>
 	<li>
 		Add the callback URL to <strong>Authorized redirect URIs</strong>:
-		<code>https://admin.example.com/login/google/callback</code>
+		<code>https://admin.example.com/api/auth/callback/google</code>
 	</li>
 </ol>
 
@@ -462,7 +474,7 @@ pm2 startup</code
 	<li>Set <strong>Homepage URL</strong> to your production URL</li>
 	<li>
 		Set <strong>Authorization callback URL</strong> to:
-		<code>https://admin.example.com/login/github/callback</code>
+		<code>https://admin.example.com/api/auth/callback/github</code>
 	</li>
 </ol>
 
@@ -577,6 +589,21 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 			>
 		</tr>
 		<tr>
+			<td><strong>BETTER_AUTH_SECRET</strong></td>
+			<td
+				>Set a long random value (<code>openssl rand -base64 32</code>) in your host's secret store.
+				Treat it like a password and do not rotate it casually: rotation invalidates all sessions.</td
+			>
+		</tr>
+		<tr>
+			<td><strong>Email delivery</strong></td>
+			<td
+				>Password-reset and email-change links are only logged to the server console until you
+				connect a provider in <code>src/lib/server/email.ts</code>. Do this before relying on
+				password reset in production.</td
+			>
+		</tr>
+		<tr>
 			<td><strong>ORIGIN env var</strong></td>
 			<td
 				><strong>SvelteKit</strong> uses this for CSRF protection on form actions. Must match your exact
@@ -600,8 +627,9 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 		<tr>
 			<td><strong>Session table monitoring</strong></td>
 			<td
-				>Sessions are auto-extended but never auto-deleted for inactive users. Monitor the sessions
-				table size and consider a periodic cleanup job for expired sessions.</td
+				>Sessions slide forward while a user is active, and an expired session is removed when its
+				cookie is next used. Rows for users who never return remain, so monitor the sessions table
+				size and consider a periodic cleanup job for expired sessions.</td
 			>
 		</tr>
 		<tr>
@@ -624,8 +652,8 @@ cp svelteforge.db svelteforge.db-wal svelteforge.db-shm /backups/</code
 
 <ul>
 	<li>
-		<a href="/docs/authentication">Authentication</a> — Deep dive into the session-based auth system and
-		OAuth configuration
+		<a href="/docs/authentication">Authentication</a> — Deep dive into the Better Auth setup and OAuth
+		configuration
 	</li>
 	<li>
 		<a href="/docs/database">Database</a> — Full schema reference, migrations, and query patterns

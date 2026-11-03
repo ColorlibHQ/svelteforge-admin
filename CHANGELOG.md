@@ -2,6 +2,65 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v2.0.0 -- November 2026
+
+Authentication now runs on [Better Auth](https://better-auth.com) instead of custom
+session code plus Arctic, which its maintainer deprecated in July 2026. The UI, the
+roles, and Argon2id password hashing are unchanged. **This is a breaking release for
+existing installs: run `pnpm db:migrate-v2` before `pnpm db:push`.**
+
+### Breaking changes
+
+- New required production variable `BETTER_AUTH_SECRET` (signs session cookies). The server
+  refuses to start without it; builds do not need it.
+- OAuth redirect URIs move to `{ORIGIN}/api/auth/callback/google` and
+  `{ORIGIN}/api/auth/callback/github`. Update them in Google Cloud and GitHub.
+- Schema: `users.password_hash` moves to the new `accounts` table (`providerId = "credential"`);
+  `oauth_accounts` is replaced by `accounts`; `password_reset_tokens` by `verifications`;
+  `sessions` changes shape. `users` gains `email_verified`, `display_username`, `banned`,
+  `ban_reason`, `ban_expires`.
+- All sessions are invalidated by the migration; everyone signs in again.
+- Minimum password length is now 8 characters (was 6) for new passwords.
+- Removed exports from `#lib/server/auth.js`: `generateSessionToken`, `createSession`,
+  `validateSession`, `invalidateSession`, `setSessionCookie`, `deleteSessionCookie`,
+  `SESSION_COOKIE_NAME`, `generateId` (import it from `#lib/server/id.js`). Removed
+  `#lib/server/oauth.js`; `getEnabledProviders()` now lives in `#lib/server/auth.js`.
+- Removed dependencies: `arctic`, `@oslojs/encoding`.
+
+### Added
+
+- `better-auth` 1.7 with the username and admin plugins, mounted at `/api/auth/*`.
+- `src/lib/permissions.ts`: `admin`/`editor`/`viewer` access-control roles, enforced by the
+  admin plugin. Impersonation is granted to no role.
+- `pnpm db:migrate-v2`: one-time, backed-up migration of a v1 database that keeps users,
+  roles, passwords, and Google/GitHub links.
+- `sendAuthEmail()` in `src/lib/server/email.ts` as the single place to connect an email
+  provider; optional `AUTH_EMAIL_OUTBOX` file for development.
+- Email change from Settings goes through Better Auth (confirmation link for verified accounts).
+- Banned accounts are refused at sign-in (admin plugin).
+
+### Changed
+
+- Demo-account protection and last-admin protection moved into Better Auth `hooks.before`,
+  so they cover the raw `/api/auth/*` endpoints as well as the form actions.
+- Deleting a user who authored pages is refused up front instead of failing part-way.
+- Password-reset and email-change tokens are stored hashed (`verification.storeIdentifier`).
+- Session metadata (IP, user agent) is recorded at sign-in instead of rewritten on every request.
+
+### Fixed
+
+- Dashboard "Recent activity" no longer crashes client-side navigation when two events
+  share a timestamp (duplicate `{#each}` key).
+
+### Testing
+
+- Unit tests run against the real Better Auth instance (`mockDbModule`, `createAuthHeaders`),
+  plus tests for permissions, guards, and the v1 → v2 migration against a v1 schema fixture.
+- New browser tests: register/sign out/sign in, full password-reset link round trip, lock screen.
+- Verified locally: 58 unit tests, 42 Chromium tests, type checking, lint, and production build;
+  a seeded v1 database migrated with `pnpm db:migrate-v2`, after which `drizzle-kit push`
+  reported no changes.
+
 ## Documentation update -- October 2026
 
 - Add the v1.4 migration guide and align OAuth, registration, test helpers, async session APIs, and Docker examples with the shipped code.

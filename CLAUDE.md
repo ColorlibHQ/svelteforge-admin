@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SvelteForge Admin is a SvelteKit admin dashboard using Svelte 5, Tailwind CSS v4, custom session-based auth with Arctic OAuth, and Drizzle ORM with SQLite.
+SvelteForge Admin is a SvelteKit admin dashboard using Svelte 5, Tailwind CSS v4, Better Auth (self-hosted, with optional Google/GitHub OAuth), and Drizzle ORM with SQLite.
 
 ## Commands
 
@@ -19,6 +19,7 @@ pnpm db:generate      # Generate Drizzle migrations from schema
 pnpm db:push          # Push schema changes directly to database
 pnpm db:studio        # Open Drizzle Studio GUI
 pnpm db:seed          # Seed database with sample data (local tsx)
+pnpm db:migrate-v2    # One-time v1 → v2 auth migration (run BEFORE db:push on old DBs)
 
 pnpm test             # Run all unit tests (Vitest)
 pnpm test:watch       # Run tests in watch mode
@@ -39,7 +40,7 @@ pnpm format:check     # Prettier (check only)
 - **Svelte 5** with runes API (`$props`, `$state`, `$derived`, `{@render}`)
 - **Tailwind CSS v4** — native CSS with `@theme` directive in `src/app.css`, no JS config file. OKLCH color system
 - **shadcn-svelte** — UI components in `#lib/components/ui/`, added via `npx shadcn-svelte@latest add <component>`
-- **Custom session auth** — SHA-256 hashed tokens with node:crypto, Argon2id password hashing, optional OAuth via Arctic (Google, GitHub)
+- **Better Auth** — configured in `src/lib/server/auth.ts` with the `username` and `admin` plugins and `sveltekitCookies` (must stay last). Argon2id hashing is kept via custom `password.hash/verify` (`src/lib/server/password.ts`). OAuth via Better Auth social providers, enabled only when env credentials exist
 - **Drizzle ORM** — SQLite with better-sqlite3, WAL mode. Schema in `src/lib/server/db/schema.ts`
 - **LayerChart v2** — D3-based charts. Marked `noExternal` in `vite.config.ts` alongside `svelte-ux` for SSR compatibility
 - **Package manager:** pnpm
@@ -56,20 +57,23 @@ Routes use SvelteKit route groups for layout separation:
 - `api/search/` — Search endpoint for command palette
 - `sitemap.xml/` — Auto-generated sitemap
 
-Session validation runs on every request via `hooks.server.ts`, populating `event.locals.user` and `event.locals.session`. OAuth providers are environment-driven — see `.env.example` for configuration.
+`hooks.server.ts` calls `auth.api.getSession()` to populate `event.locals.user`/`event.locals.session`, then `svelteKitHandler` serves Better Auth's endpoints under `/api/auth/*` (OAuth callbacks at `/api/auth/callback/{google,github}`, reset links). `/login/google` and `/login/github` just start the OAuth flow. OAuth providers are environment-driven — see `.env.example`.
 
-`event.locals.user` is `SessionUser` (a subset of `User` — no `passwordHash`, no timestamps). Use the full `User` type only when querying the DB directly.
+`event.locals.user` is `SessionUser` (Better Auth's session user, with `username: string` and `role: Role` narrowed). Use the `User` type only when querying the DB directly.
 
-Sessions live 30 days and auto-extend whenever a request arrives with <15 days remaining (logic in `validateSession`). The cookie holds the raw token; the DB stores its SHA-256 hash as the session ID — a leaked DB cannot be used to forge sessions.
+**Auth mutations go through `auth.api.*`, not direct DB writes** — sign-in/up, password change/reset, email change, session revocation, and admin user CRUD (`createUser`, `setRole`, `adminUpdateUser`, `removeUser`). Pass `headers: request.headers` so Better Auth sees the caller's session, and convert errors with `authFailure()` from `#lib/server/auth-errors.js`. Cross-cutting rules (demo-account protection, last-admin protection, refusing to delete content authors) live in `hooks.before` in `auth.ts` so they also cover the raw `/api/auth/*` endpoints — put new auth guards there, not only in a form action.
+
+Sessions live 30 days and slide forward when <15 days remain (`session.expiresIn`/`updateAge`). The cookie (`better-auth.session_token`) is HMAC-signed with `BETTER_AUTH_SECRET`, so a leaked DB alone can't forge a cookie. Reset/verification tokens are stored hashed. Roles and permissions are defined once in `src/lib/permissions.ts`; impersonation is deliberately granted to no role (premium feature).
 
 The `(app)/+layout.server.ts` guard also enforces **maintenance mode**: when `appSettings.maintenanceMode === "true"`, non-admin users get a 503. Admins bypass it.
 
 ### Key Directories
 
 - `src/lib/server/` — Server-only code (auth, OAuth, database). Never import from client-side code
-- `src/lib/server/auth.ts` — Session management (create, validate, invalidate, cookies)
-- `src/lib/server/oauth.ts` — Arctic OAuth providers (conditional on env vars)
-- `src/lib/server/db/schema.ts` — Drizzle schema (users, sessions, pages, notifications, oauthAccounts, appSettings, passwordResetTokens)
+- `src/lib/server/auth.ts` — Better Auth instance (plugins, hooks, databaseHooks, `getEnabledProviders()`, username/password limits)
+- `src/lib/server/email.ts` — `sendAuthEmail()`: logs to console (+ optional `AUTH_EMAIL_OUTBOX` JSONL); the one place to plug in an email provider
+- `src/lib/server/db/schema.ts` — Drizzle schema. Auth tables (`users`, `sessions`, `accounts`, `verifications`) use Better Auth field names (`usePlural: true`; `image` is remapped to `avatarUrl`). App tables: pages, notifications, appSettings
+- `src/lib/server/db/migrate-v2-auth.ts` — v1 → v2 migration (tested against `db/fixtures/v1-schema.sql`)
 - `src/lib/server/db/seed.ts` — Database seeder (run via `pnpm db:seed`, uses local `tsx` not SvelteKit aliases)
 - `src/lib/server/id.ts` — Crypto ID generator (`generateId()`)
 - `src/lib/components/ui/` — shadcn-svelte components (don't edit directly, re-add to update)
@@ -89,7 +93,7 @@ SQLite database file: `svelteforge.db` (project root, gitignored). Roles enum: `
 Gated by the `DEMO_MODE=true` env var (read directly via `process.env` in `settings/+page.server.ts`, not the DB). When enabled it unlocks two things that are otherwise invisible:
 
 1. An admin-only **Demo tab in Settings** with a _Reset Demo Data Now_ button → the `resetDemo` action, which wipes and re-seeds the DB via `seedDemo()` from `seed.ts`.
-2. A **self-modification guard on the shared `demo` account** — `updateProfile`/`changePassword` refuse to touch `username === "demo"` so one visitor can't lock everyone else out between resets.
+2. A **self-modification guard on the shared `demo` account** — Better Auth `hooks.before` in `auth.ts` refuses `/update-user`, `/change-email`, `/change-password` and `/delete-user` for `username === "demo"` (covering both the Settings actions and the raw endpoints), so one visitor can't lock everyone else out between resets. It reads `process.env.DEMO_MODE` per request.
 
 Leave it unset on real deployments. For a hands-off public demo, an hourly cron runs `pnpm db:seed` (this is why deploy syncs `src/` too — see below).
 
@@ -97,20 +101,21 @@ Leave it unset on real deployments. For a hands-off public demo, an hourly cron 
 
 Tests co-locate with their route: e.g., `src/routes/(app)/users/users.test.ts` tests the `users/+page.server.ts` load and actions.
 
-**Test DB pattern:** Tests mock `#lib/server/db/index.js` with a getter that returns an in-memory SQLite database created via `createTestDb()` from `test-utils.ts`. The mock must be set up before dynamically importing the server module:
+**Test DB pattern:** Tests mock `#lib/server/db/index.js` with `mockDbModule()`, a proxy that forwards to the current in-memory DB (the Better Auth singleton captures `db` once at import, so a plain getter is not enough). Set it up before dynamically importing the server module:
 
 ```ts
-vi.mock("#lib/server/db/index.js", () => ({
-	get db() {
-		return testDb;
-	},
-}));
+let testDb: TestDb;
+vi.mock("#lib/server/db/index.js", async () =>
+	(await import("#lib/server/db/test-utils.js")).mockDbModule(() => testDb)
+);
 const { load, actions } = await import("./+page.server.js");
 ```
 
+Actions that call `auth.api.*` need a real session: `createMockRequest(formData, await createAuthHeaders(userId))`. `src/test-setup.ts` stubs `$app/server`'s `getRequestEvent`. Don't mock `#lib/server/auth.js` — tests run against the real Better Auth config.
+
 After modifying `schema.ts`, also update the `SCHEMA_SQL` in `test-utils.ts` and run `pnpm db:push`.
 
-`test-utils.ts` also exports `createTestUser(db, overrides)`, `createMockLocals(userId, role)`, `createFormData(entries)`, and `createMockRequest(formData)` — use these instead of hand-rolling fixtures in each test. `createTestUser` hashes `"password123"` with the same Argon2id parameters used in production.
+`test-utils.ts` also exports `createTestUser(db, overrides)` (user + credential account, password `"password123"`, production Argon2id params), `createAuthHeaders(userId)`, `createMockLocals(userId, role)`, `createFormData(entries)`, and `createMockRequest(formData, headers?)` — use these instead of hand-rolling fixtures.
 
 ### Patterns
 
@@ -134,6 +139,6 @@ If a feature request sounds premium-tier (multi-tenancy, billing, 2FA, passkeys,
 
 ### Deployment
 
-Builds with `@sveltejs/adapter-node`. SvelteKit configuration lives in `vite.config.ts`; set `ORIGIN` before building (`paths.origin` is compiled into the server). `.github/workflows/deploy.yml` deploys on push to `main` only after the reusable CI workflow passes. It builds for the demo origin, syncs `build/`, `src/`, and dependency/configuration files to Hetzner, installs dependencies there, and restarts PM2. `/api/health` exposes the app version and build commit; deployment verifies it matches the pushed commit. Keep `DEMO_MODE` in the server's PM2 ecosystem configuration so it survives restarts. The deployment does not seed or reset the live database.
+Builds with `@sveltejs/adapter-node`. SvelteKit configuration lives in `vite.config.ts`; set `ORIGIN` before building (`paths.origin` is compiled into the server). `BETTER_AUTH_SECRET` is needed at runtime only — the server refuses to start in production without it, but `vite build` uses a placeholder. `.github/workflows/deploy.yml` deploys on push to `main` only after the reusable CI workflow passes. It builds for the demo origin, syncs `build/`, `src/`, and dependency/configuration files to Hetzner, installs dependencies there, and restarts PM2. `/api/health` exposes the app version and build commit; deployment verifies it matches the pushed commit. Keep `DEMO_MODE` and `BETTER_AUTH_SECRET` in the server's environment (`.env` loaded by PM2 via `--env-file`) so they survive restarts. The deployment does not seed or reset the live database.
 
 `scripts/` holds Playwright tooling for marketing screenshots (`screenshot.ts`, `add-browser-frame.ts`) — outputs to `screenshots/`, unrelated to the app runtime.

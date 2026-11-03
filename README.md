@@ -1,6 +1,6 @@
 # SvelteForge - SvelteKit Admin Dashboard Template
 
-A production-ready admin dashboard template built with **SvelteKit 3**, **Svelte 5**, **Tailwind CSS 4**, and **Drizzle ORM**. Features custom session-based authentication, optional OAuth (Google & GitHub), role-based access control, and a full suite of admin tools -- all with zero external auth dependencies.
+A production-ready admin dashboard template built with **SvelteKit 3**, **Svelte 5**, **Tailwind CSS 4**, and **Drizzle ORM**. Features self-hosted [Better Auth](https://better-auth.com) authentication, optional OAuth (Google & GitHub), role-based access control, and a full suite of admin tools -- no hosted auth service required.
 
 ![SvelteKit](https://img.shields.io/badge/SvelteKit-3-FF3E00?logo=svelte)
 ![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte)
@@ -54,7 +54,7 @@ A production-ready admin dashboard template built with **SvelteKit 3**, **Svelte
 
 ## Free vs Premium
 
-SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + custom session auth, MIT-licensed, free forever. **SvelteForge Premium** clones this codebase and adds a multi-tenant SaaS layer on top: workspaces, billing, MFA + passkeys, AI chat, CRM, helpdesk, invoicing, and 30+ other production-ready modules.
+SvelteForge (this repo) is the open-source core — pure SvelteKit + Drizzle + Better Auth, MIT-licensed, free forever. **SvelteForge Premium** clones this codebase and adds a multi-tenant SaaS layer on top: workspaces, billing, MFA + passkeys, AI chat, CRM, helpdesk, invoicing, and 30+ other production-ready modules.
 
 | Capability                                                                      | **Free** (this repo) | **[Premium →](https://dashboardpack.com/theme-details/svelteforge-premium/?utm_source=github&utm_medium=readme&utm_content=comparison-table-header&utm_campaign=upgrade-svelteforge-premium)** |
 | ------------------------------------------------------------------------------- | :------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
@@ -197,8 +197,8 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
 | **Framework** | SvelteKit 3 + Svelte 5 (runes API)                         |
 | **Styling**   | Tailwind CSS 4 + shadcn-svelte                             |
 | **Database**  | SQLite via Drizzle ORM + better-sqlite3 (WAL mode)         |
-| **Auth**      | Custom sessions (Node SHA-256) + Argon2id password hashing |
-| **OAuth**     | Arctic (Google + GitHub) -- optional, environment-driven   |
+| **Auth**      | Better Auth (username + admin plugins) + Argon2id hashing  |
+| **OAuth**     | Better Auth social providers (Google + GitHub) -- optional |
 | **Charts**    | LayerChart v2 (D3-based)                                   |
 | **Testing**   | Vitest (unit) + Playwright (E2E)                           |
 | **Linting**   | ESLint 10 + Prettier                                       |
@@ -209,11 +209,12 @@ Loved SvelteForge but need it in another framework? Check out our premium templa
 
 ### Authentication & Security
 
-- **Custom session management** -- SHA-256 hashed tokens stored in the database. Raw token in HttpOnly cookie, hash in DB. If your database leaks, session tokens cannot be recovered.
-- **Argon2id password hashing** -- Industry-standard password hashing with configurable memory/time cost parameters.
+- **Better Auth** -- Self-hosted, library-maintained auth wired into SvelteKit (`src/lib/server/auth.ts`). Session cookies are HttpOnly and HMAC-signed with `BETTER_AUTH_SECRET`; password-reset tokens are stored hashed.
+- **Argon2id password hashing** -- Kept from v1 through Better Auth's custom `password.hash`/`verify`, so existing passwords keep working.
+- **Role-based access control** -- `admin`, `editor`, `viewer` roles defined once in `src/lib/permissions.ts` and enforced by Better Auth's admin plugin.
 - **Auto-extending sessions** -- Sessions automatically refresh when less than 15 days remain (30-day lifetime).
 - **Session metadata** -- User agent and IP address tracked per session for security auditing.
-- **OAuth login (optional)** -- Google and GitHub social login via Arctic. Providers only activate when you set credentials in `.env`. No credentials = password-only login, no errors.
+- **OAuth login (optional)** -- Google and GitHub social login via Better Auth. Providers only activate when you set credentials in `.env`. No credentials = password-only login, no errors.
 - **Password reset flow** -- Forgot password page with token-based reset (token hashed in DB).
 - **Screen lock** -- Lock screen that requires re-entering your password.
 
@@ -310,7 +311,18 @@ Three built-in roles with different permission levels:
 
 ## Upgrading
 
-See the [v1.4 migration guide](https://svelteforge.dashboardpack.com/docs/upgrading) for SvelteKit 3 configuration, `#lib` imports, environment variables, deployment, and permission changes.
+**v2.0 replaces the custom auth with Better Auth.** Existing installs keep their users, passwords, and OAuth links, but must run a one-time migration (everyone signs in again):
+
+```bash
+cp svelteforge.db svelteforge.db.backup   # the script also writes <db>.pre-v2.bak
+# 1. Add BETTER_AUTH_SECRET to .env (openssl rand -base64 32)
+# 2. Change OAuth redirect URIs to {ORIGIN}/api/auth/callback/{google|github}
+pnpm install
+pnpm db:migrate-v2   # BEFORE db:push -- moves passwords and OAuth links
+pnpm db:push         # should report "No changes detected"
+```
+
+See the [upgrade guide](https://svelteforge.dashboardpack.com/docs/upgrading) for details, including the earlier v1.4 (SvelteKit 3) migration.
 
 ## Quick Start
 
@@ -328,6 +340,9 @@ cd svelteforge-admin
 
 # Install dependencies
 pnpm install
+
+# Create .env and set BETTER_AUTH_SECRET (openssl rand -base64 32)
+cp .env.example .env
 
 # Push database schema (creates SQLite database)
 pnpm db:push
@@ -363,7 +378,7 @@ Social login is entirely optional. When no OAuth credentials are configured, the
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create a new OAuth 2.0 Client ID
-3. Set the authorized redirect URI to: `http://localhost:5173/login/google/callback`
+3. Set the authorized redirect URI to: `http://localhost:5173/api/auth/callback/google`
 4. Add your credentials to `.env`:
 
 ```env
@@ -375,7 +390,7 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Create a new OAuth App
-3. Set the authorization callback URL to: `http://localhost:5173/login/github/callback`
+3. Set the authorization callback URL to: `http://localhost:5173/api/auth/callback/github`
 4. Add your credentials to `.env`:
 
 ```env
@@ -433,7 +448,7 @@ pnpm format:check     # Check formatting without writing
 src/
 ├── app.css                          # Tailwind CSS 4 theme (OKLCH colors)
 ├── app.d.ts                         # TypeScript type definitions
-├── hooks.server.ts                  # Session validation on every request
+├── hooks.server.ts                  # Better Auth session lookup + /api/auth/* handler
 ├── lib/
 │   ├── assets/                      # Static assets (favicon)
 │   ├── components/
@@ -450,14 +465,18 @@ src/
 │   │   └── user-form-dialog.svelte  # Create/edit user form
 │   ├── hooks/                       # Svelte 5 reactive utilities
 │   ├── server/
-│   │   ├── auth.ts                  # Session management (token gen, validation)
+│   │   ├── auth.ts                  # Better Auth configuration (plugins, hooks, guards)
 │   │   ├── db/
 │   │   │   ├── index.ts             # Database connection (WAL mode)
-│   │   │   ├── schema.ts            # Drizzle schema (users, sessions, pages, etc.)
+│   │   │   ├── schema.ts            # Drizzle schema (users, sessions, accounts, pages, etc.)
+│   │   │   ├── migrate-v2-auth.ts   # One-time v1 → v2 (Better Auth) migration
 │   │   │   ├── seed.ts              # Database seeder
 │   │   │   └── test-utils.ts        # Test database utilities
+│   │   ├── auth-errors.ts           # Better Auth APIError → form-action failure
+│   │   ├── email.ts                 # sendAuthEmail() -- plug in your email provider
 │   │   ├── id.ts                    # Crypto ID generator
-│   │   └── oauth.ts                 # Arctic OAuth providers (Google, GitHub)
+│   │   └── password.ts              # Argon2id hash/verify
+│   ├── permissions.ts               # Roles and access-control statements
 │   └── utils/
 │       ├── export.ts                # CSV/JSON export utilities
 │       └── user-agent.ts            # User agent parser
@@ -489,15 +508,15 @@ src/
 
 ## Database Schema
 
-| Table                   | Description                                                            |
-| ----------------------- | ---------------------------------------------------------------------- |
-| `users`                 | User accounts (id, email, username, password hash, name, avatar, role) |
-| `sessions`              | Active sessions (hashed token ID, user agent, IP, expiry)              |
-| `pages`                 | CMS content (title, slug, content, template, status, author)           |
-| `notifications`         | In-app notifications (title, message, type, read status)               |
-| `password_reset_tokens` | Time-limited password reset tokens (hashed)                            |
-| `oauth_accounts`        | OAuth provider links (Google, GitHub to user mapping)                  |
-| `app_settings`          | Key-value application settings                                         |
+| Table           | Description                                                        |
+| --------------- | ------------------------------------------------------------------ |
+| `users`         | User accounts (email, username, name, avatar, role, ban status)    |
+| `sessions`      | Better Auth sessions (token, user agent, IP, expiry)               |
+| `accounts`      | Login methods: `credential` (Argon2id hash) or Google/GitHub links |
+| `verifications` | Hashed password-reset and email-change tokens                      |
+| `pages`         | CMS content (title, slug, content, template, status, author)       |
+| `notifications` | In-app notifications (title, message, type, read status)           |
+| `app_settings`  | Key-value application settings                                     |
 
 ---
 
@@ -532,7 +551,7 @@ A `Dockerfile` is included for containerized deployments:
 
 ```bash
 docker build --build-arg ORIGIN=https://yourdomain.com -t svelteforge-admin .
-docker run -p 3000:3000 -v ./data:/app/data svelteforge-admin
+docker run -p 3000:3000 -e BETTER_AUTH_SECRET="$(openssl rand -base64 32)" -v ./data:/app/data svelteforge-admin
 ```
 
 ### Environment Variables
@@ -543,6 +562,10 @@ DATABASE_URL=svelteforge.db        # SQLite database file path
 
 # Required for production
 ORIGIN=https://yourdomain.com      # Set before building and at runtime for OAuth
+BETTER_AUTH_SECRET=                # Signs session cookies; openssl rand -base64 32
+
+# Optional -- also append auth emails (reset links) to a JSONL file in development
+AUTH_EMAIL_OUTBOX=
 
 # Optional -- OAuth providers (omit to disable)
 GOOGLE_CLIENT_ID=

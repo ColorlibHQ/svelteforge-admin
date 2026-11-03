@@ -100,7 +100,7 @@ export const load: PageServerLoad = async () => {
 			</tr>
 			<tr>
 				<td><strong>Password</strong></td>
-				<td>Required, hashed with Argon2id before storage</td>
+				<td>Required, 8-255 characters, hashed with Argon2id before storage</td>
 			</tr>
 			<tr>
 				<td><strong>Role</strong></td>
@@ -112,15 +112,15 @@ export const load: PageServerLoad = async () => {
 	<h3>Server-Side Validation</h3>
 
 	<p>
-		The <code>create</code> form action in <code>users/+page.server.ts</code> performs the following checks
-		before inserting a new user:
+		The <code>create</code> form action in <code>users/+page.server.ts</code> performs the following
+		checks before asking Better Auth (<code>auth.api.createUser</code>) to create the user:
 	</p>
 
 	<ul>
 		<li>Username format validation (3-31 lowercase alphanumeric characters)</li>
-		<li>Email uniqueness check against existing users</li>
+		<li>Email and username uniqueness, enforced by Better Auth</li>
 		<li>Password requirements enforcement</li>
-		<li>Argon2id hashing of the password before database insertion</li>
+		<li>Argon2id hashing of the password, stored in a credential account</li>
 	</ul>
 
 	<p>
@@ -143,8 +143,9 @@ export const load: PageServerLoad = async () => {
 			The <code>update</code> form action validates changes server-side with the same rules as creation.
 		</li>
 		<li>
-			<strong>Last-admin protection</strong> — The server prevents demoting the last remaining admin to
-			a lower role, ensuring at least one admin always exists.
+			<strong>Last-admin protection</strong> — The server prevents demoting or deleting the last
+			remaining admin, ensuring at least one admin always exists. The rule lives in Better Auth's
+			<code>hooks.before</code>, so it also applies to the raw <code>/api/auth</code> endpoints.
 		</li>
 	</ul>
 

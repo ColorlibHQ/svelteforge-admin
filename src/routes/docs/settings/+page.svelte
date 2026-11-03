@@ -26,60 +26,50 @@
 <h2>Profile Settings</h2>
 
 <p>
-	The Profile tab allows users to update their display name, email address, and avatar URL. The form
-	action validates all inputs server-side before persisting changes via <strong>Drizzle ORM</strong
-	>.
+	The Profile tab allows users to update their display name and email address. The form action
+	validates inputs server-side, then hands the change to <strong>Better Auth</strong> through
+	<code>auth.api.updateUser()</code> and <code>auth.api.changeEmail()</code>, passing the request
+	headers so Better Auth knows which session is calling.
 </p>
 
 <h3>How It Works</h3>
 
 <ol>
-	<li><strong>Display name</strong> — Free text field, required, trimmed before storing</li>
+	<li><strong>Display name</strong> — Required, 1-100 characters</li>
 	<li>
-		<strong>Email</strong> — Validated for format and checked for uniqueness against the
-		<code>users</code> table
-	</li>
-	<li>
-		<strong>Avatar URL</strong> — Optional URL string for a profile picture (Gravatar, uploaded image,
-		etc.)
+		<strong>Email</strong> — Validated for format, lowercased, and checked for uniqueness by Better Auth
 	</li>
 </ol>
 
 <pre><code class="language-ts"
 		>// Profile update form action (simplified)
-profile: async (&#123; request, locals &#125;) =&gt; &#123;
-  if (!locals.user) return fail(401, &#123; message: "Unauthorized" &#125;);
+updateProfile: async (&#123; request, locals &#125;) =&gt; &#123;
+  // ... validate name and email ...
 
-  const formData = await request.formData();
-  const name = formData.get("name")?.toString().trim();
-  const email = formData.get("email")?.toString().trim().toLowerCase();
-  const avatarUrl = formData.get("avatarUrl")?.toString().trim() || null;
+  try &#123;
+    await auth.api.updateUser(&#123; body: &#123; name &#125;, headers: request.headers &#125;);
 
-  // Validate required fields
-  if (!name || !email) &#123;
-    return fail(400, &#123; message: "Name and email are required" &#125;);
+    if (newEmail !== locals.user.email) &#123;
+      // Unverified accounts switch immediately; verified ones get a confirmation link.
+      await auth.api.changeEmail(&#123;
+        body: &#123; newEmail, callbackURL: "/settings" &#125;,
+        headers: request.headers,
+      &#125;);
+    &#125;
+  &#125; catch (err) &#123;
+    return authFailure(err);
   &#125;
 
-  // Check email uniqueness (exclude current user)
-  const existing = await db.query.users.findFirst(&#123;
-    where: and(eq(users.email, email), ne(users.id, locals.user.id)),
-  &#125;);
-  if (existing) &#123;
-    return fail(400, &#123; message: "Email is already in use" &#125;);
-  &#125;
-
-  await db.update(users)
-    .set(&#123; name, email, avatarUrl &#125;)
-    .where(eq(users.id, locals.user.id));
-
-  return &#123; success: true, message: "Profile updated" &#125;;
+  return &#123; success: true, action: "profile", emailPending &#125;;
 &#125;</code
 	></pre>
 
 <p>
-	The email uniqueness check explicitly excludes the current user's ID, so submitting the form
-	without changing the email does not trigger a conflict. All queries use
-	<strong>Drizzle ORM's</strong> type-safe query builder.
+	Accounts with an unverified email (every email/password account in a default install) change email
+	immediately. Accounts with a verified email, such as OAuth sign-ups, receive a confirmation link
+	through <code>sendAuthEmail()</code> and keep the old address until they approve it. In demo mode
+	the shared <code>demo</code> account cannot change its profile; the guard lives in Better Auth's
+	<code>hooks.before</code>, so it also covers the raw <code>/api/auth</code> endpoints.
 </p>
 
 <h2>Password Change</h2>
@@ -92,58 +82,37 @@ profile: async (&#123; request, locals &#125;) =&gt; &#123;
 <h3>Validation Rules</h3>
 
 <ul>
-	<li><strong>Current password</strong> — Verified against the stored hash using Argon2id</li>
-	<li><strong>New password</strong> — Minimum 6 characters, maximum 255 characters</li>
+	<li><strong>Current password</strong> — Verified against the stored Argon2id hash</li>
+	<li><strong>New password</strong> — Minimum 8 characters, maximum 255 characters</li>
 	<li><strong>Confirm password</strong> — Must exactly match the new password</li>
 </ul>
 
 <pre><code class="language-ts"
 		>// Password change form action (simplified)
-password: async (&#123; request, locals &#125;) =&gt; &#123;
-  const formData = await request.formData();
-  const currentPassword = formData.get("currentPassword");
-  const newPassword = formData.get("newPassword");
-  const confirmPassword = formData.get("confirmPassword");
+changePassword: async (&#123; request &#125;) =&gt; &#123;
+  // ... validate lengths (PASSWORD_MIN / PASSWORD_MAX) and confirmation ...
 
-  // Validate lengths
-  if (newPassword.length &lt; 6 || newPassword.length &gt; 255) &#123;
-    return fail(400, &#123; message: "Password must be 6-255 characters" &#125;);
+  try &#123;
+    await auth.api.changePassword(&#123;
+      body: &#123; currentPassword, newPassword, revokeOtherSessions: false &#125;,
+      headers: request.headers,
+    &#125;);
+  &#125; catch (err) &#123;
+    if (isAPIError(err) &amp;&amp; err.body?.code === "INVALID_PASSWORD") &#123;
+      return fail(400, &#123; message: "Current password is incorrect" &#125;);
+    &#125;
+    return authFailure(err);
   &#125;
 
-  if (newPassword !== confirmPassword) &#123;
-    return fail(400, &#123; message: "Passwords do not match" &#125;);
-  &#125;
-
-  // Verify current password with Argon2id
-  const user = await db.query.users.findFirst(&#123;
-    where: eq(users.id, locals.user.id),
-  &#125;);
-
-  const valid = await verify(user.passwordHash, currentPassword, &#123;
-    memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1,
-  &#125;);
-
-  if (!valid) &#123;
-    return fail(400, &#123; message: "Current password is incorrect" &#125;);
-  &#125;
-
-  // Hash and store new password
-  const passwordHash = await hash(newPassword, &#123;
-    memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1,
-  &#125;);
-
-  await db.update(users)
-    .set(&#123; passwordHash &#125;)
-    .where(eq(users.id, locals.user.id));
-
-  return &#123; success: true, message: "Password updated" &#125;;
+  return &#123; success: true, action: "password" &#125;;
 &#125;</code
 	></pre>
 
 <p>
-	The new password is re-hashed with the same <strong>Argon2id</strong> parameters used during registration
-	(19 MB memory cost, 2 iterations). This ensures consistent security across all password operations in
-	the application.
+	Better Auth verifies the current password and stores the new one in
+	<code>accounts.password</code> using the same <strong>Argon2id</strong> parameters as registration
+	(19 MB memory cost, 2 iterations), configured through the <code>emailAndPassword.password</code>
+	hooks in <code>auth.ts</code>.
 </p>
 
 <h2>Session Management</h2>
@@ -162,8 +131,8 @@ password: async (&#123; request, locals &#125;) =&gt; &#123;
 	<li><strong>Device type</strong> — Desktop, mobile, or tablet (detected from user-agent)</li>
 	<li><strong>Browser</strong> — Name and version (Chrome 120, Firefox 121, Safari 17, etc.)</li>
 	<li><strong>Operating system</strong> — Windows, macOS, Linux, iOS, Android</li>
-	<li><strong>IP address</strong> — The last-seen IP for this session</li>
-	<li><strong>Last activity</strong> — Relative timestamp of the most recent request</li>
+	<li><strong>IP address</strong> — The IP recorded when the session was created</li>
+	<li><strong>Started</strong> — Relative timestamp of when the session was created</li>
 	<li><strong>Current session badge</strong> — Highlights the session you are currently using</li>
 </ul>
 
@@ -180,9 +149,8 @@ password: async (&#123; request, locals &#125;) =&gt; &#123;
 
 <ol>
 	<li>
-		<strong>Revoke individual session</strong> — Deletes a specific session from the database. If
-		the revoked session is the current one, the <code>auth_session</code> cookie is also cleared, effectively
-		logging the user out.
+		<strong>Revoke individual session</strong> — Deletes a specific session from the database. The current
+		session cannot be revoked here; use logout instead.
 	</li>
 	<li>
 		<strong>Revoke all other sessions</strong> — Keeps the current session active but deletes every other
@@ -192,47 +160,37 @@ password: async (&#123; request, locals &#125;) =&gt; &#123;
 
 <pre><code class="language-ts"
 		>// Revoke a single session
-revokeSession: async (&#123; request, locals, cookies &#125;) =&gt; &#123;
-  const formData = await request.formData();
-  const sessionId = formData.get("sessionId");
+revokeSession: async (&#123; request, locals &#125;) =&gt; &#123;
+  // Scope the lookup to the current user so one user can't revoke another's session.
+  const target = db
+    .select(&#123; token: sessions.token &#125;)
+    .from(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.userId, locals.user.id)))
+    .get();
+  if (!target) return fail(404, &#123; message: "Session not found" &#125;);
 
-  await db.delete(sessions).where(
-    and(eq(sessions.id, sessionId), eq(sessions.userId, locals.user.id))
-  );
-
-  // If revoking current session, clear the cookie
-  if (sessionId === locals.session.id) &#123;
-    deleteSessionCookie(cookies);
-  &#125;
-
-  return &#123; success: true, message: "Session revoked" &#125;;
+  await auth.api.revokeSession(&#123; body: &#123; token: target.token &#125;, headers: request.headers &#125;);
+  return &#123; success: true, action: "session" &#125;;
 &#125;
 
 // Revoke all other sessions
-revokeAllOtherSessions: async (&#123; locals &#125;) =&gt; &#123;
-  await db.delete(sessions).where(
-    and(
-      eq(sessions.userId, locals.user.id),
-      ne(sessions.id, locals.session.id)
-    )
-  );
-
-  return &#123; success: true, message: "All other sessions revoked" &#125;;
+revokeAllOtherSessions: async (&#123; request &#125;) =&gt; &#123;
+  await auth.api.revokeOtherSessions(&#123; headers: request.headers &#125;);
+  return &#123; success: true, action: "sessions" &#125;;
 &#125;</code
 	></pre>
 
 <p>
-	The revocation queries always scope to the current user's ID, preventing users from revoking
-	sessions belonging to other accounts. This is enforced at the database query level, not just
-	through UI restrictions.
+	The session lookup always scopes to the current user's ID, preventing users from revoking sessions
+	belonging to other accounts. The bearer <code>token</code> column is never sent to the browser;
+	the page only receives the session <code>id</code>.
 </p>
 
-<h3>Session Metadata Updates</h3>
+<h3>Session Metadata</h3>
 
 <p>
-	Session metadata (user agent, IP address) is updated on <strong>every request</strong> via the
-	<strong>SvelteKit</strong> server hook in <code>hooks.server.ts</code>. This means the Sessions
-	tab always reflects the most recent device and location information, even for long-lived sessions.
+	Better Auth records the user agent and IP address when a session is created. The Sessions tab
+	shows that device information alongside how long ago each session started.
 </p>
 
 <h2>App Settings (Admin-Only)</h2>

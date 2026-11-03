@@ -2,15 +2,15 @@
 	<title>API Reference - SvelteForge Admin Documentation</title>
 	<meta
 		name="description"
-		content="Complete API reference for SvelteForge Admin — auth module, OAuth, database, ID generation, export utilities, and API endpoints. All typed with TypeScript for Svelte 5 and SvelteKit."
+		content="Complete API reference for SvelteForge Admin — Better Auth module, database, ID generation, export utilities, and API endpoints. All typed with TypeScript for Svelte 5 and SvelteKit."
 	/>
 </svelte:head>
 
 <h1>API Reference</h1>
 
 <p>
-	SvelteForge Admin exposes server-side utilities for authentication, database access, data export,
-	and ID generation — all fully typed with TypeScript. These modules power the
+	SvelteForge Admin exposes server-side utilities for authentication (Better Auth), database access,
+	data export, and ID generation — all fully typed with TypeScript. These modules power the
 	<strong>Svelte 5</strong> and <strong>SvelteKit</strong> application and are available for use in your
 	own server routes, form actions, and hooks.
 </p>
@@ -24,191 +24,134 @@
 <h2>Auth Module</h2>
 
 <p>
-	<code>#lib/server/auth.ts</code> — Session management with SHA-256 hashed tokens, automatic
-	session extension, and secure cookie handling. This is the core authentication layer for your
-	<strong>SvelteKit</strong> application.
+	<code>#lib/server/auth.ts</code> — The configured <strong>Better Auth</strong> instance, plus the
+	validation constants and helpers the auth routes share. Better Auth owns sessions, cookies,
+	password verification, OAuth, and password resets; see the
+	<a href="/docs/authentication">Authentication</a> guide for the full configuration.
 </p>
 
-<h3><code>generateSessionToken(): string</code></h3>
+<h3><code>auth</code></h3>
 
 <p>
-	Generates a cryptographically random session token. Uses 20 bytes of randomness encoded as base32
-	(lowercase, no padding).
+	The Better Auth instance (username and admin plugins, <code>sveltekitCookies</code>). Server code
+	calls its <code>auth.api.*</code> methods and passes the request's headers so Better Auth can read
+	the session cookie. A failed call throws an <code>APIError</code>.
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; generateSessionToken &#125; from "#lib/server/auth.js";
+		>import &#123; auth &#125; from "#lib/server/auth.js";
+import &#123; authFailure &#125; from "#lib/server/auth-errors.js";
 
-const token = generateSessionToken();
-// => "4bv7h2xk9qm3np6wr8yta5cj2dfs7g"</code
-	></pre>
-
-<p>
-	Token hashing is an internal implementation detail: sessions use Node’s SHA-256 implementation.
-	Call <code>createSession()</code> and <code>validateSession()</code> rather than importing the private
-	hash helper.
-</p>
-
-<h3><code>createSession(token, userId, metadata): Promise&lt;Session&gt;</code></h3>
-
-<p>
-	Creates a new session in the database. The token is hashed before storage. Metadata (user agent
-	and IP address) is recorded for security auditing.
-</p>
-
-<pre><code class="language-typescript"
-		>import &#123; generateSessionToken, createSession &#125; from "#lib/server/auth.js";
-
-const token = generateSessionToken();
-const session = await createSession(token, user.id, &#123;
-  userAgent: event.request.headers.get("user-agent") || "",
-  ipAddress: event.getClientAddress(),
-&#125;);
-// session.id = SHA-256 hash of token
-// session.expiresAt = Date.now() + 30 days</code
-	></pre>
-
-<h3>
-	<code
-		>validateSession(token): &#123; session, user &#125; | &#123; session: null, user: null &#125;</code
-	>
-</h3>
-
-<p>
-	Validates a session token by hashing it and looking up the session in the database. If the session
-	is valid but less than 15 days from expiry, it is automatically extended for another 30 days.
-	Returns the session and user objects, or <code>null</code> for both if invalid or expired.
-</p>
-
-<pre><code class="language-typescript"
-		>import &#123; validateSession &#125; from "#lib/server/auth.js";
-
-const result = await validateSession(token);
-if (result.session) &#123;
-  // Authenticated — result.user has the SessionUser data
-  console.log(result.user.email, result.user.role);
-&#125; else &#123;
-  // Invalid or expired token
+// In a form action:
+try &#123;
+  await auth.api.changePassword(&#123;
+    body: &#123; currentPassword, newPassword &#125;,
+    headers: request.headers,
+  &#125;);
+&#125; catch (err) &#123;
+  return authFailure(err);
 &#125;</code
 	></pre>
 
-<h3><code>invalidateSession(sessionId: string): Promise&lt;void&gt;</code></h3>
-
-<p>Deletes a single session from the database. Used during logout.</p>
-
-<pre><code class="language-typescript"
-		>import &#123; invalidateSession &#125; from "#lib/server/auth.js";
-
-await invalidateSession(session.id);</code
-	></pre>
+<h3><code>authFailure(err, fallback?): ActionFailure</code></h3>
 
 <p>
-	To revoke every session for a user, delete their rows with Drizzle. There is no exported <code
-		>invalidateAllSessions()</code
-	> helper.
+	From <code>#lib/server/auth-errors.ts</code>. Converts a Better Auth <code>APIError</code> into a
+	SvelteKit <code>fail()</code> with the error's status and message. Anything that is not an
+	<code>APIError</code> (including SvelteKit redirects) is rethrown.
 </p>
-<pre><code class="language-ts"
-		>import &#123; db &#125; from "#lib/server/db/index.js";
-import &#123; sessions &#125; from "#lib/server/db/schema.js";
-import &#123; eq &#125; from "drizzle-orm";
 
-await db.delete(sessions).where(eq(sessions.userId, user.id));</code
+<h3>Validation constants</h3>
+
+<pre><code class="language-typescript"
+		>import &#123;
+  USERNAME_PATTERN, // /^[a-z0-9_-]+$/
+  USERNAME_MIN,     // 3
+  USERNAME_MAX,     // 31
+  PASSWORD_MIN,     // 8
+  PASSWORD_MAX,     // 255
+&#125; from "#lib/server/auth.js";</code
 	></pre>
-<h3><code>setSessionCookie(cookies, token, expiresAt): void</code></h3>
+
+<h3><code>getSession</code> and session cookies</h3>
 
 <p>
-	Sets the session cookie on the response. The cookie is <code>httpOnly</code>,
-	<code>sameSite=lax</code>, <code>path=/</code>, and <code>secure</code> in production (outside development
-	mode).
+	You rarely call these yourself: <code>hooks.server.ts</code> runs
+	<code>auth.api.getSession()</code> on every request and fills <code>event.locals</code>. The
+	cookie is named <code>better-auth.session_token</code> and is signed with
+	<code>BETTER_AUTH_SECRET</code>. Sign out with
+	<code>auth.api.signOut(&#123; headers &#125;)</code>, which deletes the session row and clears the
+	cookie.
 </p>
 
-<pre><code class="language-typescript"
-		>import &#123; setSessionCookie &#125; from "#lib/server/auth.js";
-
-setSessionCookie(event.cookies, token, session.expiresAt);</code
-	></pre>
-
-<h3><code>deleteSessionCookie(cookies): void</code></h3>
-
-<p>Clears the session cookie by setting it to an empty value with an immediate expiry.</p>
-
-<pre><code class="language-typescript"
-		>import &#123; deleteSessionCookie &#125; from "#lib/server/auth.js";
-
-deleteSessionCookie(event.cookies);</code
-	></pre>
+<p>
+	To revoke every other session for the current user, call
+	<code>auth.api.revokeOtherSessions(&#123; headers: request.headers &#125;)</code>. To revoke one
+	session, call
+	<code>auth.api.revokeSession(&#123; body: &#123; token &#125;, headers &#125;)</code>
+	with the row's <code>token</code>.
+</p>
 
 <h3>Type: <code>SessionUser</code></h3>
 
 <p>
-	The user object returned by <code>validateSession()</code> and available in
-	<code>event.locals.user</code> throughout your <strong>SvelteKit</strong> application:
+	The user object available in <code>event.locals.user</code> throughout your
+	<strong>SvelteKit</strong> application. It is Better Auth's session user with
+	<code>username</code>
+	and <code>role</code> narrowed to the types the <code>users</code> table guarantees:
 </p>
 
 <pre><code class="language-typescript"
-		>type SessionUser = &#123;
-  id: string;
-  email: string;
+		>type SessionUser = Omit&lt;BetterAuthSessionUser, "username" | "role"&gt; &amp; &#123;
   username: string;
-  name: string;
   role: "admin" | "editor" | "viewer";
-  avatarUrl: string | null;
-&#125;;</code
+&#125;;
+// Includes id, name, email, emailVerified, image (avatar), createdAt, updatedAt, ...</code
 	></pre>
 
-<h2>OAuth Module</h2>
+<h3><code>getEnabledProviders(): ("google" | "github")[]</code></h3>
 
 <p>
-	<code>#lib/server/oauth.ts</code> — Arctic OAuth providers for Google and GitHub. Providers are
-	conditionally initialized based on environment variables, making OAuth entirely optional in your
-	<strong>SvelteKit</strong> deployment.
-</p>
-
-<h3><code>google: Google | null</code></h3>
-
-<p>
-	Arctic Google OAuth provider instance. Returns <code>null</code> when
-	<code>GOOGLE_CLIENT_ID</code> and <code>GOOGLE_CLIENT_SECRET</code> environment variables are not set.
+	Returns the OAuth providers that are currently configured (both client ID and secret set). Used by
+	the login page to conditionally render social login buttons.
 </p>
 
 <pre><code class="language-typescript"
-		>import &#123; google &#125; from "#lib/server/oauth.js";
-
-if (google) &#123;
-  const url = google.createAuthorizationURL(state, codeVerifier, &#123;
-    scopes: ["openid", "profile", "email"],
-  &#125;);
-&#125;</code
-	></pre>
-
-<h3><code>github: GitHub | null</code></h3>
-
-<p>
-	Arctic GitHub OAuth provider instance. Returns <code>null</code> when
-	<code>GITHUB_CLIENT_ID</code> and <code>GITHUB_CLIENT_SECRET</code> environment variables are not set.
-</p>
-
-<pre><code class="language-typescript"
-		>import &#123; github &#125; from "#lib/server/oauth.js";
-
-if (github) &#123;
-  const url = github.createAuthorizationURL(state, ["user:email", "read:user"]);
-&#125;</code
-	></pre>
-
-<h3><code>getEnabledProviders(): string[]</code></h3>
-
-<p>
-	Returns an array of provider names that are currently configured. Used by the login page to
-	conditionally render social login buttons.
-</p>
-
-<pre><code class="language-typescript"
-		>import &#123; getEnabledProviders &#125; from "#lib/server/oauth.js";
+		>import &#123; getEnabledProviders &#125; from "#lib/server/auth.js";
 
 const providers = getEnabledProviders();
 // => ["google", "github"] or ["google"] or []</code
 	></pre>
+
+<h2>Password and Email Helpers</h2>
+
+<h3>
+	<code>hashPassword(password)</code> / <code>verifyPassword(&#123; hash, password &#125;)</code>
+</h3>
+
+<p>
+	<code>#lib/server/password.ts</code> — Argon2id hashing (19 MiB, 2 iterations) kept from v1 and registered
+	with Better Auth, so existing hashes keep working. This module has no SvelteKit imports, so scripts
+	such as the seeder and the v2 migration can use it.
+</p>
+
+<h3><code>sendAuthEmail(&#123; to, subject, text, url &#125;)</code></h3>
+
+<p>
+	<code>#lib/server/email.ts</code> — Every auth email (password reset, email-change confirmation,
+	verification) goes through this one function. The default implementation logs the message and link
+	to the server console and, when <code>AUTH_EMAIL_OUTBOX</code> is set, appends it as a JSON line to
+	that file. Replace the body with your email provider.
+</p>
+
+<h3>Permissions</h3>
+
+<p>
+	<code>#lib/permissions.ts</code> exports <code>ac</code> (access control statements) and
+	<code>roles</code> (<code>admin</code>, <code>editor</code>, <code>viewer</code>) for the admin
+	plugin. Only admins can list, create, update, delete, ban, or change the role of users and list or
+	revoke sessions. No role can impersonate users in the free edition.
+</p>
 
 <h2>Database</h2>
 
@@ -260,7 +203,7 @@ const user = await db.query.users.findFirst(&#123;
 		</tr>
 		<tr>
 			<td><code>sessions</code></td>
-			<td>Active sessions with hashed tokens, expiry, and metadata</td>
+			<td>Active Better Auth sessions with token, expiry, and metadata</td>
 		</tr>
 		<tr>
 			<td><code>pages</code></td>
@@ -271,16 +214,20 @@ const user = await db.query.users.findFirst(&#123;
 			<td>User and global notifications with read/unread tracking</td>
 		</tr>
 		<tr>
-			<td><code>oauthAccounts</code></td>
-			<td>Linked OAuth provider accounts (Google, GitHub)</td>
+			<td><code>accounts</code></td>
+			<td
+				>Login methods per user: credential (Argon2id password) and OAuth links (Google, GitHub)</td
+			>
 		</tr>
 		<tr>
 			<td><code>appSettings</code></td>
 			<td>Key-value application configuration</td>
 		</tr>
 		<tr>
-			<td><code>passwordResetTokens</code></td>
-			<td>Time-limited password reset tokens with hashed values</td>
+			<td><code>verifications</code></td>
+			<td
+				>Short-lived hashed tokens for password resets, email-change confirmations, and OAuth state</td
+			>
 		</tr>
 	</tbody>
 </table>
@@ -298,9 +245,9 @@ const user = await db.query.users.findFirst(&#123;
   Session,
   Page,
   Notification,
-  OAuthAccount,
+  Account,
+  Verification,
   AppSetting,
-  PasswordResetToken,
 &#125; from "#lib/server/db/schema.js";</code
 	></pre>
 
@@ -314,9 +261,9 @@ const user = await db.query.users.findFirst(&#123;
 <h3><code>generateId(length?: number): string</code></h3>
 
 <p>
-	Generates a cryptographically random ID using <code>crypto.getRandomValues()</code>, encoded as
-	base32 lowercase without padding. Default length is 15 bytes, producing a 24-character string with
-	120 bits of entropy.
+	Generates a cryptographically random ID using <code>node:crypto</code>'s
+	<code>randomBytes()</code>, encoded as base32 lowercase without padding. Default length is 15
+	bytes, producing a 24-character string with 120 bits of entropy.
 </p>
 
 <pre><code class="language-typescript"
@@ -327,8 +274,8 @@ const shortId = generateId(10);    // 16 chars, 80 bits of entropy</code
 	></pre>
 
 <p>
-	Used for all entity IDs: users, sessions, pages, notifications, OAuth accounts, password reset
-	tokens, and app settings.
+	Used for application row IDs: pages, notifications, and seed data. The auth tables (users,
+	sessions, accounts, verifications) use Better Auth's own ID generator.
 </p>
 
 <h2>Export Utilities</h2>
@@ -458,7 +405,21 @@ const classes = cn(
 
 <h2>API Endpoints</h2>
 
-<p>SvelteForge Admin includes two API endpoints accessible via standard HTTP requests.</p>
+<p>
+	SvelteForge Admin includes a few API endpoints accessible via standard HTTP requests, plus Better
+	Auth's own endpoints under <code>/api/auth/*</code>.
+</p>
+
+<h3><code>/api/auth/*</code></h3>
+
+<p>
+	Handled by Better Auth through <code>svelteKitHandler</code> in <code>hooks.server.ts</code>. The
+	important ones for setup are the OAuth callbacks (<code>/api/auth/callback/google</code> and
+	<code>/api/auth/callback/github</code>) and the password reset link handler. The app's own forms
+	call <code>auth.api.*</code> directly, but the HTTP endpoints are live too, which is why the
+	demo-account and last-admin guards are implemented in Better Auth's <code>hooks.before</code> rather
+	than in the form actions.
+</p>
 
 <h3><code>GET /api/search?q=&#123;query&#125;</code></h3>
 
