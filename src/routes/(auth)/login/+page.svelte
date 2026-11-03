@@ -38,9 +38,9 @@
 					<strong>Sign in</strong> to explore (read-only).
 				</p>
 			</div>
-			{#if form?.message}
+			{#if form?.message || data.oauthError}
 				<div class="bg-destructive/10 text-destructive mb-4 rounded-md p-3 text-sm">
-					{form.message}
+					{form?.message ?? data.oauthError}
 				</div>
 			{/if}
 			<form method="POST" use:enhance class="space-y-4">

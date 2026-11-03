@@ -1,7 +1,7 @@
 import { db } from "#lib/server/db/index.js";
 import { pages } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
-import { generateId } from "#lib/server/auth.js";
+import { generateId } from "#lib/server/id.js";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async () => {

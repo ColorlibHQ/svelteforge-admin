@@ -1,50 +1,45 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	createTestDb,
 	createTestUser,
 	createFormData,
 	createMockRequest,
+	type TestDb,
 } from "#lib/server/db/test-utils.js";
-import { users } from "#lib/server/db/schema.js";
+import { accounts, users } from "#lib/server/db/schema.js";
 
-let testDb: ReturnType<typeof createTestDb>;
-vi.mock("#lib/server/db/index.js", () => ({
-	get db() {
-		return testDb;
-	},
-}));
-vi.mock("#lib/server/auth.js", async () => ({
-	generateId: (await import("#lib/server/id.js")).generateId,
-	generateSessionToken: () => "test-token",
-	createSession: vi.fn(async () => ({ expiresAt: Date.now() + 86400000 })),
-	setSessionCookie: vi.fn(),
-}));
+let testDb: TestDb;
+vi.mock("#lib/server/db/index.js", async () =>
+	(await import("#lib/server/db/test-utils.js")).mockDbModule(() => testDb)
+);
 
 const { actions } = await import("./+page.server.js");
 
-describe("Registration permissions", () => {
+function registerEvent(username: string, overrides: Record<string, string> = {}) {
+	return {
+		request: createMockRequest(
+			createFormData({
+				name: "New User",
+				email: `${username}@test.com`,
+				username,
+				password: "password123",
+				...overrides,
+			})
+		),
+	} as Parameters<typeof actions.default>[0];
+}
+
+async function register(username: string) {
+	await expect(actions.default(registerEvent(username))).rejects.toMatchObject({
+		status: 302,
+		location: "/",
+	});
+}
+
+describe("Registration", () => {
 	beforeEach(() => {
 		testDb = createTestDb();
 	});
-	afterEach(() => {
-		testDb.$client.close();
-	});
-
-	async function register(username: string) {
-		const event = {
-			request: createMockRequest(
-				createFormData({
-					name: "New User",
-					email: `${username}@test.com`,
-					username,
-					password: "password123",
-				})
-			),
-			cookies: {},
-			getClientAddress: () => "127.0.0.1",
-		} as Parameters<typeof actions.default>[0];
-		await expect(actions.default(event)).rejects.toMatchObject({ status: 302, location: "/" });
-	}
 
 	it("gives admin access only to the first registered user", async () => {
 		await register("firstuser");
@@ -67,5 +62,24 @@ describe("Registration permissions", () => {
 				.all()
 				.map((user) => user.role)
 		).toEqual(["viewer", "viewer"]);
+	});
+
+	it("stores an Argon2id hash on a credential account", async () => {
+		await register("hashcheck");
+		const account = testDb.select().from(accounts).get();
+		expect(account?.providerId).toBe("credential");
+		expect(account?.password).toMatch(/^\$argon2id\$/);
+	});
+
+	it("rejects a taken username", async () => {
+		await register("taken");
+		const result: any = await actions.default(registerEvent("taken", { email: "other@test.com" }));
+		expect(result.status).toBeGreaterThanOrEqual(400);
+		expect(testDb.select().from(users).all()).toHaveLength(1);
+	});
+
+	it("rejects passwords shorter than 8 characters", async () => {
+		const result: any = await actions.default(registerEvent("shortpw", { password: "1234567" }));
+		expect(result.status).toBe(400);
 	});
 });

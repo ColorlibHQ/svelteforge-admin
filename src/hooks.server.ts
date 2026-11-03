@@ -1,49 +1,27 @@
 import type { Handle } from "@sveltejs/kit/hooks";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from "$app/env";
 
-import {
-	validateSession,
-	setSessionCookie,
-	deleteSessionCookie,
-	SESSION_COOKIE_NAME,
-} from "#lib/server/auth.js";
-import { db } from "#lib/server/db/index.js";
-import { sessions } from "#lib/server/db/schema.js";
-import { eq } from "drizzle-orm";
+import { auth, type SessionUser } from "#lib/server/auth.js";
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const token = event.cookies.get(SESSION_COOKIE_NAME);
-	if (!token) {
-		event.locals.user = null;
-		event.locals.session = null;
-		return resolve(event);
-	}
+	event.locals.user = null;
+	event.locals.session = null;
 
-	try {
-		const { session, user } = await validateSession(token);
-
-		if (session) {
-			// Refresh cookie with current expiresAt (handles auto-extension)
-			setSessionCookie(event.cookies, token, session.expiresAt);
-
-			// Update session metadata
-			const ua = event.request.headers.get("user-agent");
-			const ip = event.getClientAddress();
-			await db
-				.update(sessions)
-				.set({ userAgent: ua, ipAddress: ip })
-				.where(eq(sessions.id, session.id));
-		} else {
-			deleteSessionCookie(event.cookies);
+	if (!building) {
+		try {
+			const result = await auth.api.getSession({ headers: event.request.headers });
+			if (result) {
+				event.locals.user = result.user as SessionUser;
+				event.locals.session = result.session;
+			}
+		} catch (err) {
+			// DB error or corrupt cookie — continue as unauthenticated.
+			console.error("Session lookup failed:", err);
 		}
-
-		event.locals.user = user;
-		event.locals.session = session;
-	} catch {
-		// DB error or corrupt session — clear the cookie and continue as unauthenticated
-		deleteSessionCookie(event.cookies);
-		event.locals.user = null;
-		event.locals.session = null;
 	}
 
-	return resolve(event);
+	// Serves Better Auth's endpoints under /api/auth/* (OAuth callbacks, password-reset
+	// links, …) and passes every other request on to SvelteKit.
+	return svelteKitHandler({ event, resolve, auth, building });
 };

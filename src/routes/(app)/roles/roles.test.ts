@@ -5,16 +5,15 @@ import {
 	createMockLocals,
 	createFormData,
 	createMockRequest,
+	createAuthHeaders,
 } from "#lib/server/db/test-utils.js";
 
 let testDb: ReturnType<typeof createTestDb>;
 let adminId: string;
 
-vi.mock("#lib/server/db/index.js", () => ({
-	get db() {
-		return testDb;
-	},
-}));
+vi.mock("#lib/server/db/index.js", async () =>
+	(await import("#lib/server/db/test-utils.js")).mockDbModule(() => testDb)
+);
 
 const { load, actions } = await import("./+page.server.js");
 
@@ -69,7 +68,7 @@ describe("Roles page", () => {
 			});
 
 			const result = await actions.changeRole({
-				request: createMockRequest(formData),
+				request: createMockRequest(formData, await createAuthHeaders(adminId)),
 				locals: createMockLocals(adminId),
 			} as any);
 
@@ -89,7 +88,7 @@ describe("Roles page", () => {
 			});
 
 			const result = await actions.changeRole({
-				request: createMockRequest(formData),
+				request: createMockRequest(formData, await createAuthHeaders(adminId)),
 				locals: createMockLocals(adminId),
 			} as any);
 

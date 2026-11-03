@@ -35,3 +35,21 @@ export async function expectCardTitle(page: Page, text: string) {
 		page.locator('[data-slot="card-title"]').filter({ hasText: text }).first()
 	).toBeVisible();
 }
+
+/** Most recent auth email sent to `to`, read from the AUTH_EMAIL_OUTBOX file. */
+export async function lastEmailTo(to: string): Promise<{ subject: string; url: string }> {
+	const { readFile } = await import("node:fs/promises");
+	const outbox = process.env.AUTH_EMAIL_OUTBOX;
+	if (!outbox) throw new Error("AUTH_EMAIL_OUTBOX is not set");
+	for (let attempt = 0; attempt < 20; attempt++) {
+		const lines = (await readFile(outbox, "utf8").catch(() => "")).trim().split("\n");
+		const match = lines
+			.filter(Boolean)
+			.map((line) => JSON.parse(line))
+			.reverse()
+			.find((email) => email.to === to);
+		if (match) return match;
+		await new Promise((r) => setTimeout(r, 250));
+	}
+	throw new Error(`No auth email sent to ${to}`);
+}

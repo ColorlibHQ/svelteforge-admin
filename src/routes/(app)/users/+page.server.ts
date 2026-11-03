@@ -1,9 +1,17 @@
 import { db } from "#lib/server/db/index.js";
-import { users } from "#lib/server/db/schema.js";
+import { users, ROLES, type Role } from "#lib/server/db/schema.js";
+import {
+	auth,
+	PASSWORD_MAX,
+	PASSWORD_MIN,
+	USERNAME_MAX,
+	USERNAME_MIN,
+	USERNAME_PATTERN,
+} from "#lib/server/auth.js";
+import { authFailure } from "#lib/server/auth-errors.js";
 import { fail, redirect } from "@sveltejs/kit";
-import { hash } from "@node-rs/argon2";
-import { generateId } from "#lib/server/auth.js";
-import { eq, sql, inArray } from "drizzle-orm";
+import { isAPIError } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -24,6 +32,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return { users: allUsers, currentUserId: locals.user.id };
 };
 
+function isRole(value: unknown): value is Role {
+	return typeof value === "string" && (ROLES as readonly string[]).includes(value);
+}
+
+// Better Auth's admin plugin re-checks permissions (src/lib/permissions.ts) and the
+// last-admin rules (hooks.before in src/lib/server/auth.ts); this early return just
+// gives a clear message without a round trip.
 function requireAdmin(locals: App.Locals) {
 	if (locals.user?.role !== "admin") {
 		return fail(403, { message: "Admin access required" });
@@ -50,42 +65,38 @@ export const actions: Actions = {
 		}
 		if (
 			typeof username !== "string" ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
+			username.length < USERNAME_MIN ||
+			username.length > USERNAME_MAX ||
+			!USERNAME_PATTERN.test(username)
 		) {
 			return fail(400, {
-				message:
-					"Username must be 3-31 characters, lowercase letters, numbers, hyphens, underscores",
+				message: `Username must be ${USERNAME_MIN}-${USERNAME_MAX} characters, lowercase letters, numbers, hyphens, underscores`,
 			});
 		}
-		if (typeof password !== "string" || password.length < 6 || password.length > 255) {
-			return fail(400, { message: "Password must be 6-255 characters" });
+		if (
+			typeof password !== "string" ||
+			password.length < PASSWORD_MIN ||
+			password.length > PASSWORD_MAX
+		) {
+			return fail(400, { message: `Password must be ${PASSWORD_MIN}-${PASSWORD_MAX} characters` });
 		}
-		if (typeof role !== "string" || !["admin", "editor", "viewer"].includes(role)) {
+		if (!isRole(role)) {
 			return fail(400, { message: "Invalid role" });
 		}
 
-		const passwordHash = await hash(password, {
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1,
-		});
-
-		const userId = generateId(10);
-
 		try {
-			await db.insert(users).values({
-				id: userId,
-				email: email.toLowerCase(),
-				username: username.toLowerCase(),
-				passwordHash,
-				name,
-				role: role as "admin" | "editor" | "viewer",
+			await auth.api.createUser({
+				body: {
+					name,
+					email: email.toLowerCase(),
+					password,
+					role,
+					data: { username: username.toLowerCase(), displayUsername: username },
+				},
+				headers: request.headers,
 			});
-		} catch {
-			return fail(400, { message: "Username or email already taken" });
+		} catch (err) {
+			return authFailure(err);
 		}
 
 		return { success: true };
@@ -109,34 +120,23 @@ export const actions: Actions = {
 		if (typeof email !== "string" || !email.includes("@") || email.length > 255) {
 			return fail(400, { message: "Valid email is required" });
 		}
-		if (typeof role !== "string" || !["admin", "editor", "viewer"].includes(role)) {
+		if (!isRole(role)) {
 			return fail(400, { message: "Invalid role" });
 		}
 
-		// Prevent demotion of last admin
-		const [existing] = await db.select({ role: users.role }).from(users).where(eq(users.id, id));
-		if (existing?.role === "admin" && role !== "admin") {
-			const [adminCount] = await db
-				.select({ count: sql<number>`count(*)` })
-				.from(users)
-				.where(eq(users.role, "admin"));
-			if (adminCount.count <= 1) {
-				return fail(400, { message: "Cannot demote the last admin" });
-			}
-		}
-
 		try {
-			await db
-				.update(users)
-				.set({
-					name,
-					email: email.toLowerCase(),
-					role: role as "admin" | "editor" | "viewer",
-					updatedAt: new Date(),
-				})
-				.where(eq(users.id, id));
-		} catch {
-			return fail(400, { message: "Email already taken" });
+			const current = db.select({ role: users.role }).from(users).where(eq(users.id, id)).get();
+			if (!current) return fail(404, { message: "User not found" });
+			if (current.role !== role) {
+				// Runs the last-admin guard in auth.ts hooks.before.
+				await auth.api.setRole({ body: { userId: id, role }, headers: request.headers });
+			}
+			await auth.api.adminUpdateUser({
+				body: { userId: id, data: { name, email: email.toLowerCase() } },
+				headers: request.headers,
+			});
+		} catch (err) {
+			return authFailure(err);
 		}
 
 		return { success: true };
@@ -157,22 +157,12 @@ export const actions: Actions = {
 			return fail(400, { message: "You cannot delete your own account" });
 		}
 
-		// Prevent deletion of last admin
-		const [target] = await db.select({ role: users.role }).from(users).where(eq(users.id, id));
-		if (target?.role === "admin") {
-			const [adminCount] = await db
-				.select({ count: sql<number>`count(*)` })
-				.from(users)
-				.where(eq(users.role, "admin"));
-			if (adminCount.count <= 1) {
-				return fail(400, { message: "Cannot delete the last admin" });
-			}
-		}
-
 		try {
-			await db.delete(users).where(eq(users.id, id));
-		} catch {
-			return fail(400, { message: "Cannot delete user — they may have related content" });
+			// Better Auth removes the user's sessions and accounts too. Last-admin and
+			// authored-content checks run in auth.ts hooks.before.
+			await auth.api.removeUser({ body: { userId: id }, headers: request.headers });
+		} catch (err) {
+			return authFailure(err);
 		}
 
 		return { success: true };
@@ -198,16 +188,26 @@ export const actions: Actions = {
 		}
 
 		// Check if any targets are the last admin
-		const admins = await db.select({ id: users.id }).from(users).where(eq(users.role, "admin"));
+		const admins = db.select({ id: users.id }).from(users).where(eq(users.role, "admin")).all();
 		const remainingAdmins = admins.filter((a) => !toDelete.includes(a.id));
 		if (remainingAdmins.length === 0) {
 			return fail(400, { message: "Cannot delete all admin users" });
 		}
 
-		try {
-			await db.delete(users).where(inArray(users.id, toDelete));
-		} catch {
-			return fail(400, { message: "Cannot delete some users — they may have related content" });
+		const failures: string[] = [];
+		for (const userId of toDelete) {
+			try {
+				await auth.api.removeUser({ body: { userId }, headers: request.headers });
+			} catch (err) {
+				if (!isAPIError(err)) throw err;
+				failures.push(err.body?.message ?? "Unknown error");
+			}
+		}
+		if (failures.length > 0) {
+			const deleted = toDelete.length - failures.length;
+			return fail(400, {
+				message: `Deleted ${deleted} of ${toDelete.length} users. Some could not be deleted: ${[...new Set(failures)].join("; ")}`,
+			});
 		}
 
 		return { success: true };

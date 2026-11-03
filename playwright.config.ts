@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 process.env.DATABASE_URL = resolve(".svelte-kit/e2e.db");
 process.env.ORIGIN = "http://localhost:4173";
 process.env.DEMO_MODE = "false";
+process.env.AUTH_EMAIL_OUTBOX = resolve(".svelte-kit/e2e-outbox.jsonl");
+process.env.BETTER_AUTH_SECRET ??= "e2e-only-secret-not-for-production-use-0123456789";
 
 export default defineConfig({
 	testDir: "e2e",

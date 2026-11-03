@@ -1,15 +1,16 @@
 import { fileURLToPath } from "node:url";
 import { db } from "./index.js";
-import { users, pages, notifications, appSettings, sessions } from "./schema.js";
-import { hash } from "@node-rs/argon2";
+import {
+	users,
+	accounts,
+	verifications,
+	pages,
+	notifications,
+	appSettings,
+	sessions,
+} from "./schema.js";
+import { hashPassword } from "../password.js";
 import { generateId } from "../id.js";
-
-const ARGON2_CONFIG = {
-	memoryCost: 19456,
-	timeCost: 2,
-	outputLen: 32,
-	parallelism: 1,
-};
 
 function daysAgo(n: number): Date {
 	return new Date(Date.now() - n * 86400000);
@@ -28,13 +29,15 @@ export async function seedDemo() {
 	db.delete(notifications).run();
 	db.delete(pages).run();
 	db.delete(sessions).run();
+	db.delete(accounts).run();
+	db.delete(verifications).run();
 	db.delete(appSettings).run();
 	db.delete(users).run();
 
 	// --- USERS ---
 	// ~50 users with accelerating signups over 12 months (realistic growth curve)
 	console.log("Creating users...");
-	const passwordHash = await hash("password123", ARGON2_CONFIG);
+	const passwordHash = await hashPassword("password123");
 
 	const userData = [
 		// Demo account — what the login page pre-fills. Viewer role so visitors
@@ -422,14 +425,24 @@ export async function seedDemo() {
 			editorIds.push(id);
 		}
 		const userPasswordHash =
-			"password" in u && u.password ? await hash(u.password, ARGON2_CONFIG) : passwordHash;
+			"password" in u && u.password ? await hashPassword(u.password) : passwordHash;
 		await db.insert(users).values({
 			id,
 			name: u.name,
 			email: u.email,
 			username: u.username,
-			passwordHash: userPasswordHash,
+			displayUsername: u.username,
 			role: u.role,
+			createdAt: daysAgo(u.daysAgo),
+			updatedAt: daysAgo(u.daysAgo),
+		});
+		// Better Auth keeps email/password logins in `accounts` (providerId "credential").
+		await db.insert(accounts).values({
+			id: generateId(10),
+			accountId: id,
+			providerId: "credential",
+			userId: id,
+			password: userPasswordHash,
 			createdAt: daysAgo(u.daysAgo),
 			updatedAt: daysAgo(u.daysAgo),
 		});

@@ -7,6 +7,7 @@ export default async function setup() {
 		throw new Error("E2E setup requires the dedicated test database");
 	mkdirSync(".svelte-kit", { recursive: true });
 	for (const suffix of ["", "-wal", "-shm"]) rmSync(`${database}${suffix}`, { force: true });
+	if (process.env.AUTH_EMAIL_OUTBOX) rmSync(process.env.AUTH_EMAIL_OUTBOX, { force: true });
 	execFileSync("pnpm", ["db:push"], { stdio: "inherit", env: process.env });
 	const { seedDemo } = await import("../src/lib/server/db/seed.js");
 	await seedDemo();

@@ -1,24 +1,17 @@
 import { redirect } from "@sveltejs/kit";
-import * as arctic from "arctic";
-import { github } from "#lib/server/oauth.js";
+import { auth, getEnabledProviders } from "#lib/server/auth.js";
 import type { RequestHandler } from "./$types.js";
 
-export const GET: RequestHandler = async ({ cookies }) => {
-	if (!github) {
-		redirect(302, "/login");
-	}
+// Starts the GitHub OAuth flow. Better Auth stores the state/PKCE verifier and handles
+// the provider's redirect at /api/auth/callback/github.
+export const GET: RequestHandler = async ({ request }) => {
+	if (!getEnabledProviders().includes("github")) redirect(302, "/login");
 
-	const state = arctic.generateState();
-	const scopes = ["user:email", "read:user"];
-	const url = github.createAuthorizationURL(state, scopes);
-
-	cookies.set("github_oauth_state", state, {
-		httpOnly: true,
-		sameSite: "lax",
-		secure: true,
-		path: "/",
-		maxAge: 60 * 10,
+	const { url } = await auth.api.signInSocial({
+		body: { provider: "github", callbackURL: "/", errorCallbackURL: "/login?error=oauth" },
+		headers: request.headers,
 	});
+	if (!url) redirect(302, "/login?error=oauth");
 
-	redirect(302, url.toString(), { external: [url.origin] });
+	redirect(302, url, { external: [new URL(url).origin] });
 };

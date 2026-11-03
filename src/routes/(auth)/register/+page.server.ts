@@ -1,13 +1,13 @@
-import {
-	generateSessionToken,
-	createSession,
-	setSessionCookie,
-	generateId,
-} from "#lib/server/auth.js";
-import { db } from "#lib/server/db/index.js";
-import { users } from "#lib/server/db/schema.js";
 import { fail, redirect } from "@sveltejs/kit";
-import { hash } from "@node-rs/argon2";
+import {
+	auth,
+	PASSWORD_MAX,
+	PASSWORD_MIN,
+	USERNAME_MAX,
+	USERNAME_MIN,
+	USERNAME_PATTERN,
+} from "#lib/server/auth.js";
+import { authFailure } from "#lib/server/auth-errors.js";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies, getClientAddress }) => {
+	default: async ({ request }) => {
 		const formData = await request.formData();
 		const name = formData.get("name");
 		const email = formData.get("email");
@@ -30,57 +30,32 @@ export const actions: Actions = {
 		}
 		if (
 			typeof username !== "string" ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
+			username.length < USERNAME_MIN ||
+			username.length > USERNAME_MAX ||
+			!USERNAME_PATTERN.test(username)
 		) {
 			return fail(400, {
-				message:
-					"Username must be 3-31 characters, lowercase letters, numbers, hyphens, underscores",
+				message: `Username must be ${USERNAME_MIN}-${USERNAME_MAX} characters, lowercase letters, numbers, hyphens, underscores`,
 			});
 		}
-		if (typeof password !== "string" || password.length < 6 || password.length > 255) {
-			return fail(400, { message: "Password must be 6-255 characters" });
+		if (
+			typeof password !== "string" ||
+			password.length < PASSWORD_MIN ||
+			password.length > PASSWORD_MAX
+		) {
+			return fail(400, { message: `Password must be ${PASSWORD_MIN}-${PASSWORD_MAX} characters` });
 		}
-
-		const passwordHash = await hash(password, {
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1,
-		});
-
-		const userId = generateId(10);
 
 		try {
-			// Serialize the first-user check and insert, including concurrent registrations.
-			db.transaction(
-				(tx) => {
-					tx.insert(users)
-						.values({
-							id: userId,
-							email: email.toLowerCase(),
-							username: username.toLowerCase(),
-							passwordHash,
-							name,
-							role: tx.select({ id: users.id }).from(users).limit(1).get() ? "viewer" : "admin",
-						})
-						.run();
-				},
-				{ behavior: "immediate" }
-			);
-		} catch {
-			return fail(400, { message: "Username or email already taken" });
+			// Creates the user + credential account and signs them in. The first account
+			// on a fresh install is promoted to admin by a databaseHook in auth.ts.
+			await auth.api.signUpEmail({
+				body: { name, email: email.toLowerCase(), username, password },
+				headers: request.headers,
+			});
+		} catch (err) {
+			return authFailure(err);
 		}
-
-		const token = generateSessionToken();
-		const ua = request.headers.get("user-agent");
-		const ip = getClientAddress();
-		const session = await createSession(token, userId, {
-			userAgent: ua,
-			ipAddress: ip,
-		});
-		setSessionCookie(cookies, token, session.expiresAt);
 
 		redirect(302, "/");
 	},

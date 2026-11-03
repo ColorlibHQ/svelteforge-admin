@@ -1,7 +1,8 @@
+import { auth } from "#lib/server/auth.js";
+import { authFailure } from "#lib/server/auth-errors.js";
 import { db } from "#lib/server/db/index.js";
-import { users } from "#lib/server/db/schema.js";
+import { users, ROLES, type Role } from "#lib/server/db/schema.js";
 import { fail } from "@sveltejs/kit";
-import { eq, sql } from "drizzle-orm";
 import type { Actions, PageServerLoad } from "./$types.js";
 
 const roleDefinitions = [
@@ -58,26 +59,20 @@ export const actions: Actions = {
 		if (typeof userId !== "string") {
 			return fail(400, { message: "User ID is required" });
 		}
-		if (typeof newRole !== "string" || !["admin", "editor", "viewer"].includes(newRole)) {
+		if (typeof newRole !== "string" || !(ROLES as readonly string[]).includes(newRole)) {
 			return fail(400, { message: "Invalid role" });
 		}
 
-		// Prevent demotion of last admin
-		const [target] = await db.select({ role: users.role }).from(users).where(eq(users.id, userId));
-		if (target?.role === "admin" && newRole !== "admin") {
-			const [adminCount] = await db
-				.select({ count: sql<number>`count(*)` })
-				.from(users)
-				.where(eq(users.role, "admin"));
-			if (adminCount.count <= 1) {
-				return fail(400, { message: "Cannot demote the last admin" });
-			}
+		try {
+			// The admin plugin checks the caller's permission; the last-admin guard runs in
+			// auth.ts hooks.before.
+			await auth.api.setRole({
+				body: { userId, role: newRole as Role },
+				headers: request.headers,
+			});
+		} catch (err) {
+			return authFailure(err);
 		}
-
-		await db
-			.update(users)
-			.set({ role: newRole as "admin" | "editor" | "viewer", updatedAt: new Date() })
-			.where(eq(users.id, userId));
 
 		return { success: true };
 	},

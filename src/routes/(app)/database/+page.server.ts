@@ -1,5 +1,13 @@
 import { db } from "#lib/server/db/index.js";
-import { users, sessions, pages, notifications, appSettings } from "#lib/server/db/schema.js";
+import {
+	users,
+	sessions,
+	accounts,
+	verifications,
+	pages,
+	notifications,
+	appSettings,
+} from "#lib/server/db/schema.js";
 import { sql } from "drizzle-orm";
 import { error, redirect } from "@sveltejs/kit";
 import { statSync } from "fs";
@@ -15,6 +23,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	// Get table row counts
 	const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
 	const [sessionsCount] = await db.select({ count: sql<number>`count(*)` }).from(sessions);
+	const [accountsCount] = await db.select({ count: sql<number>`count(*)` }).from(accounts);
+	const [verificationsCount] = await db
+		.select({ count: sql<number>`count(*)` })
+		.from(verifications);
 	const [pagesCount] = await db.select({ count: sql<number>`count(*)` }).from(pages);
 	const [notificationsCount] = await db
 		.select({ count: sql<number>`count(*)` })
@@ -37,6 +49,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const tables = [
 		{ name: "users", rows: usersCount.count },
 		{ name: "sessions", rows: sessionsCount.count },
+		{ name: "accounts", rows: accountsCount.count },
+		{ name: "verifications", rows: verificationsCount.count },
 		{ name: "pages", rows: pagesCount.count },
 		{ name: "notifications", rows: notificationsCount.count },
 		{ name: "app_settings", rows: settingsCount.count },

@@ -1,7 +1,7 @@
 {
 	"name": "svelteforge-admin",
 	"private": true,
-	"version": "1.4.0",
+	"version": "2.0.0",
 	"type": "module",
 	"packageManager": "pnpm@12.9.1",
 	"scripts": {
@@ -15,6 +15,7 @@
 		"db:push": "drizzle-kit push --config=./drizzle.config.ts",
 		"db:studio": "drizzle-kit studio --config=./drizzle.config.ts",
 		"db:seed": "tsx src/lib/server/db/seed.ts",
+		"db:migrate-v2": "tsx src/lib/server/db/migrate-v2-auth.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
@@ -65,8 +66,7 @@
 	},
 	"dependencies": {
 		"@node-rs/argon2": "^2.2.1",
-		"@oslojs/encoding": "^1.1.0",
-		"arctic": "^3.7.0",
+		"better-auth": "1.7.15",
 		"better-sqlite3": "^13.0.3",
 		"clsx": "^2.1.1",
 		"drizzle-orm": "^0.45.3",

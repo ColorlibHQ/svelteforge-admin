@@ -39,6 +39,9 @@
 				resetDemo: "Demo data reset",
 			};
 			toast.success(messages[form.action as string] ?? "Saved");
+			if (form.action === "profile" && "emailPending" in form && form.emailPending) {
+				toast.info("Check your current inbox to confirm the new email address.");
+			}
 		}
 	});
 
@@ -161,7 +164,7 @@
 								id="newPassword"
 								name="newPassword"
 								type="password"
-								placeholder="6+ characters"
+								placeholder="8+ characters"
 								required
 							/>
 						</div>

@@ -1,32 +1,17 @@
 import { redirect } from "@sveltejs/kit";
-import * as arctic from "arctic";
-import { google } from "#lib/server/oauth.js";
+import { auth, getEnabledProviders } from "#lib/server/auth.js";
 import type { RequestHandler } from "./$types.js";
 
-export const GET: RequestHandler = async ({ cookies }) => {
-	if (!google) {
-		redirect(302, "/login");
-	}
+// Starts the Google OAuth flow. Better Auth stores the state/PKCE verifier and handles
+// the provider's redirect at /api/auth/callback/google.
+export const GET: RequestHandler = async ({ request }) => {
+	if (!getEnabledProviders().includes("google")) redirect(302, "/login");
 
-	const state = arctic.generateState();
-	const codeVerifier = arctic.generateCodeVerifier();
-	const scopes = ["openid", "profile", "email"];
-	const url = google.createAuthorizationURL(state, codeVerifier, scopes);
-
-	cookies.set("google_oauth_state", state, {
-		httpOnly: true,
-		sameSite: "lax",
-		secure: true,
-		path: "/",
-		maxAge: 60 * 10,
+	const { url } = await auth.api.signInSocial({
+		body: { provider: "google", callbackURL: "/", errorCallbackURL: "/login?error=oauth" },
+		headers: request.headers,
 	});
-	cookies.set("google_oauth_code_verifier", codeVerifier, {
-		httpOnly: true,
-		sameSite: "lax",
-		secure: true,
-		path: "/",
-		maxAge: 60 * 10,
-	});
+	if (!url) redirect(302, "/login?error=oauth");
 
-	redirect(302, url.toString(), { external: [url.origin] });
+	redirect(302, url, { external: [new URL(url).origin] });
 };

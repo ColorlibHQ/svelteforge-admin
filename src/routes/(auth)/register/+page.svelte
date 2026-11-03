@@ -72,7 +72,7 @@
 						id="password"
 						name="password"
 						type="password"
-						placeholder="6+ characters"
+						placeholder="8+ characters"
 						required
 						autocomplete="new-password"
 					/>

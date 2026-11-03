@@ -7,7 +7,6 @@ import type { PageServerLoad } from "./$types.js";
 export const load: PageServerLoad = async ({ locals }) => {
 	if (!locals.user) redirect(302, "/login");
 
-	const now = Date.now();
 	const thisMonthStart = new Date();
 	thisMonthStart.setDate(1);
 	thisMonthStart.setHours(0, 0, 0, 0);
@@ -22,7 +21,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const [activeSessionCount] = await db
 		.select({ count: sql<number>`count(*)` })
 		.from(sessions)
-		.where(gt(sessions.expiresAt, now));
+		.where(gt(sessions.expiresAt, new Date()));
 	const [pageCount] = await db.select({ count: sql<number>`count(*)` }).from(pages);
 	const [unreadCount] = await db
 		.select({ count: sql<number>`count(*)` })

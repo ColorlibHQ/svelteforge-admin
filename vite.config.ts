@@ -24,6 +24,6 @@ export default defineConfig(({ mode }) => {
 		ssr: {
 			noExternal: ["layerchart", "svelte-ux"],
 		},
-		test: { include: ["src/**/*.test.ts"] },
+		test: { include: ["src/**/*.test.ts"], setupFiles: ["src/test-setup.ts"] },
 	};
 });
