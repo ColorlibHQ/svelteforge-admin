@@ -5,7 +5,7 @@ export async function login(page: Page, username = "admin", password = "password
 	await page.fill('input[name="username"]', username);
 	await page.fill('input[name="password"]', password);
 	await page.click('button[type="submit"]');
-	await page.waitForURL("/");
+	await waitForAppShell(page);
 }
 
 export async function register(
@@ -18,7 +18,16 @@ export async function register(
 	await page.fill('input[name="username"]', username);
 	await page.fill('input[name="password"]', password);
 	await page.click('button[type="submit"]');
+	await waitForAppShell(page);
+}
+
+/**
+ * SvelteKit updates the URL before the next page has rendered, so `waitForURL("/")`
+ * can resolve while the auth form is still on screen. Wait for the app shell too.
+ */
+export async function waitForAppShell(page: Page) {
 	await page.waitForURL("/");
+	await page.locator("#logout-form").waitFor({ state: "attached" });
 }
 
 export async function expectHeading(page: Page, text: string) {

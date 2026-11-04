@@ -50,7 +50,7 @@ pnpm format:check     # Prettier (check only)
 Routes use SvelteKit route groups for layout separation:
 
 - `(app)/` — Protected routes behind the app shell. Auth guard in `(app)/+layout.server.ts` redirects unauthenticated users to `/login`. Features: dashboard (`+page`), `users/`, `roles/`, `content/` (CMS — list, `new/`, `[id]/edit/`), `analytics/`, `notifications/`, `database/`, `settings/`
-- `(auth)/` — Public auth routes: `login/` (+ OAuth callbacks at `login/google/`, `login/github/`), `register/`, `forgot-password/`, `reset-password/`, `lock/` (re-auth screen, requires an existing session)
+- `(auth)/` — Public auth routes: `login/` (+ OAuth start routes `login/google/`, `login/github/`; callbacks are Better Auth's `/api/auth/callback/*`), `register/`, `forgot-password/`, `reset-password/`, `lock/` (re-auth screen, requires an existing session)
 - `(public)/` — Public pages (pricing)
 - `docs/` — **Ungrouped, so NOT auth-guarded** — a public, statically-rendered documentation site (its own `+layout.svelte`, ~17 pages). Anything placed outside a `(group)/` is reachable without a session
 - `logout/` — Standalone logout action (server-only)
@@ -139,6 +139,6 @@ If a feature request sounds premium-tier (multi-tenancy, billing, 2FA, passkeys,
 
 ### Deployment
 
-Builds with `@sveltejs/adapter-node`. SvelteKit configuration lives in `vite.config.ts`; set `ORIGIN` before building (`paths.origin` is compiled into the server). `BETTER_AUTH_SECRET` is needed at runtime only — the server refuses to start in production without it, but `vite build` uses a placeholder. `.github/workflows/deploy.yml` deploys on push to `main` only after the reusable CI workflow passes. It builds for the demo origin, syncs `build/`, `src/`, and dependency/configuration files to Hetzner, installs dependencies there, and restarts PM2. `/api/health` exposes the app version and build commit; deployment verifies it matches the pushed commit. Keep `DEMO_MODE` and `BETTER_AUTH_SECRET` in the server's environment (`.env` loaded by PM2 via `--env-file`) so they survive restarts. The deployment does not seed or reset the live database.
+Builds with `@sveltejs/adapter-node`. SvelteKit configuration lives in `vite.config.ts`; set `ORIGIN` before building (`paths.origin` is compiled into the server). `BETTER_AUTH_SECRET` is needed at runtime only — the server refuses to start in production without it, but `vite build` uses a placeholder. `.github/workflows/deploy.yml` deploys on push to `main` only after the reusable CI workflow passes. It builds for the demo origin, syncs `build/`, `src/`, and dependency/configuration files to the demo server, installs dependencies there, checks `BETTER_AUTH_SECRET` is in the server `.env`, runs `pnpm db:migrate-v2` (a no-op once the DB is on v2), and restarts PM2. `/api/health` exposes the app version and build commit; deployment verifies it matches the pushed commit. Keep `DEMO_MODE` and `BETTER_AUTH_SECRET` in the server's environment (`.env` loaded by PM2 via `--env-file`) so they survive restarts. The deployment does not seed or reset the live database.
 
 `scripts/` holds Playwright tooling for marketing screenshots (`screenshot.ts`, `add-browser-frame.ts`) — outputs to `screenshots/`, unrelated to the app runtime.

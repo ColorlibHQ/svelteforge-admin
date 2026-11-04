@@ -51,6 +51,10 @@ jobs:
             cd /var/www/svelteforge
             rm -f svelte.config.js
             pnpm install --frozen-lockfile
+            # v2 requires BETTER_AUTH_SECRET; refuse to restart into a crash loop without it.
+            grep -q '^BETTER_AUTH_SECRET=.' .env || { echo "BETTER_AUTH_SECRET missing from /var/www/svelteforge/.env"; exit 1; }
+            # One-time v1 -> v2 auth migration (backs up first); a no-op on later deploys.
+            pnpm db:migrate-v2
             pm2 restart svelteforge --node-args="--env-file=.env" --update-env
 
       - name: Verify deployed release
