@@ -2,6 +2,26 @@
 
 All notable changes to SvelteForge Admin are documented here.
 
+## v2.0.1 -- November 2026
+
+### Fixed
+
+- Breadcrumbs on `/content/<id>/edit` no longer link to the non-existent `/content/<id>`.
+- Docs pages no longer overflow horizontally at 390px (tables scroll, inline code wraps).
+- The app content column has `min-w-0` and the database stat grid a base `grid-cols-1`,
+  so wide content cannot push the layout sideways on phones.
+
+### Changed
+
+- Refresh dependencies, including SvelteKit 3.2, Better Auth 1.7.25, LayerChart 2.10.1,
+  tailwind-variants 4, bits-ui 2.21, Vitest 5.1 and Vite 8.3.8. `pnpm audit` is clean
+  (parent-scoped overrides for two transitive dev advisories).
+  TypeScript stays at 6.0.3 because svelte-check and typescript-eslint do not support 7 yet.
+- Playwright's server port can be set with `E2E_PORT` (default 4173).
+- Verified locally: 58 unit tests, 42 Chromium tests, type checking, lint, format check,
+  production build, and a crawl of every route at 1440px and 390px (light and dark) with no
+  console errors or failed requests.
+
 ## v2.0.0 -- November 2026
 
 Authentication now runs on [Better Auth](https://better-auth.com) instead of custom

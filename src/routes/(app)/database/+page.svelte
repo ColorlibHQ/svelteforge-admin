@@ -28,7 +28,7 @@
 		<p class="text-muted-foreground">Monitor your database status and table statistics.</p>
 	</div>
 
-	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<Card.Root>
 			<Card.Header class="flex flex-row items-center justify-between space-y-0 pb-2">
 				<Card.Title class="text-sm font-medium">Database Size</Card.Title>

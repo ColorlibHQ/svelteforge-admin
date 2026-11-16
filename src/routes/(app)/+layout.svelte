@@ -12,15 +12,29 @@
 
 	let { children, data } = $props();
 
+	const linkable = new Set([
+		"/analytics",
+		"/content",
+		"/database",
+		"/notifications",
+		"/roles",
+		"/settings",
+		"/users",
+	]);
+
 	function getBreadcrumbs() {
 		const path = page.url.pathname;
 		if (path === "/") return [{ label: "Dashboard", href: "/" }];
 
 		const segments = path.split("/").filter(Boolean);
-		return segments.map((segment, i) => ({
-			label: segment.charAt(0).toUpperCase() + segment.slice(1),
-			href: "/" + segments.slice(0, i + 1).join("/"),
-		}));
+		return segments.map((segment, i) => {
+			const href = "/" + segments.slice(0, i + 1).join("/");
+			return {
+				label: segment.charAt(0).toUpperCase() + segment.slice(1),
+				// Only link parents that are real routes (e.g. /content/<id> has no page).
+				href: i < segments.length - 1 && !linkable.has(href) ? null : href,
+			};
+		});
 	}
 </script>
 
@@ -34,13 +48,15 @@
 			<Separator orientation="vertical" class="mr-2 !h-4" />
 			<Breadcrumb.Root>
 				<Breadcrumb.List>
-					{#each getBreadcrumbs() as crumb, i (crumb.href)}
+					{#each getBreadcrumbs() as crumb, i (i)}
 						{#if i > 0}
 							<Breadcrumb.Separator />
 						{/if}
 						<Breadcrumb.Item>
 							{#if i === getBreadcrumbs().length - 1}
 								<Breadcrumb.Page>{crumb.label}</Breadcrumb.Page>
+							{:else if crumb.href === null}
+								<span class="text-muted-foreground">{crumb.label}</span>
 							{:else}
 								<Breadcrumb.Link href={crumb.href}>{crumb.label}</Breadcrumb.Link>
 							{/if}
@@ -60,7 +76,7 @@
 			</div>
 		</header>
 
-		<main class="flex-1 p-4 md:p-6">
+		<main class="min-w-0 flex-1 p-4 md:p-6">
 			{@render children()}
 		</main>
 	</Sidebar.Inset>
