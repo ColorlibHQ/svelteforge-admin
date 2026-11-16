@@ -189,7 +189,9 @@
 
 			<!-- Main Content -->
 			<main class="min-w-0 py-8">
-				<article class="prose prose-zinc dark:prose-invert max-w-none">
+				<article
+					class="prose prose-zinc dark:prose-invert prose-table:block prose-table:overflow-x-auto max-w-none [&_:not(pre)>code]:wrap-anywhere"
+				>
 					{@render children()}
 				</article>
 			</main>
